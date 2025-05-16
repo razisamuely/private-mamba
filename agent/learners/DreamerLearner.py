@@ -149,3 +149,7 @@ class DreamerLearner:
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip)
         opt.step()
+
+    def save_model(self,path):
+        torch.save(self.params(), path)
+        print(f"Model saved to {path}")

@@ -13,7 +13,7 @@ Agents are no more permant entities in the environment. Now agents will be remov
 Start positions of agents are *not unique* anymore. This means that many agents can start from the same position on the railway grid. It is important to keep in mind that whatever agent moves first will block the rest of the agents from moving into the same cell. Thus, the controller can already decide the ordering of the agents from the first step.
 
 ## Level Generation
-The levels are now generated using the `sparse_rail_generator` and the `sparse_schedule_generator`
+The levels are now generated using the `sparse_rail_generator` and the `sparse_line_generator`
 ### Rail Generation
 The rail generation is done in a sequence of steps:
 1. A number of city centers are placed in a a grid of size `(height, width)`
@@ -22,7 +22,7 @@ The rail generation is done in a sequence of steps:
 
 
 ### Schedule Generation
-The `sparse_schedule_generator` produces tasks for the agents by selecting a starting city and a target city. The agent is then placed on an even track number on the starting city and faced such that a path exists to the target city. The task for the agent is to reach the target position as fast as possible.
+The `sparse_line_generator` produces tasks for the agents by selecting a starting city and a target city. The agent is then placed on an even track number on the starting city and faced such that a path exists to the target city. The task for the agent is to reach the target position as fast as possible.
 
 In the future we will update how these schedules are generated to allow for more complex tasks
 

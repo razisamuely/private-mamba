@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from flatland.envs.agent_utils import RailAgentStatus
+from flatland.envs.agent_utils import TrainState
 
 _NEARINF = 1e3
 
@@ -15,9 +15,9 @@ class NearRewardShaper():
 
     def _get_new_dist(self, env, handle):
         agent = env.agents[handle]
-        if agent.status in (RailAgentStatus.DONE, RailAgentStatus.DONE_REMOVED):
+        if agent.status in (TrainState.DONE, TrainState.DONE_REMOVED):
             return 0
-        if agent.status == RailAgentStatus.READY_TO_DEPART:
+        if agent.status == TrainState.READY_TO_DEPART:
             position = agent.initial_position
             direction = agent.initial_direction
         else:

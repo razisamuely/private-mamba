@@ -350,9 +350,9 @@ Beyond the basic agent information we can also access more details about the age
 
 - Agent max speed :code:`agent.speed_data["speed"]` wich defines the traveling speed when the agent is moving.
 - Agent position fraction :code:`agent.speed_data["position_fraction"]` which is a number between 0 and 1 and indicates when the move to the next cell will occur. Each speed of an agent is 1 or a smaller fraction. At each :code:`env.step()` the agent moves at its fractional speed forwards and only changes to the next cell when the cumulated fractions are :code:`agent.speed_data["position_fraction"] >= 1.`
-- Agent can move at different speed which can be set up by modifying the agent.speed_data within the schedule_generator. For example refer this _Link_Schedule_Generators.
+- Agent can move at different speed which can be set up by modifying the agent.speed_data within the schedule_generator. For example refer this _Link_line_generators.
 
-.. _Link_Schedule_Generators: https://gitlab.aicrowd.com/flatland/flatland/blob/master/flatland/envs/schedule_generators.py#L59
+.. _Link_line_generators: https://gitlab.aicrowd.com/flatland/flatland/blob/master/flatland/envs/line_generators.py#L59
 
 **Agent malfunction information**
 

@@ -8,7 +8,6 @@ from configs.Config import Config
 
 RSSM_STATE_MODE = 'discrete'
 
-
 class DreamerConfig(Config):
     def __init__(self):
         super().__init__()
@@ -35,6 +34,9 @@ class DreamerConfig(Config):
         self.DISCOUNT_LAMBDA = 0.95
         self.IN_DIM = 30
         self.LOG_FOLDER = 'wandb/'
+
+
+
 
 
 @dataclass

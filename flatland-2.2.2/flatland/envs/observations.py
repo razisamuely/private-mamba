@@ -11,7 +11,7 @@ from flatland.core.env_observation_builder import ObservationBuilder
 from flatland.core.env_prediction_builder import PredictionBuilder
 from flatland.core.grid.grid4_utils import get_new_position
 from flatland.core.grid.grid_utils import coordinate_to_position
-from flatland.envs.agent_utils import RailAgentStatus, EnvAgent
+from flatland.envs.agent_utils import TrainState, EnvAgent
 from flatland.utils.ordered_set import OrderedSet
 
 
@@ -84,7 +84,7 @@ class TreeObsForRailEnv(ObservationBuilder):
         # Update local lookup table for all agents' positions
         # ignore other agents not in the grid (only status active and done)
         # self.location_has_agent = {tuple(agent.position): 1 for agent in self.env.agents if
-        #                         agent.status in [RailAgentStatus.ACTIVE, RailAgentStatus.DONE]}
+        #                         agent.status in [TrainState.ACTIVE, TrainState.DONE]}
 
         self.location_has_agent = {}
         self.location_has_agent_direction = {}
@@ -93,7 +93,7 @@ class TreeObsForRailEnv(ObservationBuilder):
         self.location_has_agent_ready_to_depart = {}
 
         for _agent in self.env.agents:
-            if _agent.status in [RailAgentStatus.ACTIVE, RailAgentStatus.DONE] and \
+            if _agent.status in [TrainState.ACTIVE, TrainState.DONE] and \
                 _agent.position:
                 self.location_has_agent[tuple(_agent.position)] = 1
                 self.location_has_agent_direction[tuple(_agent.position)] = _agent.direction
@@ -101,7 +101,7 @@ class TreeObsForRailEnv(ObservationBuilder):
                 self.location_has_agent_malfunction[tuple(_agent.position)] = _agent.malfunction_data[
                     'malfunction']
 
-            if _agent.status in [RailAgentStatus.READY_TO_DEPART] and \
+            if _agent.status in [TrainState.READY_TO_DEPART] and \
                 _agent.initial_position:
                 self.location_has_agent_ready_to_depart[tuple(_agent.initial_position)] = \
                     self.location_has_agent_ready_to_depart.get(tuple(_agent.initial_position), 0) + 1
@@ -193,11 +193,11 @@ class TreeObsForRailEnv(ObservationBuilder):
             print("ERROR: obs _get - handle ", handle, " len(agents)", len(self.env.agents))
         agent = self.env.agents[handle]  # TODO: handle being treated as index
 
-        if agent.status == RailAgentStatus.READY_TO_DEPART:
+        if agent.status == TrainState.READY_TO_DEPART:
             agent_virtual_position = agent.initial_position
-        elif agent.status == RailAgentStatus.ACTIVE:
+        elif agent.status == TrainState.ACTIVE:
             agent_virtual_position = agent.position
-        elif agent.status == RailAgentStatus.DONE:
+        elif agent.status == TrainState.DONE:
             agent_virtual_position = agent.target
         else:
             return None
@@ -337,7 +337,7 @@ class TreeObsForRailEnv(ObservationBuilder):
                                 self._reverse_dir(
                                     self.predicted_dir[predicted_time][ca])] == 1 and tot_dist < potential_conflict:
                                 potential_conflict = tot_dist
-                            if self.env.agents[ca].status == RailAgentStatus.DONE and tot_dist < potential_conflict:
+                            if self.env.agents[ca].status == TrainState.DONE and tot_dist < potential_conflict:
                                 potential_conflict = tot_dist
 
                     # Look for conflicting paths at distance num_step-1
@@ -348,7 +348,7 @@ class TreeObsForRailEnv(ObservationBuilder):
                                 and cell_transitions[self._reverse_dir(self.predicted_dir[pre_step][ca])] == 1 \
                                 and tot_dist < potential_conflict:  # noqa: E125
                                 potential_conflict = tot_dist
-                            if self.env.agents[ca].status == RailAgentStatus.DONE and tot_dist < potential_conflict:
+                            if self.env.agents[ca].status == TrainState.DONE and tot_dist < potential_conflict:
                                 potential_conflict = tot_dist
 
                     # Look for conflicting paths at distance num_step+1
@@ -359,7 +359,7 @@ class TreeObsForRailEnv(ObservationBuilder):
                                 self.predicted_dir[post_step][ca])] == 1 \
                                 and tot_dist < potential_conflict:  # noqa: E125
                                 potential_conflict = tot_dist
-                            if self.env.agents[ca].status == RailAgentStatus.DONE and tot_dist < potential_conflict:
+                            if self.env.agents[ca].status == TrainState.DONE and tot_dist < potential_conflict:
                                 potential_conflict = tot_dist
 
             if position in self.location_has_target and position != agent.target:
@@ -564,11 +564,11 @@ class GlobalObsForRailEnv(ObservationBuilder):
     def get(self, handle: int = 0) -> (np.ndarray, np.ndarray, np.ndarray):
 
         agent = self.env.agents[handle]
-        if agent.status == RailAgentStatus.READY_TO_DEPART:
+        if agent.status == TrainState.READY_TO_DEPART:
             agent_virtual_position = agent.initial_position
-        elif agent.status == RailAgentStatus.ACTIVE:
+        elif agent.status == TrainState.ACTIVE:
             agent_virtual_position = agent.position
-        elif agent.status == RailAgentStatus.DONE:
+        elif agent.status == TrainState.DONE:
             agent_virtual_position = agent.target
         else:
             return None
@@ -589,7 +589,7 @@ class GlobalObsForRailEnv(ObservationBuilder):
             other_agent: EnvAgent = self.env.agents[i]
 
             # ignore other agents not in the grid any more
-            if other_agent.status == RailAgentStatus.DONE_REMOVED:
+            if other_agent.status == TrainState.DONE_REMOVED:
                 continue
 
             obs_targets[other_agent.target][1] = 1
@@ -602,7 +602,7 @@ class GlobalObsForRailEnv(ObservationBuilder):
                 obs_agents_state[other_agent.position][2] = other_agent.malfunction_data['malfunction']
                 obs_agents_state[other_agent.position][3] = other_agent.speed_data['speed']
             # fifth channel: all ready to depart on this position
-            if other_agent.status == RailAgentStatus.READY_TO_DEPART:
+            if other_agent.status == TrainState.READY_TO_DEPART:
                 obs_agents_state[other_agent.initial_position][4] += 1
         return self.rail_obs, obs_agents_state, obs_targets
 

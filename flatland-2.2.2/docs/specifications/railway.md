@@ -402,7 +402,7 @@ def sparse_rail_generator(num_cities=5, num_intersections=4, num_trainstations=2
 ```
 And, similarly, `ScheduleGenerator`s:
 ```python
-def sparse_schedule_generator(speed_ratio_map: Mapping[float, float] = None) -> ScheduleGenerator:
+def sparse_line_generator(speed_ratio_map: Mapping[float, float] = None) -> ScheduleGenerator:
     def generator(rail: GridTransitionMap, num_agents: int, hints: Any = None):
         # place agents:
         # - initial position
@@ -568,7 +568,7 @@ env = RailEnv(width=50,
                                                    grid_mode=True,
                                                    enhance_intersection=True
                                                    ),
-              schedule_generator=sparse_schedule_generator(speed_ration_map),
+              schedule_generator=sparse_line_generator(speed_ration_map),
               number_of_agents=10,
               stochastic_data=stochastic_data,  # Malfunction data generator
               obs_builder_object=tree_observation)

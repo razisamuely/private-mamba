@@ -2,7 +2,7 @@ import ray
 import wandb
 
 from agent.workers.DreamerWorker import DreamerWorker
-
+from pathlib import Path
 
 class DreamerServer:
     def __init__(self, n_workers, env_config, controller_config, model):
@@ -45,4 +45,8 @@ class DreamerRunner:
             if cur_episode >= max_episodes or cur_steps >= max_steps:
                 break
             self.server.append(info['idx'], self.learner.params())
+            if cur_episode % 5 == 0:
+                model_path = Path(wandb.run.dir) / f"model_episod_{cur_episode}.pt"
+                self.learner.save_model(model_path)
+
 

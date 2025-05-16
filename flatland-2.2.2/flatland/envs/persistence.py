@@ -13,7 +13,7 @@ from flatland.core.env_observation_builder import DummyObservationBuilder
 #from flatland.core.grid.grid4_utils import get_new_position
 #from flatland.core.grid.grid_utils import IntVector2D
 from flatland.core.transition_map import GridTransitionMap
-from flatland.envs.agent_utils import Agent, EnvAgent, RailAgentStatus
+from flatland.envs.agent_utils import Agent, EnvAgent, TrainState
 from flatland.envs.distance_map import DistanceMap
 
 #from flatland.envs.observations import GlobalObsForRailEnv
@@ -21,7 +21,7 @@ from flatland.envs.distance_map import DistanceMap
 # cannot import objects / classes directly because of circular import
 from flatland.envs import malfunction_generators as mal_gen
 from flatland.envs import rail_generators as rail_gen
-from flatland.envs import schedule_generators as sched_gen
+from flatland.envs import line_generators as sched_gen
 
 msgpack_numpy.patch()
 

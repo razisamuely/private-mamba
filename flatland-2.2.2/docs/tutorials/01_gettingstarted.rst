@@ -130,7 +130,7 @@ We start by importing the necessary Flatland libraries
 .. code-block:: python
 
     from flatland.envs.rail_generators import complex_rail_generator
-    from flatland.envs.schedule_generators import complex_schedule_generator
+    from flatland.envs.line_generators import complex_schedule_generator
     from flatland.envs.rail_env import RailEnv
 
 The complex_rail_generator is used in order to guarantee feasible railway network configurations for training.

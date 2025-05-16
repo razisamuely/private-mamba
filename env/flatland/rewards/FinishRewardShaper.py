@@ -1,4 +1,4 @@
-from flatland.envs.agent_utils import RailAgentStatus
+from flatland.envs.agent_utils import TrainState
 
 class FinishRewardShaper():
     def __init__(self, finish_value):
@@ -9,7 +9,7 @@ class FinishRewardShaper():
 
     def __call__(self, env, observations, action_dict, rewards, dones):
         for handle in rewards.keys():
-            if env.agents[handle].status in (RailAgentStatus.DONE, RailAgentStatus.DONE_REMOVED) \
+            if env.agents[handle].status in (TrainState.DONE, TrainState.DONE_REMOVED) \
                     and not self.already_rewarded[handle]:
                 self.already_rewarded[handle] = True
                 rewards[handle] += self.finish_value

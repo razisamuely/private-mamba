@@ -1,4 +1,4 @@
-from flatland.envs.agent_utils import RailAgentStatus
+from flatland.envs.agent_utils import TrainState
 
 class ShortestPathAgentLauncher():
     def __init__(self, window_size_generator):
@@ -6,7 +6,7 @@ class ShortestPathAgentLauncher():
 
     def _get_dist(self, handle):
         agent = self.env.agents[handle]
-        assert(agent.status == RailAgentStatus.READY_TO_DEPART)
+        assert(agent.status == TrainState.READY_TO_DEPART)
         position = agent.initial_position
         direction = agent.initial_direction
         dist = self.env.distance_map.get()[handle, position[0], position[1], direction]
@@ -24,7 +24,7 @@ class ShortestPathAgentLauncher():
 
     def update(self):
         for handle in range(len(self.env.agents)):
-            if (self.env.agents[handle].status == RailAgentStatus.DONE_REMOVED \
+            if (self.env.agents[handle].status == TrainState.DONE_REMOVED \
                     or self.env.obs_builder.deadlock_checker.is_deadlocked(handle))\
                 and self.ready_to_depart[handle] == 1:
 

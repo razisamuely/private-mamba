@@ -4,7 +4,7 @@ from flatland.envs.observations import TreeObsForRailEnv, LocalObsForRailEnv
 from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 from flatland.envs.rail_env import RailEnv
 from flatland.envs.rail_generators import complex_rail_generator
-from flatland.envs.schedule_generators import complex_schedule_generator
+from flatland.envs.line_generators import complex_schedule_generator
 from flatland.utils.rendertools import RenderTool
 
 np.random.seed(1)

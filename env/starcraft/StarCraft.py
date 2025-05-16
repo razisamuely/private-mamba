@@ -23,8 +23,8 @@ class StarCraft:
         self.env.reset()
         return {i: obs for i, obs in enumerate(self.env.get_obs())}
 
-    def render(self):
-        self.env.render()
+    def render(self, mode="human"):
+        return self.env.render(mode=mode)
 
     def close(self):
         self.env.close()

@@ -15,13 +15,13 @@ from flatland.core.grid.grid4 import Grid4TransitionsEnum, Grid4Transitions
 from flatland.core.grid.grid4_utils import get_new_position
 from flatland.core.grid.grid_utils import IntVector2D
 from flatland.core.transition_map import GridTransitionMap
-from flatland.envs.agent_utils import EnvAgent, RailAgentStatus
+from flatland.envs.agent_utils import EnvAgent, TrainState
 from flatland.envs.distance_map import DistanceMap
 
 # Need to use circular imports for persistence.
 from flatland.envs import malfunction_generators as mal_gen
 from flatland.envs import rail_generators as rail_gen
-from flatland.envs import schedule_generators as sched_gen
+from flatland.envs import line_generators as sched_gen
 from flatland.envs import persistence
 from flatland.envs import agent_chains as ac
 
@@ -32,7 +32,7 @@ from gym.utils import seeding
 # from flatland.envs.malfunction_generators import no_malfunction_generator, Malfunction, MalfunctionProcessData
 # from flatland.envs.observations import GlobalObsForRailEnv
 # from flatland.envs.rail_generators import random_rail_generator, RailGenerator
-# from flatland.envs.schedule_generators import random_schedule_generator, ScheduleGenerator
+# from flatland.envs.line_generators import random_schedule_generator, ScheduleGenerator
 
 
 
@@ -175,12 +175,12 @@ class RailEnv(Environment):
             height and agents handles of a  rail environment, along with the number of times
             the env has been reset, and returns a GridTransitionMap object and a list of
             starting positions, targets, and initial orientations for agent handle.
-            The rail_generator can pass a distance map in the hints or information for specific schedule_generators.
+            The rail_generator can pass a distance map in the hints or information for specific line_generators.
             Implementations can be found in flatland/envs/rail_generators.py
         schedule_generator : function
             The schedule_generator function is a function that takes the grid, the number of agents and optional hints
             and returns a list of starting positions, targets, initial orientations and speed for all agent handles.
-            Implementations can be found in flatland/envs/schedule_generators.py
+            Implementations can be found in flatland/envs/line_generators.py
         width : int
             The width of the rail map. Potentially in the future,
             a range of widths to sample from.
@@ -292,8 +292,8 @@ class RailEnv(Environment):
         return len(self.agents) - 1
 
     def set_agent_active(self, agent: EnvAgent):
-        if agent.status == RailAgentStatus.READY_TO_DEPART and self.cell_free(agent.initial_position):
-            agent.status = RailAgentStatus.ACTIVE
+        if agent.status == TrainState.READY_TO_DEPART and self.cell_free(agent.initial_position):
+            agent.status = TrainState.ACTIVE
             self._set_agent_to_initial_position(agent, agent.initial_position)
 
     def reset_agents(self):
@@ -317,8 +317,8 @@ class RailEnv(Environment):
         True: Agent needs to provide an action
         False: Agent cannot provide an action
         """
-        return (agent.status == RailAgentStatus.READY_TO_DEPART or (
-            agent.status == RailAgentStatus.ACTIVE and fast_isclose(agent.speed_data['position_fraction'], 0.0,
+        return (agent.status == TrainState.READY_TO_DEPART or (
+            agent.status == TrainState.ACTIVE and fast_isclose(agent.speed_data['position_fraction'], 0.0,
                                                                     rtol=1e-03)))
 
     def reset(self, regenerate_rail: bool = True, regenerate_schedule: bool = True, activate_agents: bool = False,
@@ -534,7 +534,7 @@ class RailEnv(Environment):
                 self._step_agent(i_agent, action_dict_.get(i_agent))
 
                 # manage the boolean flag to check if all agents are indeed done (or done_removed)
-                have_all_agents_ended &= (agent.status in [RailAgentStatus.DONE, RailAgentStatus.DONE_REMOVED])
+                have_all_agents_ended &= (agent.status in [TrainState.DONE, TrainState.DONE_REMOVED])
 
                 # Build info dict
                 info_dict["action_required"][i_agent] = self.action_required(agent)
@@ -565,7 +565,7 @@ class RailEnv(Environment):
                 self._step_agent2_cf(i_agent)
 
                 # manage the boolean flag to check if all agents are indeed done (or done_removed)
-                have_all_agents_ended &= (agent.status in [RailAgentStatus.DONE, RailAgentStatus.DONE_REMOVED])
+                have_all_agents_ended &= (agent.status in [TrainState.DONE, TrainState.DONE_REMOVED])
 
                 # Build info dict
                 info_dict["action_required"][i_agent] = self.action_required(agent)
@@ -603,18 +603,18 @@ class RailEnv(Environment):
 
         """
         agent = self.agents[i_agent]
-        if agent.status in [RailAgentStatus.DONE, RailAgentStatus.DONE_REMOVED]:  # this agent has already completed...
+        if agent.status in [TrainState.DONE, TrainState.DONE_REMOVED]:  # this agent has already completed...
             return
 
         # agent gets active by a MOVE_* action and if c
-        if agent.status == RailAgentStatus.READY_TO_DEPART:
+        if agent.status == TrainState.READY_TO_DEPART:
             initial_cell_free = self.cell_free(agent.initial_position)
             is_action_starting = action in [
                 RailEnvActions.MOVE_LEFT, RailEnvActions.MOVE_RIGHT, RailEnvActions.MOVE_FORWARD]
 
             if action in [RailEnvActions.MOVE_LEFT, RailEnvActions.MOVE_RIGHT,
                           RailEnvActions.MOVE_FORWARD] and self.cell_free(agent.initial_position):
-                agent.status = RailAgentStatus.ACTIVE
+                agent.status = TrainState.ACTIVE
                 self._set_agent_to_initial_position(agent, agent.initial_position)
                 self.rewards_dict[i_agent] += self.step_penalty * agent.speed_data['speed']
                 return
@@ -716,7 +716,7 @@ class RailEnv(Environment):
 
             # has the agent reached its target?
             if np.equal(agent.position, agent.target).all():
-                agent.status = RailAgentStatus.DONE
+                agent.status = TrainState.DONE
                 self.dones[i_agent] = True
                 self.active_agents.remove(i_agent)
                 agent.moving = False
@@ -731,11 +731,11 @@ class RailEnv(Environment):
         """ "close following" version of step_agent.
         """
         agent = self.agents[i_agent]
-        if agent.status in [RailAgentStatus.DONE, RailAgentStatus.DONE_REMOVED]:  # this agent has already completed...
+        if agent.status in [TrainState.DONE, TrainState.DONE_REMOVED]:  # this agent has already completed...
             return
 
         # agent gets active by a MOVE_* action and if c
-        if agent.status == RailAgentStatus.READY_TO_DEPART:
+        if agent.status == TrainState.READY_TO_DEPART:
             is_action_starting = action in [
                 RailEnvActions.MOVE_LEFT, RailEnvActions.MOVE_RIGHT, RailEnvActions.MOVE_FORWARD]
 
@@ -844,7 +844,7 @@ class RailEnv(Environment):
     def _step_agent2_cf(self, i_agent):
         agent = self.agents[i_agent]
 
-        if agent.status in [RailAgentStatus.DONE, RailAgentStatus.DONE_REMOVED]:
+        if agent.status in [TrainState.DONE, TrainState.DONE_REMOVED]:
             return
 
         (move, rc_next) = self.motionCheck.check_motion(i_agent, agent.position)
@@ -861,7 +861,7 @@ class RailEnv(Environment):
             if agent.position is None:  # agent is entering the env
                 # print(i_agent, "writing new pos ", rc_next, " into agent position (None)")
                 agent.position = rc_next
-                agent.status = RailAgentStatus.ACTIVE
+                agent.status = TrainState.ACTIVE
                 agent.speed_data['position_fraction'] = 0.0
 
             else:  # normal agent move
@@ -887,7 +887,7 @@ class RailEnv(Environment):
 
             # has the agent reached its target?
             if np.equal(agent.position, agent.target).all():
-                agent.status = RailAgentStatus.DONE
+                agent.status = TrainState.DONE
                 self.dones[i_agent] = True
                 self.active_agents.remove(i_agent)
                 agent.moving = False
@@ -939,7 +939,7 @@ class RailEnv(Environment):
             agent.position = None
             # setting old_position to None here stops the DONE agents from appearing in the rendered image
             agent.old_position = None
-            agent.status = RailAgentStatus.DONE_REMOVED
+            agent.status = TrainState.DONE_REMOVED
 
     def _check_action_on_agent(self, action: RailEnvActions, agent: EnvAgent):
         """

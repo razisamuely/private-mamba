@@ -101,7 +101,7 @@ def complex_schedule_generator(speed_ratio_map: Mapping[float, float] = None, se
     return generator
 
 
-def sparse_schedule_generator(speed_ratio_map: Mapping[float, float] = None, seed: int = 1) -> ScheduleGenerator:
+def sparse_line_generator(speed_ratio_map: Mapping[float, float] = None, seed: int = 1) -> ScheduleGenerator:
     return SparseSchedGen(speed_ratio_map, seed)
 
 
@@ -231,7 +231,7 @@ class RandomSchedGen(BaseSchedGen):
                             agent_targets=[], agent_speeds=[], agent_malfunction_rates=None, max_episode_steps=0)
 
         if len(valid_positions) < num_agents:
-            warnings.warn("schedule_generators: len(valid_positions) < num_agents")
+            warnings.warn("line_generators: len(valid_positions) < num_agents")
             return Schedule(agent_positions=[], agent_directions=[],
                             agent_targets=[], agent_speeds=[], agent_malfunction_rates=None, max_episode_steps=0)
 

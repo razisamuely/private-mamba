@@ -1,6 +1,6 @@
 
 
-import flatland.envs.schedule_generators as sg
+import flatland.envs.line_generators as sg
 import flatland.envs.rail_generators as rg
 import flatland.envs.observations as obs
 from flatland.utils import editor

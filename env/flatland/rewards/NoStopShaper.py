@@ -1,4 +1,4 @@
-from flatland.envs.agent_utils import RailAgentStatus
+from flatland.envs.agent_utils import TrainState
 
 class NoStopShaper():
     def __init__(self, on_switch_value, other_value):
@@ -17,7 +17,7 @@ class NoStopShaper():
 
     def __call__(self, env, observations, action_dict, rewards, dones):
         for handle in rewards.keys():
-            if env.agents[handle].status == RailAgentStatus.ACTIVE \
+            if env.agents[handle].status == TrainState.ACTIVE \
                     and handle in action_dict and action_dict[handle] == 2: # action is stop
                 if env.agents[handle].position in self.switches:
                     rewards[handle] += self.on_switch_value

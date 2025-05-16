@@ -61,7 +61,7 @@ env = RailEnv(width=50,
                                                    grid_mode=True,
                                                    enhance_intersection=True
                                                    ),
-              schedule_generator=sparse_schedule_generator(speed_ration_map),
+              schedule_generator=sparse_line_generator(speed_ration_map),
               number_of_agents=10,
               stochastic_data=stochastic_data,  # Malfunction data generator
               obs_builder_object=tree_observation)

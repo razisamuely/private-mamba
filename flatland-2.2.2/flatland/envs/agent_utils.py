@@ -8,7 +8,7 @@ from flatland.core.grid.grid4 import Grid4TransitionsEnum
 from flatland.envs.schedule_utils import Schedule
 
 
-class RailAgentStatus(IntEnum):
+class TrainState(IntEnum):
     READY_TO_DEPART = 0  # not in grid yet (position is None) -> prediction as if it were at initial position
     ACTIVE = 1  # in grid (position is not None), not done -> prediction is remaining path
     DONE = 2  # in grid (position is not None), but done -> prediction is stay at target forever
@@ -23,7 +23,7 @@ Agent = NamedTuple('Agent', [('initial_position', Tuple[int, int]),
                              ('speed_data', dict),
                              ('malfunction_data', dict),
                              ('handle', int),
-                             ('status', RailAgentStatus),
+                             ('status', TrainState),
                              ('position', Tuple[int, int]),
                              ('old_direction', Grid4TransitionsEnum),
                              ('old_position', Tuple[int, int])])
@@ -53,7 +53,7 @@ class EnvAgent:
 
     handle = attrib(default=None)
 
-    status = attrib(default=RailAgentStatus.READY_TO_DEPART, type=RailAgentStatus)
+    status = attrib(default=TrainState.READY_TO_DEPART, type=TrainState)
     position = attrib(default=None, type=Optional[Tuple[int, int]])
 
     # used in rendering
@@ -67,7 +67,7 @@ class EnvAgent:
         self.position = None
         # TODO: set direction to None: https://gitlab.aicrowd.com/flatland/flatland/issues/280
         self.direction = self.initial_direction
-        self.status = RailAgentStatus.READY_TO_DEPART
+        self.status = TrainState.READY_TO_DEPART
         self.old_position = None
         self.old_direction = None
         self.moving = False

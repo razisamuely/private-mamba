@@ -3,7 +3,7 @@ from flatland.envs.observations import TreeObsForRailEnv
 from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 from flatland.envs.rail_env import RailEnv
 from flatland.envs.rail_generators import rail_from_file
-from flatland.envs.schedule_generators import schedule_from_file
+from flatland.envs.line_generators import schedule_from_file
 
 
 def load_flatland_environment_from_file(file_name: str,

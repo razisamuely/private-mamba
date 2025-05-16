@@ -6,7 +6,7 @@ from typing import Optional, List, Dict
 import numpy as np
 
 from flatland.core.env_observation_builder import ObservationBuilder
-from flatland.envs.agent_utils import RailAgentStatus
+from flatland.envs.agent_utils import TrainState
 
 from env.flatland.Flatland import get_new_position
 
@@ -56,7 +56,7 @@ class TreeObsForRailEnv(ObservationBuilder):
             self.location_with_agent[pos] = -1
         self.prev_step_positions.clear()
         for handle, _agent in enumerate(self.env.agents):
-            if _agent.status == RailAgentStatus.ACTIVE:
+            if _agent.status == TrainState.ACTIVE:
                 self.location_with_agent[_agent.position] = handle
                 self.prev_step_positions.append(_agent.position)
 
@@ -70,11 +70,11 @@ class TreeObsForRailEnv(ObservationBuilder):
             print("ERROR: obs _get - handle ", handle, " len(agents)", len(self.env.agents))
         agent = self.env.agents[handle]
 
-        if agent.status == RailAgentStatus.READY_TO_DEPART:
+        if agent.status == TrainState.READY_TO_DEPART:
             agent_virtual_position = agent.initial_position
-        elif agent.status == RailAgentStatus.ACTIVE:
+        elif agent.status == TrainState.ACTIVE:
             agent_virtual_position = agent.position
-        elif agent.status == RailAgentStatus.DONE:
+        elif agent.status == TrainState.DONE:
             agent_virtual_position = agent.target
         else:
             return None

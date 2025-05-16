@@ -7,7 +7,7 @@ from flatland.core.grid.rail_env_grid import RailEnvTransitions
 from flatland.core.transition_map import GridTransitionMap
 from flatland.envs.rail_env import RailEnv
 from flatland.envs.rail_generators import RailGenerator, RailGeneratorProduct
-from flatland.envs.schedule_generators import ScheduleGenerator
+from flatland.envs.line_generators import ScheduleGenerator
 from flatland.envs.schedule_utils import Schedule
 from flatland.utils.rendertools import RenderTool
 

@@ -7,7 +7,7 @@ from flatland.envs.observations import TreeObsForRailEnv, GlobalObsForRailEnv
 from flatland.envs.predictions import ShortestPathPredictorForRailEnv
 from flatland.envs.rail_env import RailEnv
 from flatland.envs.rail_generators import sparse_rail_generator
-from flatland.envs.schedule_generators import sparse_schedule_generator
+from flatland.envs.line_generators import sparse_line_generator
 from flatland.utils.rendertools import RenderTool, AgentRenderVariant
 
 np.random.seed(1)
@@ -38,7 +38,7 @@ env = RailEnv(width=100,
                                                    max_rails_between_cities=2,
                                                    max_rails_in_city=8,
                                                    ),
-              schedule_generator=sparse_schedule_generator(speed_ration_map),
+              schedule_generator=sparse_line_generator(speed_ration_map),
               number_of_agents=100,
               malfunction_generator_and_process_data=malfunction_from_params(stochastic_data),
               # Malfunction data generator

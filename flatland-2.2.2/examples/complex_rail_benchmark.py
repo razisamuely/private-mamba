@@ -5,7 +5,7 @@ import numpy as np
 
 from flatland.envs.rail_env import RailEnv
 from flatland.envs.rail_generators import complex_rail_generator
-from flatland.envs.schedule_generators import complex_schedule_generator
+from flatland.envs.line_generators import complex_schedule_generator
 
 
 def run_benchmark():

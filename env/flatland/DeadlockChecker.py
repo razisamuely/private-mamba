@@ -1,6 +1,6 @@
 import numpy as np
 from collections import defaultdict
-from flatland.envs.agent_utils import RailAgentStatus
+from flatland.envs.agent_utils import TrainState
 
 from env.flatland.Flatland import get_new_position
 from env.flatland.observations.SimpleObservation import ObservationDecoder
@@ -99,11 +99,11 @@ class DeadlockChecker():
         self.dep = [list() for _ in range(len(self.env.agents))]
         for handle, agent in enumerate(self.env.agents):
             self._old_deadlock[handle] = self._is_deadlocked[handle]
-            if agent.status == RailAgentStatus.ACTIVE:
+            if agent.status == TrainState.ACTIVE:
                 self.agent_positions[agent.position] = handle
         self.checked = [0] * len(self.env.agents)
         for handle, agent in enumerate(self.env.agents):
-            if agent.status == RailAgentStatus.ACTIVE and not self._is_deadlocked[handle] \
+            if agent.status == TrainState.ACTIVE and not self._is_deadlocked[handle] \
                     and not self.checked[handle]:
                 self._check_blocked(handle)
 
@@ -113,7 +113,7 @@ class DeadlockChecker():
     def _far_deadlock(self, handle, observation):
         return
         agent = self.env.agents[handle]
-        if agent.status == RailAgentStatus.DONE_REMOVED or self._is_deadlocked[handle] or self._is_far_deadlocked[handle]:
+        if agent.status == TrainState.DONE_REMOVED or self._is_deadlocked[handle] or self._is_far_deadlocked[handle]:
             return
 
         depth = self.env.obs_builder.max_depth
@@ -138,7 +138,7 @@ class DeadlockChecker():
 
     # deadlock if there are two agents, seeing each other and both not able to choose another way
     def _simplest_deadlock(self, handle, observation):
-        if self.env.agents[handle].status == RailAgentStatus.DONE_REMOVED or self._is_deadlocked[handle] or self._is_far_deadlocked[handle]:
+        if self.env.agents[handle].status == TrainState.DONE_REMOVED or self._is_deadlocked[handle] or self._is_far_deadlocked[handle]:
             return
 
         if ObservationDecoder.is_real(observation, 1): return

@@ -1,7 +1,7 @@
 import numpy as np
 
 from flatland.core.env_observation_builder import ObservationBuilder
-from flatland.envs.agent_utils import RailAgentStatus
+from flatland.envs.agent_utils import TrainState
 from flatland.core.grid.grid4_utils import get_new_position
 
 class ShortPathObs(ObservationBuilder):
@@ -16,9 +16,9 @@ class ShortPathObs(ObservationBuilder):
         agent = self.env.agents[handle]
 
 
-        if agent.status == RailAgentStatus.READY_TO_DEPART:
+        if agent.status == TrainState.READY_TO_DEPART:
             position = agent.initial_position
-        elif agent.status == RailAgentStatus.DONE_REMOVED:
+        elif agent.status == TrainState.DONE_REMOVED:
             return [0, 0, 0]
         else:
             position = agent.position

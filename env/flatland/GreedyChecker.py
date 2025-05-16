@@ -1,7 +1,7 @@
 from collections import defaultdict
 import numpy as np
 
-from flatland.envs.agent_utils import RailAgentStatus
+from flatland.envs.agent_utils import TrainState
 
 from env.flatland.Flatland import get_new_position
 from env.flatland.observations.SimpleObservation import ObservationDecoder
@@ -20,11 +20,11 @@ class GreedyChecker():
 
     def on_switch(self, handle):
         agent = self.env.agents[handle]
-        return agent.status == RailAgentStatus.ACTIVE and (*agent.position, agent.direction) in self.switches
+        return agent.status == TrainState.ACTIVE and (*agent.position, agent.direction) in self.switches
 
     def greedy_position(self, handle):
         agent = self.env.agents[handle]
-        return (not agent.status in (RailAgentStatus.DONE, RailAgentStatus.DONE_REMOVED, RailAgentStatus.READY_TO_DEPART)) \
+        return (not agent.status in (TrainState.DONE, TrainState.DONE_REMOVED, TrainState.READY_TO_DEPART)) \
                 and \
                     (not self.on_decision_cell(*agent.position, agent.direction) or agent.malfunction_data["malfunction"] != 0 \
                             or self.deadlock_checker.is_far_deadlocked(handle)) \

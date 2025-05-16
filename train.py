@@ -9,17 +9,53 @@ from configs.dreamer.DreamerLearnerConfig import DreamerLearnerConfig
 from configs.flatland.TimetableConfigs import AllAgentLauncherConfig
 from env.flatland.params import SeveralAgents, PackOfAgents, LotsOfAgents
 from environments import Env, FlatlandType, FLATLAND_OBS_SIZE, FLATLAND_ACTION_SIZE
+from agent.workers.DreamerWorker import DreamerWorker
+from pathlib import Path
+
+def run_one_process_one_env_debug(exp):
+
+    learner = exp.learner_config.create_learner()
+    dreamer_single_worker = DreamerWorker(0, exp.env_config, exp.controller_config)
+    
+    cur_steps, cur_episode = 0, 0
+    
+    import wandb
+    wandb.define_metric("steps")
+    wandb.define_metric("reward", step_metric="steps")
+    
+    while True:
+        rollout, info = dreamer_single_worker.run(learner.params())
+        
+        learner.step(rollout)
+        
+        cur_steps += info["steps_done"]
+        cur_episode += 1
+        
+        wandb.log({'reward': info["reward"], 'steps': cur_steps})
+        print(f"Episode {cur_episode}, Samples {learner.total_samples}, Reward {info['reward']}")
+        
+        if cur_episode >= exp.episodes or cur_steps >= exp.steps:
+            break
+            
+        if cur_episode % 10 == 0:
+            model_path = Path(wandb.run.dir) / f"model_episode_{cur_episode}.pt"
+            model_path = f"model_episode_{cur_episode}.pt"
+            learner.save_model(model_path)
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--env', type=str, default="flatland", help='Flatland or SMAC env')
-    parser.add_argument('--env_name', type=str, default="5_agents", help='Specific setting')
+    parser.add_argument('--env', type=str, default="starcraft", help='Flatland or SMAC env')
+    parser.add_argument('--env_name', type=str, default="2s_vs_1sc", help='Specific setting')
     parser.add_argument('--n_workers', type=int, default=2, help='Number of workers')
     return parser.parse_args()
 
 
-def train_dreamer(exp, n_workers):
+def train_dreamer(exp, n_workers, debug=True):
+    if debug:
+        run_one_process_one_env_debug(exp)
+        return
+    
     runner = DreamerRunner(exp.env_config, exp.learner_config, exp.controller_config, n_workers)
     runner.run(exp.steps, exp.episodes)
 

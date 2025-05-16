@@ -2,7 +2,7 @@ import torch
 import numpy as np
 from collections import defaultdict
 
-from flatland.envs.agent_utils import RailAgentStatus
+from flatland.envs.agent_utils import TrainState
 
 MOVEMENT_ARRAY = ((-1, 0), (0, 1), (1, 0), (0, -1))
 #  @njit
@@ -58,7 +58,7 @@ class Contradictions():
         self.cur_bad = set()
        
     def is_bad(self, handle, action):
-        if self.env.agents[handle].status == RailAgentStatus.READY_TO_DEPART:
+        if self.env.agents[handle].status == TrainState.READY_TO_DEPART:
             pos = self.env.agents[handle].initial_position
             d = self.env.agents[handle].initial_direction
         else:
@@ -70,7 +70,7 @@ class Contradictions():
         return False
 
     def add_elem(self, handle, action):
-        if self.env.agents[handle].status == RailAgentStatus.READY_TO_DEPART:
+        if self.env.agents[handle].status == TrainState.READY_TO_DEPART:
             pos = self.env.agents[handle].initial_position
         else:
             pos = self.env.agents[handle].position

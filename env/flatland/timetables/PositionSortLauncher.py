@@ -1,4 +1,4 @@
-from flatland.envs.agent_utils import RailAgentStatus
+from flatland.envs.agent_utils import TrainState
 
 
 class PositionSortLauncher():
@@ -34,7 +34,7 @@ class PositionSortLauncher():
 
     def update(self):
         for handle in range(len(self.env.agents)):
-            if (self.env.agents[handle].status == RailAgentStatus.DONE_REMOVED \
+            if (self.env.agents[handle].status == TrainState.DONE_REMOVED \
                     or self.env.obs_builder.deadlock_checker.is_deadlocked(handle))\
                 and self.ready_to_depart[handle] == 1:
 

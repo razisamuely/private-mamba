@@ -10,7 +10,7 @@ from flatland.core.env_observation_builder import ObservationBuilder
 from flatland.core.grid.grid4_utils import get_new_position
 from flatland.envs.rail_env import RailEnv
 from flatland.envs.rail_generators import complex_rail_generator
-from flatland.envs.schedule_generators import complex_schedule_generator
+from flatland.envs.line_generators import complex_schedule_generator
 from flatland.utils.misc import str2bool
 from flatland.utils.rendertools import RenderTool
 

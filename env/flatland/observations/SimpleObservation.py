@@ -2,7 +2,7 @@ from collections import defaultdict, deque
 import numpy as np
 
 from env.flatland.observations.TreeObsForRailEnv import TreeObsForRailEnv
-from flatland.envs.agent_utils import RailAgentStatus
+from flatland.envs.agent_utils import TrainState
 
 from env.flatland.RailGraph import RailGraph
 
@@ -107,7 +107,7 @@ class SimpleObservation(TreeObsForRailEnv):
             self.norm_dist(self.cur_dist),
             self.norm_bool(self.greedy_checker.on_switch(handle)),
             self.norm_bool(_is_near_next_decision(observation)),
-            self.norm_bool(self.env.agents[handle].status == RailAgentStatus.READY_TO_DEPART)
+            self.norm_bool(self.env.agents[handle].status == TrainState.READY_TO_DEPART)
         ])
 
         self.traverse(observation, self.max_depth, observation_vector)
@@ -115,11 +115,11 @@ class SimpleObservation(TreeObsForRailEnv):
 
     def _get_agent_position(self, handle):
         agent = self.env.agents[handle]
-        if agent.status == RailAgentStatus.READY_TO_DEPART:
+        if agent.status == TrainState.READY_TO_DEPART:
             agent_virtual_position = agent.initial_position
-        elif agent.status == RailAgentStatus.ACTIVE:
+        elif agent.status == TrainState.ACTIVE:
             agent_virtual_position = agent.position
-        elif agent.status in (RailAgentStatus.DONE, RailAgentStatus.DONE_REMOVED):
+        elif agent.status in (TrainState.DONE, TrainState.DONE_REMOVED):
             agent_virtual_position = agent.target
         else:
             assert False

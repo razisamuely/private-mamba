@@ -3,10 +3,10 @@
 from enum import IntEnum
 
 from flatland.envs.rail_env import RailEnv
-from flatland.envs.agent_utils import RailAgentStatus
+from flatland.envs.agent_utils import TrainState
 
 from flatland.envs.rail_generators import sparse_rail_generator
-from flatland.envs.schedule_generators import sparse_schedule_generator
+from flatland.envs.line_generators import sparse_line_generator
 from flatland.envs.malfunction_generators import malfunction_from_params, MalfunctionParameters
 
 from flatland.utils.rendertools import RenderTool, AgentRenderVariant
@@ -113,7 +113,7 @@ class FlatlandWrapper():
         agent = self.env.agents[handle]
         position = agent.position
         direction = agent.direction
-        if agent.status == RailAgentStatus.READY_TO_DEPART:
+        if agent.status == TrainState.READY_TO_DEPART:
             position = agent.initial_position
             direction = agent.initial_direction
         
@@ -132,11 +132,11 @@ class FlatlandWrapper():
     def transform_action(self, handle, action):
         self.env.obs_builder.last_action[handle] = action
         if action == 2:
-            if self.env.agents[handle].status == RailAgentStatus.READY_TO_DEPART:
+            if self.env.agents[handle].status == TrainState.READY_TO_DEPART:
                 return -1
             return TrainAction.STOP
 
-        if self.env.agents[handle].status == RailAgentStatus.DONE_REMOVED:
+        if self.env.agents[handle].status == TrainState.DONE_REMOVED:
             return -1
 
         available_actions = self.get_available_actions(handle)
@@ -189,7 +189,7 @@ class Flatland():
         )
 
         speed_ration_map = {1. : 1.}
-        schedule_generator = sparse_schedule_generator(speed_ration_map)
+        schedule_generator = sparse_line_generator(speed_ration_map)
         stochastic_data = MalfunctionParameters(malfunction_rate, min_duration=20, max_duration=50)
 
         self.env = RailEnv(

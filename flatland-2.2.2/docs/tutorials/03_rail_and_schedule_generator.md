@@ -36,7 +36,7 @@ env = RailEnv(
     width=50,
     height=50,
     rail_generator=rail_generator
-    schedule_generator=sparse_schedule_generator(),
+    schedule_generator=sparse_line_generator(),
     number_of_agents=10,
     obs_builder_object=TreeObsForRailEnv(max_depth=3,predictor=shortest_path_predictor)
 )

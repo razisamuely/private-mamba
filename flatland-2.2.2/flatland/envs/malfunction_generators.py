@@ -5,7 +5,7 @@ from typing import Callable, NamedTuple, Optional, Tuple
 import numpy as np
 from numpy.random.mtrand import RandomState
 
-from flatland.envs.agent_utils import EnvAgent, RailAgentStatus
+from flatland.envs.agent_utils import EnvAgent, TrainState
 from flatland.envs import persistence
 
 
@@ -162,7 +162,7 @@ def single_malfunction_generator(earlierst_malfunction: int, malfunction_duratio
             malfunction_calls[agent.handle] = 1
 
         # Break an agent that is active at the time of the malfunction
-        if agent.status == RailAgentStatus.ACTIVE and malfunction_calls[agent.handle] >= earlierst_malfunction:
+        if agent.status == TrainState.ACTIVE and malfunction_calls[agent.handle] >= earlierst_malfunction:
             global_nr_malfunctions += 1
             return Malfunction(malfunction_duration)
         else:

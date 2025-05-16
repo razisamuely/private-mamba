@@ -2,7 +2,7 @@ import ray
 import copy
 
 from env.flatland.Flatland import DelegatedAttribute, TrainAction
-from flatland.envs.agent_utils import RailAgentStatus
+from flatland.envs.agent_utils import TrainState
 from logger import log, init_logger
 
 NUM_CPUS = 4
@@ -96,7 +96,7 @@ class FlatlandParallel():
         agent = self.env.agents[handle]
         position = agent.position
         direction = agent.direction
-        if agent.status == RailAgentStatus.READY_TO_DEPART:
+        if agent.status == TrainState.READY_TO_DEPART:
             position = agent.initial_position
             direction = agent.initial_direction
         

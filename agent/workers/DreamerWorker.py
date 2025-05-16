@@ -2,13 +2,12 @@ from copy import deepcopy
 
 import ray
 import torch
-from flatland.envs.agent_utils import RailAgentStatus
+from flatland.envs.agent_utils import TrainState
 from collections import defaultdict
 
 from environments import Env
 
 
-@ray.remote
 class DreamerWorker:
 
     def __init__(self, idx, env_config, controller_config):
@@ -22,7 +21,7 @@ class DreamerWorker:
         if self.env_type == Env.STARCRAFT:
             return self.done[handle] == 0
         else:
-            return self.env.agents[handle].status in (RailAgentStatus.ACTIVE, RailAgentStatus.READY_TO_DEPART) \
+            return self.env.agents[handle].status in (TrainState.ACTIVE, TrainState.READY_TO_DEPART) \
                    and not self.env.obs_builder.deadlock_checker.is_deadlocked(handle)
 
     def _select_actions(self, state):
@@ -123,7 +122,7 @@ class DreamerWorker:
 
         if self.env_type == Env.FLATLAND:
             reward = sum(
-                [1 for agent in self.env.agents if agent.status == RailAgentStatus.DONE_REMOVED]) / self.env.n_agents
+                [1 for agent in self.env.agents if agent.status == TrainState.DONE_REMOVED]) / self.env.n_agents
         else:
             reward = 1. if 'battle_won' in info and info['battle_won'] else 0.
         return self.controller.dispatch_buffer(), {"idx": self.runner_handle,
