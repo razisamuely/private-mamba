@@ -1,16 +1,15 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+import time
 
-from smac.env import StarCraft2Env
 import numpy as np
-import time 
+from smac.env import StarCraft2Env
+
 
 def main():
-    env = StarCraft2Env(map_name="8m")
+    # env = StarCraft2Env(map_name="8m")
+    env = StarCraft2Env(map_name="2s_vs_1sc")
     env_info = env.get_env_info()
 
-    n_actions = env_info["n_actions"]
+    env_info["n_actions"]
     n_agents = env_info["n_agents"]
 
     n_episodes = 10
@@ -21,8 +20,8 @@ def main():
         episode_reward = 0
 
         while not terminated:
-            obs = env.get_obs()
-            state = env.get_state()
+            env.get_obs()
+            env.get_state()
             env.render(mode="human")  # Uncomment for rendering
 
             actions = []
@@ -36,7 +35,7 @@ def main():
             episode_reward += reward
             time.sleep(0.3)
 
-        print("Total reward in episode {} = {}".format(e, episode_reward))
+        print(f"Total reward in episode {e} = {episode_reward}")
 
     env.close()
 
