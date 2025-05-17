@@ -49,3 +49,11 @@ class StarCraft(Config):
 # # MPE wrapper implementation
 # def is_natural_termination(self, info, steps_done):
 #     return not info.get("truncated", False)
+
+if __name__ == "__main__":
+    env = StarCraft("3m")
+    obs = env.reset()
+    print("obs", obs)
+    print("env.n_obs = ", env.n_obs)
+    print("env.n_actions = ", env.n_actions)
+    print("env.n_agents = ", env.n_agents)

@@ -6,3 +6,4 @@ wandb
 argparse
 pre-commit
 imageio
+vmas[gymnasium,render]
