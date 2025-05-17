@@ -1,0 +1,6 @@
+1. Using action masks "av_actions" variable : in loss.py
+    1.1 in loss.py in loss.py
+    1.2 step  mask the policy logits
+    1.3 DreamerLearner.py : 
+        1.3.1 During the step() method, it passes the available actions to the replay buffer
+        1.3.2 The train_model() method uses it when calculating model loss

@@ -1,14 +1,15 @@
-import numpy as np
 import copy
 
+import numpy as np
+
+
 # Attention, in Multiagent every worker goes throug curriculum
-class EnvCurriculum():
+class EnvCurriculum:
     def __init__(self, env_configs, env_episodes):
         self.env_configs = env_configs
         self.env_episodes = env_episodes
         self._pos_env = -1
         self.env = self._start_next()
-
 
     def __getattr__(self, name):
         if name == "cur_env":
@@ -19,9 +20,8 @@ class EnvCurriculum():
             return self.update_scores
         return getattr(self.env, name)
 
-
     def _start_next(self):
-        if self._pos_env + 1 < len(self.env_configs): # keep launching last env_episode
+        if self._pos_env + 1 < len(self.env_configs):  # keep launching last env_episode
             self._pos_env += 1
         self._cur_env_episode = 0
         return self.env_configs[self._pos_env].create_env()
@@ -35,8 +35,13 @@ class EnvCurriculum():
         self._cur_env_episode += 1
         return self.env.reset()
 
+    def is_natural_termination(self, info, steps_done):
+        """Delegate to the underlying environment if it has the method"""
+        if hasattr(self.env, "is_natural_termination"):
+            return self.env.is_natural_termination(info, steps_done)
 
-class EnvCurriculumSample():
+
+class EnvCurriculumSample:
     def __init__(self, env_configs, env_probs):
         self.envs = [config.create_env() for config in env_configs]
         self.env_probs = np.array(env_probs, dtype=np.float)
@@ -65,7 +70,7 @@ class EnvCurriculumSample():
         return self.env.reset()
 
 
-class EnvCurriculumPrioritizedSample():
+class EnvCurriculumPrioritizedSample:
     def __init__(self, env_configs, repeat_random_seed):
         self.repeat_random_seed = repeat_random_seed
         if not repeat_random_seed:
@@ -77,7 +82,7 @@ class EnvCurriculumPrioritizedSample():
                 for config in env_configs:
                     config.update_random_seed
 
-        self.scores = 1e9*np.ones(len(self.env_configs))
+        self.scores = 1e9 * np.ones(len(self.env_configs))
         self.cnt = np.zeros(len(self.env_configs), dtype=np.long) + 1e-9
 
         self.ro = 0.1
@@ -97,10 +102,10 @@ class EnvCurriculumPrioritizedSample():
         self.scores[self._pos_env] = gae.mean()
 
     def _start_next(self):
-        i_ranks = np.argsort(-self.scores) # descending_order
+        i_ranks = np.argsort(-self.scores)  # descending_order
         ranks = np.empty_like(i_ranks)
         ranks[i_ranks] = np.arange(len(self.scores)) + 1
-        p_score = (1. / ranks) ** (1. / self.beta)
+        p_score = (1.0 / ranks) ** (1.0 / self.beta)
         p_score /= p_score.sum()
 
         p_cnt = self.cnt.sum() - self.cnt + 1e-15

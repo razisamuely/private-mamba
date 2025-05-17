@@ -7,7 +7,7 @@ from torch.nn import functional as F
 def rec_loss(decoder, z, x, fake):
     x_pred, feat = decoder(z)
     batch_size = np.prod(list(x.shape[:-1]))
-    gen_loss1 = (F.smooth_l1_loss(x_pred, x, reduction='none') * fake).sum() / batch_size
+    gen_loss1 = (F.smooth_l1_loss(x_pred, x, reduction="none") * fake).sum() / batch_size
     return gen_loss1, feat
 
 
@@ -24,7 +24,7 @@ def entropy_loss(prob, logProb):
     return (prob * logProb).sum(-1)
 
 
-def advantage(A):
+def advantage_normalization(A):
     std = 1e-4 + A.std() if len(A) > 0 else 1
     adv = (A - A.mean()) / std
     adv = adv.detach()
@@ -64,7 +64,7 @@ def info_loss(feat, model, actions, fake):
 
 
 def action_information_loss(logits, target):
-    criterion = nn.CrossEntropyLoss(reduction='none')
+    criterion = nn.CrossEntropyLoss(reduction="none")
     return criterion(logits.view(-1, logits.shape[-1]), target.argmax(-1).view(-1))
 
 

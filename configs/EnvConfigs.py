@@ -1,8 +1,11 @@
 from configs.Config import Config
-from env.flatland.EnvCurriculum import EnvCurriculum, EnvCurriculumSample, EnvCurriculumPrioritizedSample
-from env.flatland.Flatland import FlatlandWrapper, Flatland
+from env.flatland.EnvCurriculum import (
+    EnvCurriculum,
+    EnvCurriculumPrioritizedSample,
+    EnvCurriculumSample,
+)
+from env.flatland.Flatland import Flatland, FlatlandWrapper
 from env.flatland.GreedyFlatland import GreedyFlatland
-from env.starcraft.StarCraft import StarCraft
 
 
 class EnvConfig(Config):
@@ -13,30 +16,23 @@ class EnvConfig(Config):
         pass
 
 
-class StarCraftConfig(EnvConfig):
-
-    def __init__(self, env_name):
-        self.env_name = env_name
-
-    def create_env(self):
-        return StarCraft(self.env_name)
-
-
 class FlatlandConfig(EnvConfig):
-    def __init__(self,
-                 height,
-                 width,
-                 n_agents,
-                 n_cities,
-                 grid_distribution_of_cities,
-                 max_rails_between_cities,
-                 max_rail_in_cities,
-                 observation_builder_config,
-                 reward_config,
-                 malfunction_rate,
-                 greedy,
-                 random_seed):
-        super(FlatlandConfig, self).__init__()
+    def __init__(
+        self,
+        height,
+        width,
+        n_agents,
+        n_cities,
+        grid_distribution_of_cities,
+        max_rails_between_cities,
+        max_rail_in_cities,
+        observation_builder_config,
+        reward_config,
+        malfunction_rate,
+        greedy,
+        random_seed,
+    ):
+        super().__init__()
         self.height = height
         self.width = width
         self.n_agents = n_agents
@@ -62,17 +58,21 @@ class FlatlandConfig(EnvConfig):
     def create_env(self):
         obs_builder = self.observation_builder_config.create_builder()
         reward_shaper = self.reward_config.create_reward_shaper()
-        rail_env = FlatlandWrapper(Flatland(height=self.height,
-                                            width=self.width,
-                                            n_agents=self.n_agents,
-                                            n_cities=self.n_cities,
-                                            grid_distribution_of_cities=self.grid_distribution_of_cities,
-                                            max_rails_between_cities=self.max_rails_between_cities,
-                                            max_rail_in_cities=self.max_rail_in_cities,
-                                            observation_builder=obs_builder,
-                                            malfunction_rate=self.malfunction_rate,
-                                            random_seed=self.random_seed),
-                                   reward_shaper=reward_shaper)
+        rail_env = FlatlandWrapper(
+            Flatland(
+                height=self.height,
+                width=self.width,
+                n_agents=self.n_agents,
+                n_cities=self.n_cities,
+                grid_distribution_of_cities=self.grid_distribution_of_cities,
+                max_rails_between_cities=self.max_rails_between_cities,
+                max_rail_in_cities=self.max_rail_in_cities,
+                observation_builder=obs_builder,
+                malfunction_rate=self.malfunction_rate,
+                random_seed=self.random_seed,
+            ),
+            reward_shaper=reward_shaper,
+        )
         if self.greedy:
             rail_env = GreedyFlatland(rail_env)
         return rail_env

@@ -1,9 +1,9 @@
+import copy
+from collections import defaultdict
 from copy import deepcopy
 
-import ray
 import torch
 from flatland.envs.agent_utils import TrainState
-from collections import defaultdict
 
 from environments import Env
 
@@ -16,20 +16,23 @@ class DreamerWorker:
         self.controller = controller_config.create_controller()
         self.in_dim = controller_config.IN_DIM
         self.env_type = env_config.ENV_TYPE
+        self.controller_config = copy.deepcopy(controller_config)
 
     def _check_handle(self, handle):
-        if self.env_type == Env.STARCRAFT:
+        if self.env_type != Env.FLATLAND:
             return self.done[handle] == 0
         else:
-            return self.env.agents[handle].status in (TrainState.ACTIVE, TrainState.READY_TO_DEPART) \
-                   and not self.env.obs_builder.deadlock_checker.is_deadlocked(handle)
+            return self.env.agents[handle].status in (
+                TrainState.ACTIVE,
+                TrainState.READY_TO_DEPART,
+            ) and not self.env.obs_builder.deadlock_checker.is_deadlocked(handle)
 
     def _select_actions(self, state):
         avail_actions = []
         observations = []
         fakes = []
         if self.env_type == Env.FLATLAND:
-            nn_mask = (1. - torch.eye(self.env.n_agents)).bool()
+            nn_mask = (1.0 - torch.eye(self.env.n_agents)).bool()
         else:
             nn_mask = None
 
@@ -78,8 +81,8 @@ class DreamerWorker:
         return torch.cat(aug).unsqueeze(0)
 
     def _check_termination(self, info, steps_done):
-        if self.env_type == Env.STARCRAFT:
-            return "episode_limit" not in info
+        if self.env_type != Env.FLATLAND:
+            return self.env.is_natural_termination(info, steps_done)
         else:
             return steps_done < self.env.max_time_steps
 
@@ -88,20 +91,28 @@ class DreamerWorker:
 
         state = self._wrap(self.env.reset())
         steps_done = 0
-        self.done = defaultdict(lambda: False)
+        self.done = defaultdict(bool)
 
         while True:
             steps_done += 1
             actions, obs, fakes, av_actions = self._select_actions(state)
             next_state, reward, done, info = self.env.step([action.argmax() for i, action in enumerate(actions)])
-            next_state, reward, done = self._wrap(deepcopy(next_state)), self._wrap(deepcopy(reward)), self._wrap(deepcopy(done))
+            next_state, reward, done = (
+                self._wrap(deepcopy(next_state)),
+                self._wrap(deepcopy(reward)),
+                self._wrap(deepcopy(done)),
+            )
             self.done = done
-            self.controller.update_buffer({"action": actions,
-                                           "observation": obs,
-                                           "reward": self.augment(reward),
-                                           "done": self.augment(done),
-                                           "fake": fakes,
-                                           "avail_action": av_actions})
+            self.controller.update_buffer(
+                {
+                    "action": actions,
+                    "observation": obs,
+                    "reward": self.augment(reward),
+                    "done": self.augment(done),
+                    "fake": fakes,
+                    "avail_action": av_actions,
+                }
+            )
 
             state = next_state
             if all([done[key] == 1 for key in range(self.env.n_agents)]):
@@ -109,22 +120,29 @@ class DreamerWorker:
                     obs = torch.cat([self.get_absorbing_state() for i in range(self.env.n_agents)]).unsqueeze(0)
                     actions = torch.zeros(1, self.env.n_agents, actions.shape[-1])
                     index = torch.randint(0, actions.shape[-1], actions.shape[:-1], device=actions.device)
-                    actions.scatter_(2, index.unsqueeze(-1), 1.)
-                    items = {"observation": obs,
-                             "action": actions,
-                             "reward": torch.zeros(1, self.env.n_agents, 1),
-                             "fake": torch.ones(1, self.env.n_agents, 1),
-                             "done": torch.ones(1, self.env.n_agents, 1),
-                             "avail_action": torch.ones_like(actions) if self.env_type == Env.STARCRAFT else None}
+                    actions.scatter_(2, index.unsqueeze(-1), 1.0)
+                    items = {
+                        "observation": obs,
+                        "action": actions,
+                        "reward": torch.zeros(1, self.env.n_agents, 1),
+                        "fake": torch.ones(1, self.env.n_agents, 1),
+                        "done": torch.ones(1, self.env.n_agents, 1),
+                        "avail_action": (
+                            torch.ones_like(actions) if self.controller_config.USE_AVAILABLE_ACTIONS else None
+                        ),
+                    }
                     self.controller.update_buffer(items)
                     self.controller.update_buffer(items)
                 break
 
         if self.env_type == Env.FLATLAND:
-            reward = sum(
-                [1 for agent in self.env.agents if agent.status == TrainState.DONE_REMOVED]) / self.env.n_agents
+            reward = (
+                sum([1 for agent in self.env.agents if agent.status == TrainState.DONE_REMOVED]) / self.env.n_agents
+            )
         else:
-            reward = 1. if 'battle_won' in info and info['battle_won'] else 0.
-        return self.controller.dispatch_buffer(), {"idx": self.runner_handle,
-                                                   "reward": reward,
-                                                   "steps_done": steps_done}
+            reward = 1.0 if "battle_won" in info and info["battle_won"] else 0.0
+        return self.controller.dispatch_buffer(), {
+            "idx": self.runner_handle,
+            "reward": reward,
+            "steps_done": steps_done,
+        }

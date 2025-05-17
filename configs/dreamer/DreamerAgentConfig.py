@@ -6,7 +6,8 @@ import torch.nn.functional as F
 
 from configs.Config import Config
 
-RSSM_STATE_MODE = 'discrete'
+RSSM_STATE_MODE = "discrete"
+
 
 class DreamerConfig(Config):
     def __init__(self):
@@ -33,10 +34,8 @@ class DreamerConfig(Config):
         self.DISCOUNT = 0.99
         self.DISCOUNT_LAMBDA = 0.95
         self.IN_DIM = 30
-        self.LOG_FOLDER = 'wandb/'
-
-
-
+        self.LOG_FOLDER = "wandb/"
+        self.USE_AVAILABLE_ACTIONS = True
 
 
 @dataclass
@@ -71,5 +70,4 @@ class RSSMStateCont(RSSMStateBase):
         return td.independent.Independent(td.Normal(self.mean, self.std), 1)
 
 
-RSSMState = {'discrete': RSSMStateDiscrete,
-             'cont': RSSMStateCont}[RSSM_STATE_MODE]
+RSSMState = {"discrete": RSSMStateDiscrete, "cont": RSSMStateCont}[RSSM_STATE_MODE]

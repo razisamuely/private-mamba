@@ -1,9 +1,12 @@
 from smac.env import StarCraft2Env
 
+from configs.Config import Config
 
-class StarCraft:
+
+class StarCraft(Config):
 
     def __init__(self, env_name):
+        self.env_name = env_name
         self.env = StarCraft2Env(map_name=env_name, continuing_episode=True, difficulty="7")
         env_info = self.env.get_env_info()
 
@@ -16,8 +19,12 @@ class StarCraft:
 
     def step(self, action_dict):
         reward, done, info = self.env.step(action_dict)
-        return self.to_dict(self.env.get_obs()), {i: reward for i in range(self.n_agents)}, \
-               {i: done for i in range(self.n_agents)}, info
+        return (
+            self.to_dict(self.env.get_obs()),
+            {i: reward for i in range(self.n_agents)},
+            {i: done for i in range(self.n_agents)},
+            info,
+        )
 
     def reset(self):
         self.env.reset()
@@ -31,3 +38,14 @@ class StarCraft:
 
     def get_avail_agent_actions(self, handle):
         return self.env.get_avail_agent_actions(handle)
+
+    def is_natural_termination(self, info, steps_done):
+        return "episode_limit" not in info
+
+    def create_env(self):
+        return StarCraft(self.env_name)
+
+
+# # MPE wrapper implementation
+# def is_natural_termination(self, info, steps_done):
+#     return not info.get("truncated", False)

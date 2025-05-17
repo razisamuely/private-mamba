@@ -1,42 +1,51 @@
 import argparse
+from pathlib import Path
 
 from agent.runners.DreamerRunner import DreamerRunner
-from configs import Experiment, SimpleObservationConfig, NearRewardConfig, DeadlockPunishmentConfig, RewardsComposerConfig
-from configs.EnvConfigs import StarCraftConfig, EnvCurriculumConfig
-from configs.flatland.RewardConfigs import FinishRewardConfig
+from agent.workers.DreamerWorker import DreamerWorker
+from configs import (
+    DeadlockPunishmentConfig,
+    Experiment,
+    NearRewardConfig,
+    RewardsComposerConfig,
+    SimpleObservationConfig,
+)
 from configs.dreamer.DreamerControllerConfig import DreamerControllerConfig
 from configs.dreamer.DreamerLearnerConfig import DreamerLearnerConfig
+from configs.EnvConfigs import EnvCurriculumConfig
+from configs.flatland.RewardConfigs import FinishRewardConfig
 from configs.flatland.TimetableConfigs import AllAgentLauncherConfig
-from env.flatland.params import SeveralAgents, PackOfAgents, LotsOfAgents
-from environments import Env, FlatlandType, FLATLAND_OBS_SIZE, FLATLAND_ACTION_SIZE
-from agent.workers.DreamerWorker import DreamerWorker
-from pathlib import Path
+from env.flatland.params import LotsOfAgents, PackOfAgents, SeveralAgents
+from env.starcraft.StarCraft import StarCraft
+from environments import FLATLAND_ACTION_SIZE, FLATLAND_OBS_SIZE, Env, FlatlandType
+
 
 def run_one_process_one_env_debug(exp):
 
     learner = exp.learner_config.create_learner()
     dreamer_single_worker = DreamerWorker(0, exp.env_config, exp.controller_config)
-    
+
     cur_steps, cur_episode = 0, 0
-    
+
     import wandb
+
     wandb.define_metric("steps")
     wandb.define_metric("reward", step_metric="steps")
-    
+
     while True:
         rollout, info = dreamer_single_worker.run(learner.params())
-        
+
         learner.step(rollout)
-        
+
         cur_steps += info["steps_done"]
         cur_episode += 1
-        
-        wandb.log({'reward': info["reward"], 'steps': cur_steps})
+
+        wandb.log({"reward": info["reward"], "steps": cur_steps})
         print(f"Episode {cur_episode}, Samples {learner.total_samples}, Reward {info['reward']}")
-        
+
         if cur_episode >= exp.episodes or cur_steps >= exp.steps:
             break
-            
+
         if cur_episode % 10 == 0:
             model_path = Path(wandb.run.dir) / f"model_episode_{cur_episode}.pt"
             model_path = f"model_episode_{cur_episode}.pt"
@@ -45,9 +54,9 @@ def run_one_process_one_env_debug(exp):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--env', type=str, default="starcraft", help='Flatland or SMAC env')
-    parser.add_argument('--env_name', type=str, default="2s_vs_1sc", help='Specific setting')
-    parser.add_argument('--n_workers', type=int, default=2, help='Number of workers')
+    parser.add_argument("--env", type=str, default="starcraft", help="Flatland or SMAC env")
+    parser.add_argument("--env_name", type=str, default="2s_vs_1sc", help="Specific setting")
+    parser.add_argument("--n_workers", type=int, default=2, help="Number of workers")
     return parser.parse_args()
 
 
@@ -55,7 +64,7 @@ def train_dreamer(exp, n_workers, debug=True):
     if debug:
         run_one_process_one_env_debug(exp)
         return
-    
+
     runner = DreamerRunner(exp.env_config, exp.learner_config, exp.controller_config, n_workers)
     runner.run(exp.steps, exp.episodes)
 
@@ -75,13 +84,15 @@ def get_env_info_flatland(configs):
 
 def prepare_starcraft_configs(env_name):
     agent_configs = [DreamerControllerConfig(), DreamerLearnerConfig()]
-    env_config = StarCraftConfig(env_name)
+    env_config = StarCraft(env_name)
     get_env_info(agent_configs, env_config.create_env())
-    return {"env_config": (env_config, 100),
-            "controller_config": agent_configs[0],
-            "learner_config": agent_configs[1],
-            "reward_config": None,
-            "obs_builder_config": None}
+    return {
+        "env_config": (env_config, 100),
+        "controller_config": agent_configs[0],
+        "learner_config": agent_configs[1],
+        "reward_config": None,
+        "obs_builder_config": None,
+    }
 
 
 def prepare_flatland_configs(env_name):
@@ -93,18 +104,21 @@ def prepare_flatland_configs(env_name):
         env_config = LotsOfAgents(RANDOM_SEED + 100)
     else:
         raise Exception("Unknown flatland environment")
-    obs_builder_config = SimpleObservationConfig(max_depth=3, neighbours_depth=3,
-                                                 timetable_config=AllAgentLauncherConfig())
-    reward_config = RewardsComposerConfig((FinishRewardConfig(finish_value=10),
-                                           NearRewardConfig(coeff=0.01),
-                                           DeadlockPunishmentConfig(value=-5)))
+    obs_builder_config = SimpleObservationConfig(
+        max_depth=3, neighbours_depth=3, timetable_config=AllAgentLauncherConfig()
+    )
+    reward_config = RewardsComposerConfig(
+        (FinishRewardConfig(finish_value=10), NearRewardConfig(coeff=0.01), DeadlockPunishmentConfig(value=-5))
+    )
     agent_configs = [DreamerControllerConfig(), DreamerLearnerConfig()]
     get_env_info_flatland(agent_configs)
-    return {"env_config": (env_config, 100),
-            "controller_config": agent_configs[0],
-            "learner_config": agent_configs[1],
-            "reward_config": reward_config,
-            "obs_builder_config": obs_builder_config}
+    return {
+        "env_config": (env_config, 100),
+        "controller_config": agent_configs[0],
+        "learner_config": agent_configs[1],
+        "reward_config": reward_config,
+        "obs_builder_config": obs_builder_config,
+    }
 
 
 if __name__ == "__main__":
@@ -120,13 +134,18 @@ if __name__ == "__main__":
     configs["learner_config"].ENV_TYPE = Env(args.env)
     configs["controller_config"].ENV_TYPE = Env(args.env)
 
-    exp = Experiment(steps=10 ** 10,
-                     episodes=50000,
-                     random_seed=RANDOM_SEED,
-                     env_config=EnvCurriculumConfig(*zip(configs["env_config"]), Env(args.env),
-                                                    obs_builder_config=configs["obs_builder_config"],
-                                                    reward_config=configs["reward_config"]),
-                     controller_config=configs["controller_config"],
-                     learner_config=configs["learner_config"])
+    exp = Experiment(
+        steps=10**10,
+        episodes=50000,
+        random_seed=RANDOM_SEED,
+        env_config=EnvCurriculumConfig(
+            *zip(configs["env_config"]),
+            Env(args.env),
+            obs_builder_config=configs["obs_builder_config"],
+            reward_config=configs["reward_config"],
+        ),
+        controller_config=configs["controller_config"],
+        learner_config=configs["learner_config"],
+    )
 
     train_dreamer(exp, n_workers=args.n_workers)

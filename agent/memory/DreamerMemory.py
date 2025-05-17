@@ -1,24 +1,28 @@
 import numpy as np
 import torch
 
-from environments import Env
-
 
 class DreamerMemory:
-    def __init__(self, capacity, sequence_length, action_size, obs_size, n_agents, device, env_type):
+    def __init__(
+        self, capacity, sequence_length, action_size, obs_size, n_agents, device, env_type, use_available_actions
+    ):
         self.capacity = capacity
         self.sequence_length = sequence_length
         self.action_size = action_size
         self.obs_size = obs_size
         self.device = device
         self.env_type = env_type
+        self.use_available_actions = use_available_actions
         self.init_buffer(n_agents, env_type)
 
     def init_buffer(self, n_agents, env_type):
         self.observations = np.empty((self.capacity, n_agents, self.obs_size), dtype=np.float32)
         self.actions = np.empty((self.capacity, n_agents, self.action_size), dtype=np.float32)
-        self.av_actions = np.empty((self.capacity, n_agents, self.action_size),
-                                   dtype=np.float32) if env_type == Env.STARCRAFT else None
+        self.av_actions = (
+            np.empty((self.capacity, n_agents, self.action_size), dtype=np.float32)
+            if self.use_available_actions
+            else None
+        )
         self.rewards = np.empty((self.capacity, n_agents, 1), dtype=np.float32)
         self.dones = np.empty((self.capacity, n_agents, 1), dtype=np.float32)
         self.fake = np.empty((self.capacity, n_agents, 1), dtype=np.float32)
@@ -57,13 +61,22 @@ class DreamerMemory:
         observation = self.process_batch(self.observations, vec_idxs, batch_size)[1:]
         reward = self.process_batch(self.rewards, vec_idxs, batch_size)[:-1]
         action = self.process_batch(self.actions, vec_idxs, batch_size)[:-1]
-        av_action = self.process_batch(self.av_actions, vec_idxs, batch_size)[1:] if self.env_type == Env.STARCRAFT else None
+        av_action = (
+            self.process_batch(self.av_actions, vec_idxs, batch_size)[1:] if self.use_available_actions else None
+        )
         done = self.process_batch(self.dones, vec_idxs, batch_size)[:-1]
         fake = self.process_batch(self.fake, vec_idxs, batch_size)[1:]
         last = self.process_batch(self.last, vec_idxs, batch_size)[1:]
 
-        return {'observation': observation, 'reward': reward, 'action': action, 'done': done, 
-                'fake': fake, 'last': last, 'av_action': av_action}
+        return {
+            "observation": observation,
+            "reward": reward,
+            "action": action,
+            "done": done,
+            "fake": fake,
+            "last": last,
+            "av_action": av_action,
+        }
 
     def sample_position(self):
         valid_idx = False

@@ -1,10 +1,9 @@
 import torch
 import torch.nn as nn
 
-from environments import Env
 from networks.dreamer.dense import DenseBinaryModel, DenseModel
-from networks.dreamer.vae import Encoder, Decoder
 from networks.dreamer.rnns import RSSMRepresentation, RSSMTransition
+from networks.dreamer.vae import Decoder, Encoder
 
 
 class DreamerModel(nn.Module):
@@ -21,7 +20,7 @@ class DreamerModel(nn.Module):
         self.reward_model = DenseModel(config.FEAT, 1, config.REWARD_LAYERS, config.REWARD_HIDDEN)
         self.pcont = DenseBinaryModel(config.FEAT, 1, config.PCONT_LAYERS, config.PCONT_HIDDEN)
 
-        if config.ENV_TYPE == Env.STARCRAFT:
+        if config.USE_AVAILABLE_ACTIONS:
             self.av_action = DenseBinaryModel(config.FEAT, config.ACTION_SIZE, config.PCONT_LAYERS, config.PCONT_HIDDEN)
         else:
             self.av_action = None
@@ -31,12 +30,14 @@ class DreamerModel(nn.Module):
 
     def forward(self, observations, prev_actions=None, prev_states=None, mask=None):
         if prev_actions is None:
-            prev_actions = torch.zeros(observations.size(0), observations.size(1), self.action_size,
-                                       device=observations.device)
+            prev_actions = torch.zeros(
+                observations.size(0), observations.size(1), self.action_size, device=observations.device
+            )
 
         if prev_states is None:
-            prev_states = self.representation.initial_state(prev_actions.size(0), observations.size(1),
-                                                            device=observations.device)
+            prev_states = self.representation.initial_state(
+                prev_actions.size(0), observations.size(1), device=observations.device
+            )
 
         return self.get_state_representation(observations, prev_actions, prev_states, mask)
 
