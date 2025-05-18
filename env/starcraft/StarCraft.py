@@ -1,3 +1,5 @@
+import random
+
 from smac.env import StarCraft2Env
 
 from configs.Config import Config
@@ -45,10 +47,15 @@ class StarCraft(Config):
     def create_env(self):
         return StarCraft(self.env_name)
 
+    def get_random_action(self):
+        actions = []
+        for i in range(self.n_agents):
+            available_action = self.env.get_avail_agent_actions(i)
+            action = [random.choice([0, 1]) if available_action[j] == 1 else 0 for j in range(self.n_actions)]
+            actions.append(action)
 
-# # MPE wrapper implementation
-# def is_natural_termination(self, info, steps_done):
-#     return not info.get("truncated", False)
+        return actions
+
 
 if __name__ == "__main__":
     env = StarCraft("3m")
@@ -57,3 +64,5 @@ if __name__ == "__main__":
     print("env.n_obs = ", env.n_obs)
     print("env.n_actions = ", env.n_actions)
     print("env.n_agents = ", env.n_agents)
+    avail_actions = env.get_avail_agent_actions(0)
+    print("avail_actions", avail_actions)
