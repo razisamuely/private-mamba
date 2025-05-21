@@ -91,7 +91,7 @@ def render_trained_policy(
 
     # delet e temporary frames
     if save_gif:
-        for frame in frames:
+        for frame in os.listdir(temp_dir):
             os.remove(frame)
         os.rmdir(temp_dir)
         print(f"Temporary frames deleted from {temp_dir}")
@@ -99,4 +99,5 @@ def render_trained_policy(
 
 
 if __name__ == "__main__":
-    render_trained_policy(scenario_name="simple_spread")
+    model_path = "wandb/wandb/run-20250520_231834-wmc9t7zi/files/model_episod_500.pt"
+    render_trained_policy(scenario_name="simple_spread", model_path=model_path)

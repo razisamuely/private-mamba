@@ -1,8 +1,10 @@
-import ray
-import wandb
-
-from agent.workers.DreamerWorker import DreamerWorker
 from pathlib import Path
+
+import ray
+
+import wandb
+from agent.workers.DreamerWorker import DreamerWorker
+
 
 class DreamerServer:
     def __init__(self, n_workers, env_config, controller_config, model):
@@ -28,7 +30,7 @@ class DreamerRunner:
         self.learner = learner_config.create_learner()
         self.server = DreamerServer(n_workers, env_config, controller_config, self.learner.params())
 
-    def run(self, max_steps=10 ** 10, max_episodes=10 ** 10):
+    def run(self, max_steps=10**10, max_episodes=10**10):
         cur_steps, cur_episode = 0, 0
 
         wandb.define_metric("steps")
@@ -39,14 +41,13 @@ class DreamerRunner:
             self.learner.step(rollout)
             cur_steps += info["steps_done"]
             cur_episode += 1
-            wandb.log({'reward': info["reward"], 'steps': cur_steps})
+            wandb.log({"reward": info["reward"], "steps": cur_steps})
 
-            print(cur_episode, self.learner.total_samples, info["reward"])
+            print(cur_episode, self.learner.total_samples, info["reward"])  # ----- <<---- print
+
             if cur_episode >= max_episodes or cur_steps >= max_steps:
                 break
-            self.server.append(info['idx'], self.learner.params())
-            if cur_episode % 5 == 0:
+            self.server.append(info["idx"], self.learner.params())
+            if cur_episode % 500 == 0:
                 model_path = Path(wandb.run.dir) / f"model_episod_{cur_episode}.pt"
                 self.learner.save_model(model_path)
-
-

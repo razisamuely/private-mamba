@@ -2,12 +2,14 @@ import copy
 from collections import defaultdict
 from copy import deepcopy
 
+import ray
 import torch
 from flatland.envs.agent_utils import TrainState
 
 from environments import Env
 
 
+@ray.remote
 class DreamerWorker:
 
     def __init__(self, idx, env_config, controller_config):
@@ -92,11 +94,14 @@ class DreamerWorker:
         state = self._wrap(self.env.reset())
         steps_done = 0
         self.done = defaultdict(bool)
+        total_episode_reward = 0.0
 
         while True:
             steps_done += 1
             actions, obs, fakes, av_actions = self._select_actions(state)
             next_state, reward, done, info = self.env.step([action.argmax() for i, action in enumerate(actions)])
+            step_reward = sum(reward.values()) / self.env.n_agents
+            total_episode_reward += step_reward
             next_state, reward, done = (
                 self._wrap(deepcopy(next_state)),
                 self._wrap(deepcopy(reward)),
@@ -140,7 +145,10 @@ class DreamerWorker:
                 sum([1 for agent in self.env.agents if agent.status == TrainState.DONE_REMOVED]) / self.env.n_agents
             )
         else:
-            reward = 1.0 if "battle_won" in info and info["battle_won"] else 0.0
+            if "battle_won" in info:
+                reward = info["battle_won"]
+            else:
+                reward = total_episode_reward
         return self.controller.dispatch_buffer(), {
             "idx": self.runner_handle,
             "reward": reward,

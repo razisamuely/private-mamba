@@ -8,7 +8,7 @@ from configs.Config import Config
 
 class VmasSpread(Config):
 
-    def __init__(self, env_name, device="cpu", seed=0, max_steps=100, **kwargs):
+    def __init__(self, env_name, device="cpu", seed=None, max_steps=100, **kwargs):
 
         self.env_name = env_name
         self.device = device
@@ -30,9 +30,10 @@ class VmasSpread(Config):
         self.n_agents = self.env.n_agents
 
     def to_dict(self, l):
-        return {i: e for i, e in enumerate(l)}
+        return {i: e[0] if e.dim() > 1 else e for i, e in enumerate(l)}
 
     def step(self, action: List[torch.Tensor]) -> Dict[str, List[torch.Tensor]]:
+        action = self._ensure_correct_action_dimensions(action)
         obs, rewards, terminated, truncated, infos = self.env.step(action)
         dones = [terminated or truncated for i in range(self.env.n_agents)]
         return (
@@ -77,6 +78,21 @@ class VmasSpread(Config):
 
         return actions
 
+    def _ensure_correct_action_dimensions(self, action: List[torch.Tensor]) -> List[torch.Tensor]:
+        """Ensure all actions have the correct dimensions for the environment."""
+        for i, a in enumerate(action):
+            if not isinstance(a, torch.Tensor):
+                raise ValueError(f"Action {i} is not a tensor")
+
+            if a.dim() == 0:
+                action[i] = self._add_batch_dimensions(a)
+
+        return action
+
+    def _add_batch_dimensions(self, tensor: torch.Tensor) -> torch.Tensor:
+        """Add batch dimensions to a scalar tensor to match [batch_size, action_dim] format."""
+        return tensor.unsqueeze(0).unsqueeze(0)
+
 
 if __name__ == "__main__":
     env = VmasSpread("simple_spread")
@@ -88,15 +104,15 @@ if __name__ == "__main__":
     print("env.n_agents = ", env.n_agents)
     env.close()
 
-    created_env = env.create_env()
-    print("Created env.n_obs = ", created_env.n_obs)
-    print("Created env.n_actions = ", created_env.n_actions)
-    print("Created env.n_agents = ", created_env.n_agents)
-    created_env.close()
+    env2 = env.create_env()
+    print("Created env.n_obs = ", env2.n_obs)
+    print("Created env.n_actions = ", env2.n_actions)
+    print("Created env.n_agents = ", env2.n_agents)
+    env2.close()
 
-    created_env.reset()
+    observations = env2.reset()
     for i in range(100):
-        random_action = created_env.get_random_action()
-        step_output = created_env.step(random_action)
-        created_env.render(mode="human")
+        random_action = env2.get_random_action()
+        observations, rewards, dones, info = env2.step(random_action)
+        env2.render(mode="human")
         print("random_action:", random_action)
