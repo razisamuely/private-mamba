@@ -8,7 +8,7 @@ from configs.Config import Config
 
 class VmasBalance(Config):
 
-    def __init__(self, env_name, n_agents=10, device="cpu", seed=None, max_steps=100, **kwargs):
+    def __init__(self, env_name, n_agents=2, device="cpu", seed=None, max_steps=100, **kwargs):
 
         self.env_name = env_name
         self.device = device

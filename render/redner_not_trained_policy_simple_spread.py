@@ -2,18 +2,19 @@ import os
 import time
 
 import imageio
+import numpy as np
 import torch
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 
 from configs.dreamer.DreamerControllerConfig import DreamerControllerConfig
-from env.mpe.vmas_simple_spread import VmasSpread
+from env.vmas.balance import VmasBalance
 from environments import Env
 
 
 def render_trained_policy(
     model_path=None, scenario_name="2s_vs_1sc", save_gif=True, gif_filename="starcraft_policy.gif", fps=10
 ):
-    env_config = VmasSpread(scenario_name)
+    env_config = VmasBalance(scenario_name)
     controller_config = DreamerControllerConfig()
     controller_config.ENV_TYPE = Env.SIMPLE_SPREAD
 
@@ -44,6 +45,20 @@ def render_trained_policy(
     while not all(done.values()):
         print(f"Step: {frame_count}, Episode Reward: {episode_reward}")
         frame = env.render(mode="rgb_array")
+
+        # Add step number and reward as text overlay
+        if save_gif:
+            frame = Image.fromarray(frame)
+            frame = frame.convert("RGB")
+            draw = ImageDraw.Draw(frame)
+
+            # Add background rectangle for better visibility
+            text = f"Step: {frame_count}, Reward: {float(episode_reward):.2f}"
+            draw.rectangle([10, 10, 300, 50], fill=(0, 0, 0))
+            font = ImageFont.truetype("/usr/share/fonts/dejavu/DejaVuSans-Bold.ttf", 20)
+            draw.text((15, 15), text, fill=(255, 255, 255), font=font)
+
+            frame = np.array(frame)
 
         if save_gif:
             frames.append(frame)
@@ -99,5 +114,5 @@ def render_trained_policy(
 
 
 if __name__ == "__main__":
-    model_path = "wandb/wandb/run-20250520_231834-wmc9t7zi/files/model_episod_500.pt"
-    render_trained_policy(scenario_name="simple_spread", model_path=model_path)
+    model_path = "render/model_episod_500.pt"
+    render_trained_policy(scenario_name="balance", model_path=model_path)
