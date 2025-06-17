@@ -21,6 +21,8 @@ class StarCraft(Config):
 
     def step(self, action_dict):
         reward, done, info = self.env.step(action_dict)
+        cost = self.get_cost(info)
+        info["cost"] = {i: cost for i in range(self.n_agents)}
         return (
             self.to_dict(self.env.get_obs()),
             {i: reward for i in range(self.n_agents)},
@@ -55,6 +57,13 @@ class StarCraft(Config):
             actions.append(action)
 
         return actions
+
+    def get_health(self, agent_id):
+        return self.env.get_unit_by_id(agent_id).health
+
+    def get_cost(self, info):
+        cost = info.get("dead_allies")
+        return cost
 
 
 if __name__ == "__main__":

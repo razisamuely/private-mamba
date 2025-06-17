@@ -95,6 +95,7 @@ class DreamerWorker:
         steps_done = 0
         self.done = defaultdict(bool)
         total_episode_reward = 0.0
+        total_episode_cost = 0.0
 
         while True:
             steps_done += 1
@@ -102,10 +103,12 @@ class DreamerWorker:
             next_state, reward, done, info = self.env.step([action.argmax() for i, action in enumerate(actions)])
             step_reward = sum(reward.values()) / self.env.n_agents
             total_episode_reward += step_reward
-            next_state, reward, done = (
+            total_episode_cost += sum(info.get("cost").values()) / self.env.n_agents
+            next_state, reward, done, cost = (
                 self._wrap(deepcopy(next_state)),
                 self._wrap(deepcopy(reward)),
                 self._wrap(deepcopy(done)),
+                self._wrap(deepcopy(info.get("cost"))),
             )
             self.done = done
             self.controller.update_buffer(
@@ -116,6 +119,7 @@ class DreamerWorker:
                     "done": self.augment(done),
                     "fake": fakes,
                     "avail_action": av_actions,
+                    "cost": self.augment(cost) if self.controller_config.USE_AVAILABLE_ACTIONS else None,
                 }
             )
 
@@ -135,6 +139,7 @@ class DreamerWorker:
                         "avail_action": (
                             torch.ones_like(actions) if self.controller_config.USE_AVAILABLE_ACTIONS else None
                         ),
+                        "cost": torch.zeros(1, self.env.n_agents, 1),
                     }
                     self.controller.update_buffer(items)
                     self.controller.update_buffer(items)
@@ -153,4 +158,5 @@ class DreamerWorker:
             "idx": self.runner_handle,
             "reward": reward,
             "steps_done": steps_done,
+            "cost": total_episode_cost,
         }

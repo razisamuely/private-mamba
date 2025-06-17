@@ -40,7 +40,7 @@ def render_trained_policy(
 
     frames = []
     frame_count = 0
-
+    agent_health = {i: env.get_health(i) for i in range(env.n_agents)}
     while not all(done.values()):
         frame = env.render(mode="rgb_array")
 
@@ -53,6 +53,10 @@ def render_trained_policy(
         avail_actions = []
 
         for handle in range(env.n_agents):
+            if env.get_health(handle) < agent_health[handle]:
+                agent_health[handle] = env.get_health(handle)
+                print(f"Agent {handle} health changed to {agent_health[handle]}")
+
             avail_actions.append(torch.tensor(env.get_avail_agent_actions(handle)))
 
             if handle in state and not done[handle]:
@@ -67,6 +71,7 @@ def render_trained_policy(
         action_list = [action.argmax().item() for action in actions]
 
         next_obs_dict, reward_dict, done_dict, info = env.step(action_list)
+        print(f"Cost : {info['cost']}")
 
         state = {i: torch.tensor(obs).float() for i, obs in next_obs_dict.items()}
         done = done_dict
@@ -90,4 +95,5 @@ def render_trained_policy(
 
 if __name__ == "__main__":
     model_path = "wandb/wandb/run-20250516_144200-eltq1qts/files/model_episod_85.pt"
+    model_path = None
     render_trained_policy(model_path=model_path, map_name="2s_vs_1sc")

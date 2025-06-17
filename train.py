@@ -33,8 +33,10 @@ def run_one_process_one_env_debug(exp):
 
     wandb.define_metric("steps")
     wandb.define_metric("reward", step_metric="steps")
+    wandb.define_metric("cost", step_metric="steps")
 
     while True:
+
         rollout, info = dreamer_single_worker.run(learner.params())
 
         learner.step(rollout)
@@ -43,6 +45,7 @@ def run_one_process_one_env_debug(exp):
         cur_episode += 1
 
         wandb.log({"reward": info["reward"], "steps": cur_steps})
+        wandb.log({"cost": info["cost"], "steps": cur_steps})
         print(f"Episode {cur_episode}, Samples {learner.total_samples}, Reward {info['reward']}")
 
         if cur_episode >= exp.episodes or cur_steps >= exp.steps:
@@ -58,10 +61,10 @@ def parse_args():
     parser = argparse.ArgumentParser()
     # parser.add_argument("--env", type=str, default="simple_spread", help="Flatland or SMAC env")
     # parser.add_argument("--env_name", type=str, default="simple_spread", help="Specific setting")
-    parser.add_argument("--env", type=str, default="balance", help="Flatland or SMAC env")
-    parser.add_argument("--env_name", type=str, default="balance", help="Specific setting")
-    # parser.add_argument("--env", type=str, default="starcraft", help="Flatland or SMAC env")
-    # parser.add_argument("--env_name", type=str, default="2s_vs_1sc", help="Specific setting")
+    # parser.add_argument("--env", type=str, default="balance", help="Flatland or SMAC env")
+    # parser.add_argument("--env_name", type=str, default="balance", help="Specific setting")
+    parser.add_argument("--env", type=str, default="starcraft", help="Flatland or SMAC env")
+    parser.add_argument("--env_name", type=str, default="2s_vs_1sc", help="Specific setting")
     parser.add_argument("--n_workers", type=int, default=4, help="Number of workers")
     return parser.parse_args()
 
@@ -184,4 +187,4 @@ if __name__ == "__main__":
         learner_config=configs["learner_config"],
     )
 
-    train_dreamer(exp, n_workers=args.n_workers)
+    train_dreamer(exp, n_workers=args.n_workers, debug=False)
