@@ -45,6 +45,9 @@ def batch_multi_agent(tensor, n_agents):
 
 
 def compute_return(reward, value, discount, bootstrap, lmbda, gamma):
+    """
+    Called for return, but agnostice to the type of value. so we use cost here also.
+    """
     next_values = torch.cat([value[1:], bootstrap[None]], 0)
     target = reward + gamma * discount * next_values * (1 - lmbda)
     outputs = []

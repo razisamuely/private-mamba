@@ -146,7 +146,7 @@ class DreamerLearner:
         self.model.eval()
 
     def train_agent(self, samples):
-        actions, av_actions, old_policy, imag_feat, returns = actor_rollout(
+        actions, av_actions, old_policy, imag_feat, returns, cost_returns = actor_rollout(
             samples["observation"],
             samples["action"],
             samples["last"],
@@ -178,7 +178,8 @@ class DreamerLearner:
                 )
                 self.apply_optimizer(self.actor_optimizer, self.actor, loss, self.config.GRAD_CLIP_POLICY)
                 self.entropy *= self.config.ENTROPY_ANNEALING
-                val_loss = value_loss(self.critic, imag_feat[idx], returns[idx])
+                val_loss = value_loss(self.critic, imag_feat[idx], returns[idx], cost_returns[idx])
+
                 if np.random.randint(20) == 9:
                     wandb.log({"Agent/val_loss": val_loss, "Agent/actor_loss": loss})
                 self.apply_optimizer(self.critic_optimizer, self.critic, val_loss, self.config.GRAD_CLIP_POLICY)

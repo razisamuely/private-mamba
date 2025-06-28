@@ -41,7 +41,8 @@ def model_loss(config, model, obs, action, av_action, reward, cost, done, fake, 
             model.cost_model(feat), cost[1:]
         )  #  TODO (razisamuely): May use other loss function that fits to cost term, for example, F.binary_cross_entropy_with_logits
     else:
-        cost_loss = 0.0
+        cost_loss = 0.0  # TODO (razisamuely): Better no cost handling, but for now we just ignore it
+
     pcont_loss = log_prob_loss(model.pcont, feat, (1.0 - done[1:]))
     av_action_loss = log_prob_loss(model.av_action, feat_dec, av_action[:-1]) if av_action is not None else 0.0
     i_feat = i_feat.reshape(time_steps - 1, batch_size, n_agents, -1)
@@ -49,13 +50,12 @@ def model_loss(config, model, obs, action, av_action, reward, cost, done, fake, 
     dis_loss = info_loss(i_feat[1:], model, action[1:-1], 1.0 - fake[1:-1].reshape(-1))
     div = state_divergence_loss(prior, post, config)
 
-    model_loss = (
-        div + reward_loss + dis_loss + reconstruction_loss + pcont_loss + av_action_loss + cost_loss
-    )  # TODO (razisamuely): add cost_loss if needed
+    model_loss = div + reward_loss + dis_loss + reconstruction_loss + pcont_loss + av_action_loss + cost_loss
     if np.random.randint(20) == 4:
         wandb.log(
             {
                 "Model/reward_loss": reward_loss,
+                "Model/cost_loss": cost_loss,
                 "Model/div": div,
                 "Model/av_action_loss": av_action_loss,
                 "Model/reconstruction_loss": reconstruction_loss,
@@ -78,7 +78,7 @@ def actor_rollout(obs, action, last, model, actor, critic, config):
         items = rollout_policy(model.transition, model.av_action, config.HORIZON, actor, post)
     imag_feat = items["imag_states"].get_features()
     imag_rew_feat = torch.cat([items["imag_states"].stoch[:-1], items["imag_states"].deter[1:]], -1)
-    returns = critic_rollout(
+    returns, cost_returns = critic_rollout(
         model,
         critic,
         imag_feat,
@@ -93,6 +93,7 @@ def actor_rollout(obs, action, last, model, actor, critic, config):
         items["old_policy"][:-1].detach(),
         imag_feat[:-1].detach(),
         returns.detach(),
+        cost_returns.detach(),
     ]
     return [batch_multi_agent(v, n_agents) for v in output]
 
@@ -127,7 +128,16 @@ def critic_rollout(model, critic, states, rew_states, actions, raw_states, confi
     returns = compute_return(
         imag_reward, value[:-1], discount_arr, bootstrap=value[-1], lmbda=config.DISCOUNT_LAMBDA, gamma=config.GAMMA
     )
-    return returns
+    cost_returns = compute_return(
+        image_cost,
+        cost_value[:-1],
+        discount_arr,
+        bootstrap=cost_value[-1],
+        lmbda=config.DISCOUNT_LAMBDA,
+        gamma=config.GAMMA,
+    )
+
+    return returns, cost_returns
 
 
 def calculate_reward(model, states, mask=None):
@@ -172,7 +182,14 @@ def actor_loss(imag_states, actions, av_actions, old_policy, advantage, actor, e
     return (ppo_loss + ent_loss.unsqueeze(-1) * ent_weight).mean()
 
 
-def value_loss(critic, imag_feat, targets):
-    value_pred = critic(imag_feat)["value"]
-    mse_loss = (targets - value_pred) ** 2 / 2.0
-    return torch.mean(mse_loss)
+def value_loss(critic, imag_feat, reward_targets, cost_targets=None, lambda_cost=1.0):
+    values = critic(imag_feat)
+    value_pred = values["value"]
+    value_loss = ((reward_targets - value_pred) ** 2) / 2.0
+
+    if cost_targets is not None:
+        cost_pred = values["cost"]
+        cost_loss = ((cost_targets - cost_pred) ** 2) / 2.0
+        return torch.mean(value_loss) + lambda_cost * torch.mean(cost_loss)
+
+    return torch.mean(value_loss)
