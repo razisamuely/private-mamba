@@ -190,6 +190,15 @@ def value_loss(critic, imag_feat, reward_targets, cost_targets=None, lambda_cost
     if cost_targets is not None:
         cost_pred = values["cost"]
         cost_loss = ((cost_targets - cost_pred) ** 2) / 2.0
+
+        if np.random.randint(20) == 9:
+            wandb.log(
+                {
+                    "Agent/critic_reward_value_loss": value_loss.mean(),
+                    "Agent/critic_cost_value_loss": cost_loss.mean(),
+                }
+            )
+
         return torch.mean(value_loss) + lambda_cost * torch.mean(cost_loss)
 
     return torch.mean(value_loss)
