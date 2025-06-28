@@ -18,6 +18,9 @@ class DreamerModel(nn.Module):
         self.transition = RSSMTransition(config, config.MODEL_HIDDEN)
         self.representation = RSSMRepresentation(config, self.transition)
         self.reward_model = DenseModel(config.FEAT, 1, config.REWARD_LAYERS, config.REWARD_HIDDEN)
+        self.cost_model = DenseModel(
+            config.FEAT, 1, config.REWARD_LAYERS, config.REWARD_HIDDEN
+        )  # TODO(razisamuely) : config.REWARD_LAYERS -> config.COST_LAYERS, config.REWARD_HIDDEN - config.COST_HIDDEN
         self.pcont = DenseBinaryModel(config.FEAT, 1, config.PCONT_LAYERS, config.PCONT_HIDDEN)
 
         if config.USE_AVAILABLE_ACTIONS:

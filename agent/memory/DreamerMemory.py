@@ -24,6 +24,7 @@ class DreamerMemory:
             else None
         )
         self.rewards = np.empty((self.capacity, n_agents, 1), dtype=np.float32)
+        self.costs = np.empty((self.capacity, n_agents, 1), dtype=np.float32)
         self.dones = np.empty((self.capacity, n_agents, 1), dtype=np.float32)
         self.fake = np.empty((self.capacity, n_agents, 1), dtype=np.float32)
         self.last = np.empty((self.capacity, n_agents, 1), dtype=np.float32)
@@ -31,7 +32,7 @@ class DreamerMemory:
         self.n_agents = n_agents
         self.full = False
 
-    def append(self, obs, action, reward, done, fake, last, av_action):
+    def append(self, obs, action, reward, cost, done, fake, last, av_action):
         if self.actions.shape[-2] != action.shape[-2]:
             self.init_buffer(action.shape[-2], self.env_type)
         for i in range(len(obs)):
@@ -40,6 +41,7 @@ class DreamerMemory:
             if av_action is not None:
                 self.av_actions[self.next_idx] = av_action[i]
             self.rewards[self.next_idx] = reward[i]
+            self.costs[self.next_idx] = cost[i]
             self.dones[self.next_idx] = done[i]
             self.fake[self.next_idx] = fake[i]
             self.last[self.next_idx] = last[i]
@@ -60,6 +62,7 @@ class DreamerMemory:
         vec_idxs = idxs.transpose().reshape(-1)
         observation = self.process_batch(self.observations, vec_idxs, batch_size)[1:]
         reward = self.process_batch(self.rewards, vec_idxs, batch_size)[:-1]
+        cost = self.process_batch(self.costs, vec_idxs, batch_size)[:-1]
         action = self.process_batch(self.actions, vec_idxs, batch_size)[:-1]
         av_action = (
             self.process_batch(self.av_actions, vec_idxs, batch_size)[1:] if self.use_available_actions else None
@@ -71,6 +74,7 @@ class DreamerMemory:
         return {
             "observation": observation,
             "reward": reward,
+            "cost": cost,
             "action": action,
             "done": done,
             "fake": fake,

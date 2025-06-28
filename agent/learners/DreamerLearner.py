@@ -104,6 +104,7 @@ class DreamerLearner:
             rollout["observation"],
             rollout["action"],
             rollout["reward"],
+            rollout["cost"],
             rollout["done"],
             rollout["fake"],
             rollout["last"],
@@ -136,6 +137,7 @@ class DreamerLearner:
             samples["action"],
             samples["av_action"],
             samples["reward"],
+            samples["cost"],
             samples["done"],
             samples["fake"],
             samples["last"],
@@ -153,7 +155,9 @@ class DreamerLearner:
             self.critic_old if self.config.ROLLOUT_WITH_TARGET_CRITIC else self.critic,
             self.config,
         )
-        adv = returns.detach() - self.critic(imag_feat).detach()
+        value_pred = self.critic(imag_feat)["value"]
+        adv = returns.detach() - value_pred.detach()
+
         if self.config.NORMALIZE_ADVANTAGE:
             adv = advantage_normalization(adv)
         wandb.log({"Agent/Returns": returns.mean()})
