@@ -53,3 +53,4 @@ wandb/*
 *.avi
 *.mov
 *.pt
+safety-gymnasium*

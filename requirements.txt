@@ -7,3 +7,7 @@ argparse
 pre-commit
 imageio
 vmas[gymnasium,render]
+safety-gymnasium
+gymnasium
+pygame 
+numpy

@@ -6,6 +6,7 @@ class Env(str, Enum):
     STARCRAFT = "starcraft"
     SIMPLE_SPREAD = "simple_spread"
     VMAS_BALANCE = "balance"
+    SAFETY_GYM = "safety_gym"
 
 
 class FlatlandType(str, Enum):

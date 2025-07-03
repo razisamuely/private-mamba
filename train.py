@@ -17,6 +17,7 @@ from configs.flatland.RewardConfigs import FinishRewardConfig
 from configs.flatland.TimetableConfigs import AllAgentLauncherConfig
 from env.flatland.params import LotsOfAgents, PackOfAgents, SeveralAgents
 from env.mpe.vmas_simple_spread import VmasSpread
+from env.safetygym.SafetyGymWrapper import SafetyGymWrapper
 from env.starcraft.StarCraft import StarCraft
 from env.vmas.balance import VmasBalance
 from environments import FLATLAND_ACTION_SIZE, FLATLAND_OBS_SIZE, Env, FlatlandType
@@ -63,13 +64,15 @@ def parse_args():
     # parser.add_argument("--env_name", type=str, default="simple_spread", help="Specific setting")
     # parser.add_argument("--env", type=str, default="balance", help="Flatland or SMAC env")
     # parser.add_argument("--env_name", type=str, default="balance", help="Specific setting")
-    parser.add_argument("--env", type=str, default="starcraft", help="Flatland or SMAC env")
-    parser.add_argument("--env_name", type=str, default="2s_vs_1sc", help="Specific setting")
+    # parser.add_argument("--env", type=str, default="starcraft", help="Flatland or SMAC env")
+    # parser.add_argument("--env_name", type=str, default="2s_vs_1sc", help="Specific setting")
+    parser.add_argument("--env", type=str, default="safety_gym", help="Flatland or SMAC env")
+    parser.add_argument("--env_name", type=str, default="SafetyPointMultiGoal1-v0", help="Specific setting")
     parser.add_argument("--n_workers", type=int, default=4, help="Number of workers")
     return parser.parse_args()
 
 
-def train_dreamer(exp, n_workers, debug=False):
+def train_dreamer(exp, n_workers, debug=True):
     if debug:
         run_one_process_one_env_debug(exp)
         return
@@ -130,6 +133,19 @@ def prepare_vmas_balance_configs(env_name):
     }
 
 
+def prepare_safety_gym_configs(env_name):
+    agent_configs = [DreamerControllerConfig(), DreamerLearnerConfig()]
+    env_config = SafetyGymWrapper(env_name)
+    get_env_info(agent_configs, env_config.create_env())
+    return {
+        "env_config": (env_config, 100),
+        "controller_config": agent_configs[0],
+        "learner_config": agent_configs[1],
+        "reward_config": None,
+        "obs_builder_config": None,
+    }
+
+
 def prepare_flatland_configs(env_name):
     if env_name == FlatlandType.FIVE_AGENTS:
         env_config = SeveralAgents(RANDOM_SEED + 100)
@@ -167,6 +183,8 @@ if __name__ == "__main__":
         configs = prepare_simple_spread_configs(args.env_name)
     elif args.env == Env.VMAS_BALANCE:
         configs = prepare_vmas_balance_configs(args.env_name)
+    elif args.env == Env.SAFETY_GYM:
+        configs = prepare_safety_gym_configs(args.env_name)
     else:
         raise Exception("Unknown environment")
     configs["env_config"][0].ENV_TYPE = Env(args.env)
@@ -187,4 +205,4 @@ if __name__ == "__main__":
         learner_config=configs["learner_config"],
     )
 
-    train_dreamer(exp, n_workers=args.n_workers, debug=False)
+    train_dreamer(exp, n_workers=args.n_workers, debug=True)
