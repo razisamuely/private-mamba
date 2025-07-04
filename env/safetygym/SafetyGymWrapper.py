@@ -5,20 +5,44 @@ import torch
 
 class SafetyGymWrapper:
     def __init__(self, env_name="SafetyPointMultiGoal1-v0"):
+        """
+        SafetyGym environment wrapper for Ray distributed training.
+
+        Note: Unlike other environment wrappers, this class defers environment creation
+        until reset() is called to avoid Ray serialization issues. SafetyGym's internal
+        Builder class cannot be properly pickled/unpickled across Ray worker processes.
+        """
+
         self.env_name = env_name
-        self.env = safety_gymnasium.make(
-            env_name,
-            render_mode="rgb_array",
-            camera_name="topdown",
-        )
-        self.agents = self.env.agents
-        self.n_agents = len(self.agents)
-        self.agents_obs = {agent: self.env.observation_space(agent).shape[0] for agent in self.agents}
-        self.n_obs = self.agents_obs["agent_0"]  # Assuming all agents have the same observation space
-        self.agents_actions = {agent: self.env.action_space(agent).shape[0] for agent in self.agents}
+        self.env = None
+        # Remove this line: self._initialize_env()
+
+        # Set these manually to avoid creating the environment
+        self.n_agents = 2
+        self.n_obs = 152
+        self.n_actions = 9
+        self.agents = ["agent_0", "agent_1"]
         self.action_map = self.create_action_mapping()
-        self.n_actions = len(self.action_map)
         self.agent_actions_discrete = {agent: self.n_actions for agent in self.agents}
+
+    def _initialize_env(self):
+        if self.env is None:
+            self.env = safety_gymnasium.make(
+                self.env_name,
+                render_mode="rgb_array",
+                camera_name="topdown",
+            )
+            # Update these values from the actual environment
+            self.agents = self.env.agents
+            self.n_agents = len(self.agents)
+            self.agents_obs = {agent: self.env.observation_space(agent).shape[0] for agent in self.agents}
+            self.agent_actions_discrete = {agent: self.n_actions for agent in self.agents}
+
+    def reset(self):
+        self._initialize_env()
+        obs, _ = self.env.reset()
+        obs = self.obs_name_convertor(obs)
+        return obs
 
     def get_avail_agent_actions(self, agent_id):
         """
@@ -43,11 +67,6 @@ class SafetyGymWrapper:
 
     def to_dict(self, l):
         return {agent: l[i] for i, agent in enumerate(self.agents)}
-
-    def reset(self):
-        obs, _ = self.env.reset()
-        obs = self.obs_name_convertor(obs)
-        return obs
 
     def step(self, action_dict):
         action_dict = self.action_vector_to_maped_dict(action_dict)
@@ -107,7 +126,7 @@ class SafetyGymWrapper:
         return {agent: self.action_map[action] for agent, action in zip(self.agents, action_vector)}
 
     def get_random_action(self):
-        return [np.random.randint(0, self.n_actions_discrete) for _ in range(self.n_agents)]
+        return [np.random.randint(0, self.n_actions) for _ in range(self.n_agents)]
 
 
 if __name__ == "__main__":
@@ -124,4 +143,4 @@ if __name__ == "__main__":
         print(f"{agent_id} observation shape:", agent_obs.shape)
         print(f"{agent_id} partial observation:", agent_obs[:10])  # show just first few values
 
-    print("agent_0 == agent_1 obs:", np.allclose(obs["agent_0"], obs["agent_1"]))
+    print("agent_0 == agent_1 obs:", np.allclose(obs[0], obs[1]))
