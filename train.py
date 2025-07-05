@@ -18,7 +18,9 @@ from configs.flatland.TimetableConfigs import AllAgentLauncherConfig
 from env.flatland.params import LotsOfAgents, PackOfAgents, SeveralAgents
 from env.mpe.vmas_simple_spread import VmasSpread
 from env.safetygym.SafetyGymWrapper import SafetyGymWrapper
-from env.starcraft.StarCraft import StarCraft
+
+# from env.starcraft.StarCraft import StarCraft
+from env.starcraft.StarCraft_safe import StarCraft
 from env.vmas.balance import VmasBalance
 from environments import FLATLAND_ACTION_SIZE, FLATLAND_OBS_SIZE, Env, FlatlandType
 
@@ -64,10 +66,10 @@ def parse_args():
     # parser.add_argument("--env_name", type=str, default="simple_spread", help="Specific setting")
     # parser.add_argument("--env", type=str, default="balance", help="Flatland or SMAC env")
     # parser.add_argument("--env_name", type=str, default="balance", help="Specific setting")
-    # parser.add_argument("--env", type=str, default="starcraft", help="Flatland or SMAC env")
-    # parser.add_argument("--env_name", type=str, default="2s_vs_1sc", help="Specific setting")
-    parser.add_argument("--env", type=str, default="safety_gym", help="Flatland or SMAC env")
-    parser.add_argument("--env_name", type=str, default="SafetyPointMultiGoal1-v0", help="Specific setting")
+    parser.add_argument("--env", type=str, default="starcraft", help="Flatland or SMAC env")
+    parser.add_argument("--env_name", type=str, default="10m_vs_11m", help="Specific setting")
+    # parser.add_argument("--env", type=str, default="safety_gym", help="Flatland or SMAC env")
+    # parser.add_argument("--env_name", type=str, default="SafetyPointMultiGoal1-v0", help="Specific setting")
     parser.add_argument("--n_workers", type=int, default=4, help="Number of workers")
     return parser.parse_args()
 
