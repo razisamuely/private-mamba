@@ -12,7 +12,7 @@ class StarCraft(Config):
     that don't naturally decrease as agents improve at the main task.
     """
 
-    def __init__(self, env_name, cost_type="resource_waste", safe_distance=3.0, formation_threshold=5.0):
+    def __init__(self, env_name, cost_type="aggressive_positioning", safe_distance=3.0, formation_threshold=5.0):
         self.env_name = env_name
         self.cost_type = cost_type
         self.safe_distance = safe_distance
@@ -85,13 +85,12 @@ class StarCraft(Config):
         unit = self.env.get_unit_by_id(agent_id)
         if unit:
             return (unit.pos.x, unit.pos.y)
-        return None
+        else:
+            raise ValueError(f"Agent {agent_id} not found in the environment.")
 
     def get_enemy_distances(self, agent_id):
         """Calculate distances to all enemies for given agent"""
         agent_pos = self.get_agent_position(agent_id)
-        if not agent_pos:
-            return []
 
         distances = []
         enemies = self.env.enemies
@@ -130,23 +129,42 @@ class StarCraft(Config):
 
         return total_distance / pairs if pairs > 0 else 0
 
+    # def get_cost_resource_waste(self, info):
+    #     """Cost based on inefficient resource usage (wasted shots)"""
+    #     # Get current battle statistics
+    #     info.get("battle_won", False)
+    #     current_shots = self.env.death_tracker_ally.get("shots_fired", 0)
+    #     current_hits = self.env.death_tracker_ally.get("hits_made", 0)
+
+    #     # Calculate shots fired this step
+    #     shots_this_step = current_shots - self.prev_shots_fired
+    #     hits_this_step = current_hits - self.prev_hits_made
+
+    #     # Update tracking
+    #     self.prev_shots_fired = current_shots
+    #     self.prev_hits_made = current_hits
+
+    #     # Cost = wasted shots (shots that didn't hit)
+    #     wasted_shots = max(0, shots_this_step - hits_this_step)
+    #     return wasted_shots
+
     def get_cost_resource_waste(self, info):
-        """Cost based on inefficient resource usage (wasted shots)"""
-        # Get current battle statistics
-        info.get("battle_won", False)
-        current_shots = self.env.death_tracker_ally.get("shots_fired", 0)
-        current_hits = self.env.death_tracker_ally.get("hits_made", 0)
 
-        # Calculate shots fired this step
-        shots_this_step = current_shots - self.prev_shots_fired
-        hits_this_step = current_hits - self.prev_hits_made
+        # Get actual action indices from one-hot encoded actions
+        if hasattr(self.env, "last_action") and self.env.last_action is not None:
+            action_indices = [row.argmax() for row in self.env.last_action]
+            # Count attack actions (actions >= n_actions_no_attack are attacks)
+            attack_count = sum(1 for action in action_indices if action >= self.env.n_actions_no_attack)
+        else:
+            attack_count = 0
 
-        # Update tracking
-        self.prev_shots_fired = current_shots
-        self.prev_hits_made = current_hits
+        # Track kills this step
+        current_kills = info.get("dead_enemies", 0)
+        kills_this_step = current_kills - getattr(self, "prev_kills", 0)
+        self.prev_kills = current_kills
 
-        # Cost = wasted shots (shots that didn't hit)
-        wasted_shots = max(0, shots_this_step - hits_this_step)
+        # Cost = attacks that didn't result in kills (wasted shots)
+        wasted_shots = max(0, attack_count - kills_this_step)
         return wasted_shots
 
     def get_cost_aggressive_positioning(self, info):
@@ -197,26 +215,21 @@ class StarCraft(Config):
 
     def get_cost(self, info):
         """Main cost function - selects based on cost_type"""
-        try:
-            if self.cost_type == "resource_waste":
-                return self.get_cost_resource_waste(info)
-            elif self.cost_type == "aggressive_positioning":
-                return self.get_cost_aggressive_positioning(info)
-            elif self.cost_type == "danger_zone":
-                return self.get_cost_danger_zone_violation(info)
-            elif self.cost_type == "formation_breaking":
-                return self.get_cost_formation_breaking(info)
-            elif self.cost_type == "combined":
-                return self.get_cost_combined(info)
-            elif self.cost_type == "dead_allies":
-                # Original cost (for comparison)
-                return info.get("dead_allies", 0)
-            else:
-                return 0
-        except Exception as e:
-            # Fallback to simple cost if complex calculation fails
-            print(f"Cost calculation error: {e}")
+        if self.cost_type == "resource_waste":
+            return self.get_cost_resource_waste(info)
+        elif self.cost_type == "aggressive_positioning":
+            return self.get_cost_aggressive_positioning(info)
+        elif self.cost_type == "danger_zone":
+            return self.get_cost_danger_zone_violation(info)
+        elif self.cost_type == "formation_breaking":
+            return self.get_cost_formation_breaking(info)
+        elif self.cost_type == "combined":
+            return self.get_cost_combined(info)
+        elif self.cost_type == "dead_allies":
+            # Original cost (for comparison)
             return info.get("dead_allies", 0)
+        else:
+            return 0
 
 
 if __name__ == "__main__":

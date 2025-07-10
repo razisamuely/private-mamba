@@ -1,6 +1,7 @@
 import argparse
 from pathlib import Path
 
+import wandb
 from agent.runners.DreamerRunner import DreamerRunner
 from agent.workers.DreamerWorker import DreamerWorker
 from configs import (
@@ -67,7 +68,7 @@ def parse_args():
     # parser.add_argument("--env", type=str, default="balance", help="Flatland or SMAC env")
     # parser.add_argument("--env_name", type=str, default="balance", help="Specific setting")
     parser.add_argument("--env", type=str, default="starcraft", help="Flatland or SMAC env")
-    parser.add_argument("--env_name", type=str, default="10m_vs_11m", help="Specific setting")
+    parser.add_argument("--env_name", type=str, default="3s_vs_4z", help="Specific setting")
     # parser.add_argument("--env", type=str, default="safety_gym", help="Flatland or SMAC env")
     # parser.add_argument("--env_name", type=str, default="SafetyPointMultiGoal1-v0", help="Specific setting")
     parser.add_argument("--n_workers", type=int, default=4, help="Number of workers")
@@ -179,7 +180,11 @@ def prepare_flatland_configs(env_name):
 
 if __name__ == "__main__":
     RANDOM_SEED = 23
+
     args = parse_args()
+    # wandb.init(name=f"smac_test_cost_term_dreamer_{args.env}_{args.env_name}_combined")
+    wandb.init(name=f"resources_waste_test_loss_{args.env}_{args.env_name}_combined")
+
     if args.env == Env.FLATLAND:
         configs = prepare_flatland_configs(args.env_name)
     elif args.env == Env.STARCRAFT:
@@ -210,4 +215,4 @@ if __name__ == "__main__":
         learner_config=configs["learner_config"],
     )
 
-    train_dreamer(exp, n_workers=args.n_workers, debug=False)
+    train_dreamer(exp, n_workers=args.n_workers, debug=True)
