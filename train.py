@@ -68,7 +68,7 @@ def parse_args():
     # parser.add_argument("--env", type=str, default="balance", help="Flatland or SMAC env")
     # parser.add_argument("--env_name", type=str, default="balance", help="Specific setting")
     parser.add_argument("--env", type=str, default="starcraft", help="Flatland or SMAC env")
-    parser.add_argument("--env_name", type=str, default="3s_vs_4z", help="Specific setting")
+    parser.add_argument("--env_name", type=str, default="8m", help="Specific setting")
     # parser.add_argument("--env", type=str, default="safety_gym", help="Flatland or SMAC env")
     # parser.add_argument("--env_name", type=str, default="SafetyPointMultiGoal1-v0", help="Specific setting")
     parser.add_argument("--n_workers", type=int, default=4, help="Number of workers")
@@ -183,7 +183,10 @@ if __name__ == "__main__":
 
     args = parse_args()
     # wandb.init(name=f"smac_test_cost_term_dreamer_{args.env}_{args.env_name}_combined")
-    wandb.init(name=f"resources_waste_test_loss_{args.env}_{args.env_name}_combined")
+    wandb.init(
+        name=f"aggressive_positioning_test_loss_{args.env}_{args.env_name}",
+        id=f"aggressive_positioning_test_loss_{args.env}_{args.env_name}_{RANDOM_SEED}__",
+    )
 
     if args.env == Env.FLATLAND:
         configs = prepare_flatland_configs(args.env_name)
@@ -215,4 +218,4 @@ if __name__ == "__main__":
         learner_config=configs["learner_config"],
     )
 
-    train_dreamer(exp, n_workers=args.n_workers, debug=True)
+    train_dreamer(exp, n_workers=args.n_workers, debug=False)
