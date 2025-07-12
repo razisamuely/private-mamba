@@ -150,10 +150,11 @@ class DreamerWorker:
                 sum([1 for agent in self.env.agents if agent.status == TrainState.DONE_REMOVED]) / self.env.n_agents
             )
         else:
-            if "battle_won" in info:
-                reward = info["battle_won"]
+            if "battle_won" in info and info["battle_won"]:
+                reward = 1
             else:
-                reward = total_episode_reward
+                reward = 0
+                # reward = total_episode_reward # use flag for use total reward instead of win/loss
         return self.controller.dispatch_buffer(), {
             "idx": self.runner_handle,
             "reward": reward,

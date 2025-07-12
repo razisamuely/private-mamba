@@ -1,4 +1,5 @@
 import argparse
+import time
 from pathlib import Path
 
 import wandb
@@ -182,10 +183,11 @@ if __name__ == "__main__":
     RANDOM_SEED = 23
 
     args = parse_args()
-    # wandb.init(name=f"smac_test_cost_term_dreamer_{args.env}_{args.env_name}_combined")
+
+    current_run_time = time.strftime("%Y%m%d_%H%M%S", time.localtime())
     wandb.init(
-        name=f"aggressive_positioning_test_loss_{args.env}_{args.env_name}",
-        id=f"aggressive_positioning_test_loss_{args.env}_{args.env_name}_{RANDOM_SEED}__",
+        name=f"aggressive_positioning_test_loss_{args.env}_{args.env_name}_time_{current_run_time}",
+        id=f"aggressive_positioning_test_loss_{args.env}_{args.env_name}_{RANDOM_SEED}_time_{current_run_time}",
     )
 
     if args.env == Env.FLATLAND:
