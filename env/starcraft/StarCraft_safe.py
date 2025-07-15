@@ -32,10 +32,16 @@ class StarCraft(Config):
     def to_dict(self, l):
         return {i: e for i, e in enumerate(l)}
 
-    def step(self, action_dict):
+    def step(self, action_dict, use_reward_shaping=True):
         reward, done, info = self.env.step(action_dict)
         cost = self.get_cost(info)
         info["cost"] = {i: cost for i in range(self.n_agents)}
+
+        if cost > 0 and use_reward_shaping:
+            reward
+            info["reward_shaping"] = True
+            reward = self.reward_shaping(reward, info, ratio=0.1)
+
         return (
             self.to_dict(self.env.get_obs()),
             {i: reward for i in range(self.n_agents)},
@@ -166,6 +172,16 @@ class StarCraft(Config):
         # Cost = attacks that didn't result in kills (wasted shots)
         wasted_shots = max(0, attack_count - kills_this_step)
         return wasted_shots
+
+    def reward_shaping(self, reward, info, ratio):
+        """
+        Apply reward shaping based on cost.
+        The cost is subtracted from the reward to encourage efficiency.
+        """
+        cost = info.get("cost", {}).get(0, 0)
+        if cost > 0:
+            return reward - ratio * cost
+        return reward
 
     def get_cost_aggressive_positioning(self, info):
         """Cost based on risky positioning (too close to enemies)"""
