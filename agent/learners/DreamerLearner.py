@@ -10,6 +10,7 @@ from agent.models.DreamerModel import DreamerModel
 from agent.optim.loss import actor_loss, actor_rollout, model_loss, value_loss
 from agent.optim.utils import advantage_normalization
 from environments import Env
+from lagrange import Lagrange
 from networks.dreamer.action import Actor
 from networks.dreamer.critic import AugmentedCritic
 
@@ -50,6 +51,9 @@ class DreamerLearner:
 
     def __init__(self, config):
         self.config = config
+        # ---- > Lagrangian TODO: remove hardcoded values
+        self.lagrangian = Lagrange(cost_limit=25, lagrangian_multiplier_init=0.001, lagrangian_multiplier_lr=0.035)
+        # ---- < Lagrangian
         self.model = DreamerModel(config).to(config.DEVICE).eval()
         self.actor = Actor(config.FEAT, config.ACTION_SIZE, config.ACTION_HIDDEN, config.ACTION_LAYERS).to(
             config.DEVICE
@@ -155,8 +159,33 @@ class DreamerLearner:
             self.critic_old if self.config.ROLLOUT_WITH_TARGET_CRITIC else self.critic,
             self.config,
         )
+        # ---- > Lagrangian
+        ep_cost = cost_returns.mean().item()
+        self.lagrangian.update_lagrange_multiplier(ep_cost)
+        lambda_penalty = self.lagrangian.lagrange_penalty
+
+        wandb.log(
+            {
+                "Lagrange/penalty": lambda_penalty,
+                "Lagrange/ep_cost": ep_cost,
+            }
+        )
+
+        # ---- < Lagrangian
+
         value_pred = self.critic(imag_feat)["value"]
-        adv = returns.detach() - value_pred.detach()
+        # adv = returns.detach() - value_pred.detach()
+        # -- > Lagrangian
+        adv = returns.detach() - value_pred.detach() + lambda_penalty * cost_returns.detach()
+
+        wandb.log(
+            {
+                "Agent/advantage": adv.mean(),
+                "Agent/returns": returns.mean(),
+                "Agent/cost_returns": cost_returns.mean(),
+            }
+        )
+        # -- < Lagrangian
 
         if self.config.NORMALIZE_ADVANTAGE:
             adv = advantage_normalization(adv)

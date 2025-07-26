@@ -96,4 +96,6 @@ def render_trained_policy(
 if __name__ == "__main__":
     model_path = "wandb/wandb/run-20250516_144200-eltq1qts/files/model_episod_85.pt"
     model_path = None
-    render_trained_policy(model_path=model_path, map_name="2s_vs_1sc")
+    render_trained_policy(
+        model_path=model_path, map_name="8m", save_gif=True, gif_filename="8m_random_policy.gif", fps=10
+    )

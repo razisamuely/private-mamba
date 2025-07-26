@@ -69,7 +69,7 @@ def parse_args():
     # parser.add_argument("--env", type=str, default="balance", help="Flatland or SMAC env")
     # parser.add_argument("--env_name", type=str, default="balance", help="Specific setting")
     parser.add_argument("--env", type=str, default="starcraft", help="Flatland or SMAC env")
-    parser.add_argument("--env_name", type=str, default="8m", help="Specific setting")
+    parser.add_argument("--env_name", type=str, default="3m", help="Specific setting")
     # parser.add_argument("--env", type=str, default="safety_gym", help="Flatland or SMAC env")
     # parser.add_argument("--env_name", type=str, default="SafetyPointMultiGoal1-v0", help="Specific setting")
     parser.add_argument("--n_workers", type=int, default=4, help="Number of workers")
@@ -220,4 +220,4 @@ if __name__ == "__main__":
         learner_config=configs["learner_config"],
     )
 
-    train_dreamer(exp, n_workers=args.n_workers, debug=False)
+    train_dreamer(exp, n_workers=args.n_workers, debug=True)

@@ -2,14 +2,13 @@ import copy
 from collections import defaultdict
 from copy import deepcopy
 
-import ray
 import torch
 from flatland.envs.agent_utils import TrainState
 
 from environments import Env
 
 
-@ray.remote
+# @ray.remote
 class DreamerWorker:
 
     def __init__(self, idx, env_config, controller_config):
