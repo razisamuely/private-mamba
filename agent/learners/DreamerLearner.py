@@ -162,7 +162,7 @@ class DreamerLearner:
         # ---- > Lagrangian
         ep_cost = cost_returns.mean().item()
         self.lagrangian.update_lagrange_multiplier(ep_cost)
-        lambda_penalty = self.lagrangian.lagrange_penalty
+        lambda_penalty = self.lagrangian.lagrangian_multiplier
 
         wandb.log(
             {

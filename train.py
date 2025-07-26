@@ -186,8 +186,8 @@ if __name__ == "__main__":
 
     current_run_time = time.strftime("%Y%m%d_%H%M%S", time.localtime())
     wandb.init(
-        name=f"aggressive_positioning_test_loss_{args.env}_{args.env_name}_time_{current_run_time}",
-        id=f"aggressive_positioning_test_loss_{args.env}_{args.env_name}_{RANDOM_SEED}_time_{current_run_time}",
+        name=f"danger_zone_test_lagrangian_{args.env}_{args.env_name}_time_{current_run_time}",
+        id=f"danger_zone_test_lagrangian_{args.env}_{args.env_name}_{RANDOM_SEED}_time_{current_run_time}",
     )
 
     if args.env == Env.FLATLAND:
