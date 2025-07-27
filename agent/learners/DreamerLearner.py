@@ -52,7 +52,7 @@ class DreamerLearner:
     def __init__(self, config):
         self.config = config
         # ---- > Lagrangian TODO: remove hardcoded values
-        self.lagrangian = Lagrange(cost_limit=25, lagrangian_multiplier_init=0.001, lagrangian_multiplier_lr=0.035)
+        self.lagrangian = Lagrange(cost_limit=0, lagrangian_multiplier_init=0.001, lagrangian_multiplier_lr=0.035)
         # ---- < Lagrangian
         self.model = DreamerModel(config).to(config.DEVICE).eval()
         self.actor = Actor(config.FEAT, config.ACTION_SIZE, config.ACTION_HIDDEN, config.ACTION_LAYERS).to(
@@ -168,6 +168,8 @@ class DreamerLearner:
             {
                 "Lagrange/penalty": lambda_penalty,
                 "Lagrange/ep_cost": ep_cost,
+                "Lagrange/delta": self.lagrangian.delta,
+                "Lagrange/mu": self.lagrangian.mu,
             }
         )
 

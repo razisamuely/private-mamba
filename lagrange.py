@@ -80,12 +80,12 @@ class Lagrange:
         return -self._lagrangian_multiplier * (mean_ep_cost - self.cost_limit)
 
     def update_lagrange_multiplier(self, Jc: float):
-        delta = torch.tensor(Jc - self.cost_limit, dtype=torch.float32)
+        self.delta = torch.tensor(Jc - self.cost_limit, dtype=torch.float32)
 
         if self.use_analytic:
-            cond = self.lagrangian_multiplier + self.mu * delta
+            cond = self.lagrangian_multiplier + self.mu * self.delta
             if cond >= 0:
-                psi = self.lagrangian_multiplier * delta + self.mu * 0.5 * delta**2
+                psi = self.lagrangian_multiplier * self.delta + self.mu * 0.5 * self.delta**2
                 self._lagrangian_multiplier.data = torch.clamp(torch.as_tensor(cond), min=0.0)
 
             else:
@@ -96,7 +96,7 @@ class Lagrange:
             return psi
         elif self.use_gradient:
             self.lambda_optimizer.zero_grad()
-            loss = -self._lagrangian_multiplier * delta
+            loss = -self._lagrangian_multiplier * self.delta
             loss.backward()
             self.lambda_optimizer.step()
             self._lagrangian_multiplier.data.clamp_(0.0, self.lagrangian_upper_bound)
