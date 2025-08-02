@@ -7,102 +7,58 @@ import torch
 
 
 class Lagrange:
-    """Lagrange multiplier for constrained optimization.
-
-    Args:
-        cost_limit: the cost limit
-        lagrangian_multiplier_init: the initial value of the lagrangian multiplier
-        lagrangian_multiplier_lr: the learning rate of the lagrangian multiplier
-        lagrangian_upper_bound: the upper bound of the lagrangian multiplier
-
-    Attributes:
-        cost_limit: the cost limit
-        lagrangian_multiplier_lr: the learning rate of the lagrangian multiplier
-        lagrangian_upper_bound: the upper bound of the lagrangian multiplier
-        _lagrangian_multiplier: the lagrangian multiplier
-        lambda_range_projection: the projection function of the lagrangian multiplier
-        lambda_optimizer: the optimizer of the lagrangian multiplier
-    """
-
-    # pylint: disable-next=too-many-arguments
     def __init__(
         self,
         cost_limit: float,
-        lagrangian_multiplier_init: float,
-        lagrangian_multiplier_lr: float,
-        lagrangian_upper_bound: float | None = None,
-        use_analytic=True,
-        use_gradient=False,
-        mu_init=5e-9,
-        nu=1e-5,
-    ) -> None:
-        """Initialize an instance of :class:`Lagrange`."""
-        self.cost_limit: float = cost_limit
-        self.lagrangian_multiplier_lr: float = lagrangian_multiplier_lr
-        self.lagrangian_upper_bound: float | None = lagrangian_upper_bound
-        self.use_analytic = use_analytic
-        self.use_gradient = use_gradient
-        self.mu = mu_init
+        lagrangian_multiplier_init: float = 0.001,
+        penalty_multiplier_init: float = 5e-9,
+        nu: float = 1e-5,
+    ):
+        self.cost_limit = cost_limit
         self.nu = nu
 
-        init_value = max(lagrangian_multiplier_init, 0.0)
-        self._lagrangian_multiplier: torch.nn.Parameter = torch.nn.Parameter(
-            torch.as_tensor(init_value),
-            requires_grad=True,
+        # Lagrangian multiplier (λ)
+        self._lagrangian_multiplier = torch.nn.Parameter(
+            torch.tensor(max(lagrangian_multiplier_init, 0.0), dtype=torch.float32),
+            requires_grad=False,  # Updated manually following paper
         )
-        self.lambda_range_projection: torch.nn.ReLU = torch.nn.ReLU()
-        # fetch optimizer from PyTorch optimizer package
-        self.lambda_optimizer: torch.optim.Optimizer = torch.optim.Adam(
-            [
-                self._lagrangian_multiplier,
-            ],
-            lr=lagrangian_multiplier_lr,
-        )
+
+        # Penalty multiplier (μ)
+        self.penalty_multiplier = max(penalty_multiplier_init, 0.0)
 
     @property
     def lagrangian_multiplier(self) -> torch.Tensor:
-        """The lagrangian multiplier.
+        return torch.clamp(self._lagrangian_multiplier, min=0.0)
 
-        Returns:
-            the lagrangian multiplier
-        """
-        return self.lambda_range_projection(self._lagrangian_multiplier).detach()
+    def update_multipliers(self, cost_return_batch: torch.Tensor) -> torch.Tensor:
+        """Update λ and μ following Augmented Lagrangian method from paper."""
 
-    def compute_lambda_loss(self, mean_ep_cost: float) -> torch.Tensor:
-        """Compute the loss of the lagrangian multiplier.
+        # Compute constraint violation (batch average)
+        g = cost_return_batch.mean() - self.cost_limit
 
-        Args:
-            mean_ep_cost: the mean episode cost
+        # Current values
+        lambda_k = self.lagrangian_multiplier.item()
+        mu_k = self.penalty_multiplier
 
-        Returns:
-            the loss of the lagrangian multiplier
-        """
-        return -self._lagrangian_multiplier * (mean_ep_cost - self.cost_limit)
+        # Update λ following Equation 8
+        cond = lambda_k + mu_k * g.item()
+        new_lambda = max(0.0, cond)
 
-    def update_lagrange_multiplier(self, Jc: float):
-        self.delta = torch.tensor(Jc - self.cost_limit, dtype=torch.float32)
+        # Update μ (ensure non-decreasing)
+        new_mu = max(mu_k * (self.nu + 1.0), 1)
 
-        if self.use_analytic:
-            cond = self.lagrangian_multiplier + self.mu * self.delta
-            if cond >= 0:
-                psi = self.lagrangian_multiplier * self.delta + self.mu * 0.5 * self.delta**2
-                self._lagrangian_multiplier.data = torch.clamp(torch.as_tensor(cond), min=0.0)
+        # Write new values
+        with torch.no_grad():
+            self._lagrangian_multiplier.data = torch.tensor(new_lambda, dtype=torch.float32)
+        self.penalty_multiplier = new_mu
 
-            else:
-                psi = -0.5 * self.lagrangian_multiplier**2 / self.mu
-                self._lagrangian_multiplier.data = torch.tensor(0.0)
-
-            self.mu = max(self.mu * (self.nu + 1.0), self.mu)
-            return psi
-        elif self.use_gradient:
-            self.lambda_optimizer.zero_grad()
-            loss = -self._lagrangian_multiplier * self.delta
-            loss.backward()
-            self.lambda_optimizer.step()
-            self._lagrangian_multiplier.data.clamp_(0.0, self.lagrangian_upper_bound)
-            return loss.item()
+        # Compute ψ (penalty term)
+        if cond > 0.0:
+            psi = lambda_k * g + 0.5 * mu_k * g * g
         else:
-            raise ValueError("Either use_analytic or use_gradient must be True.")
+            psi = -0.5 * lambda_k * lambda_k / mu_k
+
+        return psi
 
 
 class PIDLagrangian:  # noqa: B024

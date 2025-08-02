@@ -168,7 +168,7 @@ def calculate_next_cost(model, actions, states):
     return calculate_cost(model, imag_cost_feat)
 
 
-def actor_loss(imag_states, actions, av_actions, old_policy, advantage, actor, ent_weight):
+def actor_loss(imag_states, actions, av_actions, old_policy, advantage, actor, ent_weight, psi):
     _, new_policy = actor(imag_states)
     if av_actions is not None:
         new_policy[av_actions == 0] = -1e10
@@ -179,7 +179,7 @@ def actor_loss(imag_states, actions, av_actions, old_policy, advantage, actor, e
     ppo_loss, ent_loss = calculate_ppo_loss(new_policy, rho, advantage)
     if np.random.randint(10) == 9:
         wandb.log({"Policy/Entropy": ent_loss.mean(), "Policy/Mean action": actions.float().mean()})
-    return (ppo_loss + ent_loss.unsqueeze(-1) * ent_weight).mean()
+    return (ppo_loss + ent_loss.unsqueeze(-1) * ent_weight).mean() + psi
 
 
 def value_loss(critic, imag_feat, reward_targets, cost_targets=None, lambda_cost=1.0):

@@ -52,7 +52,7 @@ class DreamerLearner:
     def __init__(self, config):
         self.config = config
         # ---- > Lagrangian TODO: remove hardcoded values
-        self.lagrangian = Lagrange(cost_limit=0, lagrangian_multiplier_init=0.001, lagrangian_multiplier_lr=0.035)
+        self.lagrangian = Lagrange(cost_limit=0, lagrangian_multiplier_init=0.001)
         # ---- < Lagrangian
         self.model = DreamerModel(config).to(config.DEVICE).eval()
         self.actor = Actor(config.FEAT, config.ACTION_SIZE, config.ACTION_HIDDEN, config.ACTION_LAYERS).to(
@@ -159,35 +159,22 @@ class DreamerLearner:
             self.critic_old if self.config.ROLLOUT_WITH_TARGET_CRITIC else self.critic,
             self.config,
         )
-        # ---- > Lagrangian
-        ep_cost = cost_returns.mean().item()
-        self.lagrangian.update_lagrange_multiplier(ep_cost)
-        lambda_penalty = self.lagrangian.lagrangian_multiplier
 
+        # Update Lagrangian multipliers once per training call
+        psi = self.lagrangian.update_multipliers(cost_returns)
+
+        # Log multipliers
         wandb.log(
             {
-                "Lagrange/penalty": lambda_penalty,
-                "Lagrange/ep_cost": ep_cost,
-                "Lagrange/delta": self.lagrangian.delta,
-                "Lagrange/mu": self.lagrangian.mu,
+                "Lagrange/lambda": self.lagrangian.lagrangian_multiplier.item(),
+                "Lagrange/mu": self.lagrangian.penalty_multiplier,
+                "Lagrange/psi": psi.item(),
+                "Lagrange/cost_violation": (cost_returns.mean() - self.lagrangian.cost_limit).item(),
             }
         )
-
-        # ---- < Lagrangian
 
         value_pred = self.critic(imag_feat)["value"]
-        # adv = returns.detach() - value_pred.detach()
-        # -- > Lagrangian
-        adv = returns.detach() - value_pred.detach() + lambda_penalty * cost_returns.detach()
-
-        wandb.log(
-            {
-                "Agent/advantage": adv.mean(),
-                "Agent/returns": returns.mean(),
-                "Agent/cost_returns": cost_returns.mean(),
-            }
-        )
-        # -- < Lagrangian
+        adv = returns.detach() - value_pred.detach()
 
         if self.config.NORMALIZE_ADVANTAGE:
             adv = advantage_normalization(adv)
@@ -206,6 +193,7 @@ class DreamerLearner:
                     adv[idx],
                     self.actor,
                     self.entropy,
+                    psi,  # Use single psi value for entire batch
                 )
                 self.apply_optimizer(self.actor_optimizer, self.actor, loss, self.config.GRAD_CLIP_POLICY)
                 self.entropy *= self.config.ENTROPY_ANNEALING
