@@ -160,19 +160,6 @@ class DreamerLearner:
             self.config,
         )
 
-        # Update Lagrangian multipliers once per training call
-        psi = self.lagrangian.update_multipliers(cost_returns)
-
-        # Log multipliers
-        wandb.log(
-            {
-                "Lagrange/lambda": self.lagrangian.lagrangian_multiplier.item(),
-                "Lagrange/mu": self.lagrangian.penalty_multiplier,
-                "Lagrange/psi": psi.item(),
-                "Lagrange/cost_violation": (cost_returns.mean() - self.lagrangian.cost_limit).item(),
-            }
-        )
-
         value_pred = self.critic(imag_feat)["value"]
         adv = returns.detach() - value_pred.detach()
 
@@ -193,7 +180,8 @@ class DreamerLearner:
                     adv[idx],
                     self.actor,
                     self.entropy,
-                    psi,  # Use single psi value for entire batch
+                    cost_returns,
+                    self.lagrangian,
                 )
                 self.apply_optimizer(self.actor_optimizer, self.actor, loss, self.config.GRAD_CLIP_POLICY)
                 self.entropy *= self.config.ENTROPY_ANNEALING
