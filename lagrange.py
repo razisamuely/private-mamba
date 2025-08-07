@@ -34,30 +34,18 @@ class Lagrange:
         """Update λ and μ following Augmented Lagrangian method from paper."""
 
         # Compute constraint violation (batch average)
-        delta = cost_return_batch.mean() - self.cost_limit
-
-        # Current values
+        delta = (cost_return_batch.mean() - self.cost_limit).item()
         lambda_k = self.lagrangian_multiplier.item()
         mu_k = self.penalty_multiplier
-
-        if delta > 0.0:
-            new_lambda = lambda_k + mu_k * delta.item()
-        else:
-            new_lambda = 0.0
-
-        # Update μ (ensure non-decreasing)
-        new_mu = max(mu_k * (self.nu + 1.0), mu_k)
-
-        # Write new values
-        with torch.no_grad():
-            self._lagrangian_multiplier.data = torch.tensor(new_lambda, dtype=torch.float32)
-        self.penalty_multiplier = new_mu
-
-        # Compute ψ (penalty term)
-        if delta > 0.0:
+        cond = lambda_k + mu_k * delta
+        self._lagrangian_multiplier.data = torch.tensor(max(0.0, cond), dtype=torch.float32)
+        if cond > 0.0:
             psi = lambda_k * delta + 0.5 * mu_k * delta * delta
         else:
             psi = -0.5 * lambda_k * lambda_k / mu_k
+
+        self.penalty_multiplier = max(mu_k, mu_k * (1 + self.nu))
+        self.penalty_multiplier = min(self.penalty_multiplier, 1.0)
 
         return psi
 
