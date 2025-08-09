@@ -162,6 +162,9 @@ class DreamerLearner:
 
         value_pred = self.critic(imag_feat)["value"]
         adv = returns.detach() - value_pred.detach()
+        cost_value_pred = self.critic(imag_feat)["cost"]
+        cost_adv = cost_returns.detach() - cost_value_pred.detach()
+        adv = adv - 0.1 * cost_adv
 
         if self.config.NORMALIZE_ADVANTAGE:
             adv = advantage_normalization(adv)

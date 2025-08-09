@@ -138,7 +138,6 @@ def critic_rollout(model, critic, states, rew_states, actions, raw_states, confi
         lmbda=config.DISCOUNT_LAMBDA,
         gamma=config.GAMMA,
     )
-    returns = returns - 0.1 * cost_returns
     return returns, cost_returns
 
 
