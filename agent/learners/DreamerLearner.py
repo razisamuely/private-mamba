@@ -213,6 +213,13 @@ class DreamerLearner:
 
         mean_cost = cost_returns.mean()
         self.lagrangian.update(mean_cost)
+        wandb.log(
+            {
+                "Agent/Cost": mean_cost,
+                "Agent/Lagrangian": self.lagrangian.lambda_,
+                "Agent/Entropy": self.entropy,
+            }
+        )
 
     def apply_optimizer(self, opt, model, loss, grad_clip):
         opt.zero_grad()
