@@ -140,7 +140,7 @@ class DreamerLearner:
             samples["observation"],
             samples["action"],
             samples["av_action"],
-            samples["reward"] - 0.1 * samples["cost"],
+            samples["reward"],
             samples["cost"],
             samples["done"],
             samples["fake"],
