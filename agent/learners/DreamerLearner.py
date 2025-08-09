@@ -10,9 +10,22 @@ from agent.models.DreamerModel import DreamerModel
 from agent.optim.loss import actor_loss, actor_rollout, model_loss, value_loss
 from agent.optim.utils import advantage_normalization
 from environments import Env
-from lagrange import Lagrange
+
+# from lagrange import Lagrange
 from networks.dreamer.action import Actor
 from networks.dreamer.critic import AugmentedCritic
+
+
+class Lagrange:
+    def __init__(self, cost_limit=0, lagrangian_multiplier_init=0.001, lr=0.01):
+        self.cost_limit = cost_limit
+        self.lambda_ = torch.tensor(lagrangian_multiplier_init, requires_grad=False, device="cuda")
+        self.lr = lr
+
+    def update(self, cost):
+        with torch.no_grad():
+            self.lambda_ += self.lr * (cost - self.cost_limit)
+            self.lambda_ = self.lambda_.clamp(min=0)
 
 
 def orthogonal_init(tensor, gain=1):
@@ -164,10 +177,13 @@ class DreamerLearner:
         adv = returns.detach() - value_pred.detach()
         cost_value_pred = self.critic(imag_feat)["cost"]
         cost_adv = cost_returns.detach() - cost_value_pred.detach()
-        adv = adv - 0.1 * cost_adv
 
         if self.config.NORMALIZE_ADVANTAGE:
             adv = advantage_normalization(adv)
+            cost_adv = advantage_normalization(cost_adv)
+
+        lagrangian_adv = adv - self.lagrangian.lambda_ * cost_adv
+
         wandb.log({"Agent/Returns": returns.mean()})
         for epoch in range(self.config.PPO_EPOCHS):
             inds = np.random.permutation(actions.shape[0])
@@ -180,7 +196,7 @@ class DreamerLearner:
                     actions[idx],
                     av_actions[idx] if av_actions is not None else None,
                     old_policy[idx],
-                    adv[idx],
+                    lagrangian_adv[idx],
                     self.actor,
                     self.entropy,
                     cost_returns[idx],
@@ -194,6 +210,9 @@ class DreamerLearner:
                 self.apply_optimizer(self.critic_optimizer, self.critic, val_loss, self.config.GRAD_CLIP_POLICY)
                 if self.config.ENV_TYPE == Env.FLATLAND and self.cur_update % self.config.TARGET_UPDATE == 0:
                     self.old_critic = deepcopy(self.critic)
+
+        mean_cost = cost_returns.mean()
+        self.lagrangian.update(mean_cost)
 
     def apply_optimizer(self, opt, model, loss, grad_clip):
         opt.zero_grad()
