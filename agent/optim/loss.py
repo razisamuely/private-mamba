@@ -109,6 +109,7 @@ def critic_rollout(model, critic, states, rew_states, actions, raw_states, confi
         value_dict = critic(states)
         value = value_dict["value"]
         cost_value = value_dict["cost"]
+        shaped_value = value - cost_value * 0.1
         discount_arr = model.pcont(rew_states).mean
         wandb.log(
             {
@@ -121,10 +122,13 @@ def critic_rollout(model, critic, states, rew_states, actions, raw_states, confi
                 "Value/Cost": image_cost.mean(),
                 "Value/Max Value": value.max(),
                 "Value/Value": value.mean(),
-                "Value/Max CostValue": cost_value.max(),
                 "Value/CostValue": cost_value.mean(),
+                "Value/Max Shaped Value": shaped_value.max(),
+                "Value/Shaped Value 0.1": shaped_value.mean(),
+                "Value/Max CostValue": cost_value.max(),
             }
         )
+    value = shaped_value
     returns = compute_return(
         imag_reward, value[:-1], discount_arr, bootstrap=value[-1], lmbda=config.DISCOUNT_LAMBDA, gamma=config.GAMMA
     )
@@ -187,12 +191,12 @@ def actor_loss(imag_states, actions, av_actions, old_policy, advantage, actor, e
                 "Policy/Mean action": actions.float().mean(),
                 "Policy/Cost returns": cost_returns.mean(),
                 "Policy/Entropy + PPO + 001 * Cost returns loss": (
-                    ppo_loss + ent_loss.unsqueeze(-1) * ent_weight + 0.01 * cost_returns
+                    ppo_loss + ent_loss.unsqueeze(-1) * ent_weight
                 ).mean(),
             }
         )
 
-    return (ppo_loss + ent_loss.unsqueeze(-1) * ent_weight).mean() + 0.01 * cost_returns.mean()
+    return (ppo_loss + ent_loss.unsqueeze(-1) * ent_weight).mean()
 
 
 def value_loss(critic, imag_feat, reward_targets, cost_targets=None, lambda_cost=1.0):
