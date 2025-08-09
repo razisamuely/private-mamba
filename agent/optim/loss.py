@@ -115,7 +115,7 @@ def critic_rollout(model, critic, states, rew_states, actions, raw_states, confi
                 "Value/Max reward": imag_reward.max(),
                 "Value/Min reward": imag_reward.min(),
                 "Value/Reward": imag_reward.mean(),
-                "Value/Discounted reward": imag_reward - 0.1 * image_cost,
+                "Value/Discounted returns": (imag_reward - 0.1 * image_cost).mean(),
                 "Value/Discount": discount_arr.mean(),
                 "Value/Max cost": image_cost.max(),
                 "Value/Min cost": image_cost.min(),
@@ -126,8 +126,6 @@ def critic_rollout(model, critic, states, rew_states, actions, raw_states, confi
                 "Value/Max CostValue": cost_value.max(),
             }
         )
-
-    imag_reward = imag_reward - 0.1 * image_cost
 
     returns = compute_return(
         imag_reward, value[:-1], discount_arr, bootstrap=value[-1], lmbda=config.DISCOUNT_LAMBDA, gamma=config.GAMMA
@@ -140,7 +138,7 @@ def critic_rollout(model, critic, states, rew_states, actions, raw_states, confi
         lmbda=config.DISCOUNT_LAMBDA,
         gamma=config.GAMMA,
     )
-
+    returns = returns - 0.1 * cost_returns
     return returns, cost_returns
 
 
