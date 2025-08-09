@@ -109,7 +109,6 @@ def critic_rollout(model, critic, states, rew_states, actions, raw_states, confi
         value_dict = critic(states)
         value = value_dict["value"]
         cost_value = value_dict["cost"]
-        shaped_value = value - cost_value * 0.1
         discount_arr = model.pcont(rew_states).mean
         wandb.log(
             {
@@ -123,12 +122,10 @@ def critic_rollout(model, critic, states, rew_states, actions, raw_states, confi
                 "Value/Max Value": value.max(),
                 "Value/Value": value.mean(),
                 "Value/CostValue": cost_value.mean(),
-                "Value/Max Shaped Value": shaped_value.max(),
-                "Value/Shaped Value 0.1": shaped_value.mean(),
                 "Value/Max CostValue": cost_value.max(),
             }
         )
-    value = shaped_value
+
     returns = compute_return(
         imag_reward, value[:-1], discount_arr, bootstrap=value[-1], lmbda=config.DISCOUNT_LAMBDA, gamma=config.GAMMA
     )
