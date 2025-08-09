@@ -168,7 +168,7 @@ def calculate_next_cost(model, actions, states):
     return calculate_cost(model, imag_cost_feat)
 
 
-def actor_loss(imag_states, actions, av_actions, old_policy, advantage, actor, ent_weight, cost_returns, lagrangian):
+def actor_loss(imag_states, actions, av_actions, old_policy, advantage, actor, ent_weight, cost_returns):
     _, new_policy = actor(imag_states)
     if av_actions is not None:
         new_policy[av_actions == 0] = -1e10
@@ -178,24 +178,21 @@ def actor_loss(imag_states, actions, av_actions, old_policy, advantage, actor, e
     ).exp()
     ppo_loss, ent_loss = calculate_ppo_loss(new_policy, rho, advantage)
 
-    psi = lagrangian.update_multipliers(cost_returns)
-
     if np.random.randint(10) == 9:
         wandb.log(
             {
-                "Policy/lambda": lagrangian.lagrangian_multiplier.item(),
-                "Policy/mu": lagrangian.penalty_multiplier,
-                "Policy/psi": psi,
-                "Policy/cost_violation": (cost_returns.mean() - lagrangian.cost_limit).item(),
                 "Policy/Entropy": ent_loss.mean(),
                 "Policy/ppo_loss": ppo_loss.mean(),
                 "Policy/Entropy + PPO loss": (ppo_loss + ent_loss.unsqueeze(-1) * ent_weight).mean(),
-                "Policy/Entropy + PPO loss + psi": (ppo_loss + ent_loss.unsqueeze(-1) * ent_weight).mean() + psi,
                 "Policy/Mean action": actions.float().mean(),
+                "Policy/Cost returns": cost_returns.mean(),
+                "Policy/Entropy + PPO + 001 * Cost returns loss": (
+                    ppo_loss + ent_loss.unsqueeze(-1) * ent_weight + 0.01 * cost_returns
+                ).mean(),
             }
         )
 
-    return (ppo_loss + ent_loss.unsqueeze(-1) * ent_weight).mean() + psi
+    return (ppo_loss + ent_loss.unsqueeze(-1) * ent_weight).mean() + 0.01 * cost_returns.mean()
 
 
 def value_loss(critic, imag_feat, reward_targets, cost_targets=None, lambda_cost=1.0):

@@ -180,8 +180,7 @@ class DreamerLearner:
                     adv[idx],
                     self.actor,
                     self.entropy,
-                    cost_returns,
-                    self.lagrangian,
+                    cost_returns[idx],
                 )
                 self.apply_optimizer(self.actor_optimizer, self.actor, loss, self.config.GRAD_CLIP_POLICY)
                 self.entropy *= self.config.ENTROPY_ANNEALING
