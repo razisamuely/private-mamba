@@ -173,7 +173,7 @@ def calculate_next_cost(model, actions, states):
     return calculate_cost(model, imag_cost_feat)
 
 
-def actor_loss(imag_states, actions, av_actions, old_policy, advantage, actor, ent_weight, penalty):
+def actor_loss(imag_states, actions, av_actions, old_policy, advantage, actor, ent_weight):
     _, new_policy = actor(imag_states)
     if av_actions is not None:
         new_policy[av_actions == 0] = -1e10
@@ -197,7 +197,7 @@ def actor_loss(imag_states, actions, av_actions, old_policy, advantage, actor, e
             }
         )
 
-    return (ppo_loss + ent_loss.unsqueeze(-1) * ent_weight).mean() + penalty
+    return (ppo_loss + ent_loss.unsqueeze(-1) * ent_weight).mean()
 
 
 def value_loss(critic, imag_feat, reward_targets, cost_targets=None, lambda_cost=1.0):
