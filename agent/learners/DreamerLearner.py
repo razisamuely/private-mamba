@@ -15,17 +15,49 @@ from environments import Env
 from networks.dreamer.action import Actor
 from networks.dreamer.critic import AugmentedCritic
 
+# class Lagrange:
+#     def __init__(self, cost_limit=0, lagrangian_multiplier_init=0.001, lr=0.01):
+#         self.cost_limit = cost_limit
+#         self.lambda_ = torch.tensor(lagrangian_multiplier_init, requires_grad=False, device="cuda")
+#         self.lr = lr
+
+#     def update(self, cost):
+#         with torch.no_grad():
+#             self.lambda_ += self.lr * (cost - self.cost_limit)
+#             self.lambda_ = self.lambda_.clamp(min=0)
+
 
 class Lagrange:
-    def __init__(self, cost_limit=0, lagrangian_multiplier_init=0.001, lr=0.01):
+    def __init__(self, cost_limit=0, lambda_init=0.001, penalty_init=5e-9):
+        self.lambda_ = torch.tensor(lambda_init, device="cuda")
+        self.penalty_mult = torch.tensor(penalty_init, device="cuda")
         self.cost_limit = cost_limit
-        self.lambda_ = torch.tensor(lagrangian_multiplier_init, requires_grad=False, device="cuda")
-        self.lr = lr
 
-    def update(self, cost):
-        with torch.no_grad():
-            self.lambda_ += self.lr * (cost - self.cost_limit)
-            self.lambda_ = self.lambda_.clamp(min=0)
+    def get_penalty(self, trajectory_costs):
+        """Calculate penalty without updating parameters"""
+        g = trajectory_costs.mean() - self.cost_limit
+        cond = self.lambda_ + self.penalty_mult * g
+
+        penalty = (
+            (self.lambda_ * g + self.penalty_mult / 2 * g**2)
+            if cond > 0
+            else (-self.lambda_**2 / (2 * self.penalty_mult))
+        )
+        return penalty
+
+    def update(self, trajectory_costs):
+        """Update Lagrangian multipliers"""
+        g = trajectory_costs.mean() - self.cost_limit
+        cond = self.lambda_ + self.penalty_mult * g
+        self.lambda_ = torch.clamp(cond, min=0.0)
+
+        penalty = (
+            (self.lambda_ * g + self.penalty_mult / 2 * g**2)
+            if cond > 0
+            else (-self.lambda_**2 / (2 * self.penalty_mult))
+        )
+        self.penalty_mult = torch.clamp(self.penalty_mult * 1.00001, min=self.penalty_mult, max=1.0)
+        return penalty
 
 
 def orthogonal_init(tensor, gain=1):
@@ -65,7 +97,8 @@ class DreamerLearner:
     def __init__(self, config):
         self.config = config
         # ---- > Lagrangian TODO: remove hardcoded values
-        self.lagrangian = Lagrange(cost_limit=0, lagrangian_multiplier_init=0.001)
+        # self.lagrangian = Lagrange(cost_limit=0, lagrangian_multiplier_init=0.001)
+        self.lagrangian = Lagrange()
         # ---- < Lagrangian
         self.model = DreamerModel(config).to(config.DEVICE).eval()
         self.actor = Actor(config.FEAT, config.ACTION_SIZE, config.ACTION_HIDDEN, config.ACTION_LAYERS).to(
@@ -163,7 +196,7 @@ class DreamerLearner:
         self.model.eval()
 
     def train_agent(self, samples):
-        actions, av_actions, old_policy, imag_feat, returns, cost_returns = actor_rollout(
+        actions, av_actions, old_policy, imag_feat, returns, cost_returns, trajectory_costs = actor_rollout(
             samples["observation"],
             samples["action"],
             samples["last"],
@@ -173,16 +206,19 @@ class DreamerLearner:
             self.config,
         )
 
+        # Calculate Lagrangian penalty
+        lagrangian_penalty = self.lagrangian.get_penalty(trajectory_costs)
+
         value_pred = self.critic(imag_feat)["value"]
         adv = returns.detach() - value_pred.detach()
-        cost_value_pred = self.critic(imag_feat)["cost"]
-        cost_adv = cost_returns.detach() - cost_value_pred.detach()
+        # cost_value_pred = self.critic(imag_feat)["cost"]
+        # cost_adv = cost_returns.detach() - cost_value_pred.detach()
 
         if self.config.NORMALIZE_ADVANTAGE:
             adv = advantage_normalization(adv)
-            cost_adv = advantage_normalization(cost_adv)
+            # cost_adv = advantage_normalization(cost_adv)
 
-        lagrangian_adv = adv - self.lagrangian.lambda_ * cost_adv
+        # lagrangian_adv = adv - self.lagrangian.lambda_ * cost_adv
 
         wandb.log({"Agent/Returns": returns.mean()})
         for epoch in range(self.config.PPO_EPOCHS):
@@ -196,10 +232,12 @@ class DreamerLearner:
                     actions[idx],
                     av_actions[idx] if av_actions is not None else None,
                     old_policy[idx],
-                    lagrangian_adv[idx],
+                    # lagrangian_adv[idx],
+                    adv[idx],
                     self.actor,
                     self.entropy,
-                    cost_returns[idx],
+                    # cost_returns[idx],
+                    lagrangian_penalty,
                 )
                 self.apply_optimizer(self.actor_optimizer, self.actor, loss, self.config.GRAD_CLIP_POLICY)
                 self.entropy *= self.config.ENTROPY_ANNEALING
@@ -211,13 +249,14 @@ class DreamerLearner:
                 if self.config.ENV_TYPE == Env.FLATLAND and self.cur_update % self.config.TARGET_UPDATE == 0:
                     self.old_critic = deepcopy(self.critic)
 
-        mean_cost = cost_returns.mean()
-        self.lagrangian.update(mean_cost)
+        self.lagrangian.update(trajectory_costs)
         wandb.log(
             {
-                "Agent/Cost": mean_cost,
+                "Agent/Cost": trajectory_costs.mean(),
                 "Agent/Lagrangian": self.lagrangian.lambda_,
                 "Agent/Entropy": self.entropy,
+                "Agent/Penalty": self.lagrangian.penalty_mult,
+                "Agent/lagrangian_penalty": lagrangian_penalty,
             }
         )
 

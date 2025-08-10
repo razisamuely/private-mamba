@@ -87,6 +87,9 @@ def actor_rollout(obs, action, last, model, actor, critic, config):
         items["imag_states"].map(lambda x: x.reshape(-1, n_agents, x.shape[-1])),
         config,
     )
+
+    trajectory_costs = cost_returns.sum(dim=0)
+
     output = [
         items["actions"][:-1].detach(),
         items["av_actions"][:-1].detach() if items["av_actions"] is not None else None,
@@ -94,6 +97,7 @@ def actor_rollout(obs, action, last, model, actor, critic, config):
         imag_feat[:-1].detach(),
         returns.detach(),
         cost_returns.detach(),
+        trajectory_costs.detach(),
     ]
     return [batch_multi_agent(v, n_agents) for v in output]
 
@@ -169,7 +173,7 @@ def calculate_next_cost(model, actions, states):
     return calculate_cost(model, imag_cost_feat)
 
 
-def actor_loss(imag_states, actions, av_actions, old_policy, advantage, actor, ent_weight, cost_returns):
+def actor_loss(imag_states, actions, av_actions, old_policy, advantage, actor, ent_weight, penalty):
     _, new_policy = actor(imag_states)
     if av_actions is not None:
         new_policy[av_actions == 0] = -1e10
@@ -186,14 +190,14 @@ def actor_loss(imag_states, actions, av_actions, old_policy, advantage, actor, e
                 "Policy/ppo_loss": ppo_loss.mean(),
                 "Policy/Entropy + PPO loss": (ppo_loss + ent_loss.unsqueeze(-1) * ent_weight).mean(),
                 "Policy/Mean action": actions.float().mean(),
-                "Policy/Cost returns": cost_returns.mean(),
+                # "Policy/Cost returns": cost_returns.mean(),
                 "Policy/Entropy + PPO + 001 * Cost returns loss": (
                     ppo_loss + ent_loss.unsqueeze(-1) * ent_weight
                 ).mean(),
             }
         )
 
-    return (ppo_loss + ent_loss.unsqueeze(-1) * ent_weight).mean()
+    return (ppo_loss + ent_loss.unsqueeze(-1) * ent_weight).mean() + penalty
 
 
 def value_loss(critic, imag_feat, reward_targets, cost_targets=None, lambda_cost=1.0):
