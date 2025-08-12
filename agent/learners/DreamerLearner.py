@@ -242,7 +242,7 @@ class DreamerLearner:
 
         if self.config.NORMALIZE_ADVANTAGE:
             adv = advantage_normalization(adv)
-            cost_adv = advantage_normalization(cost_adv)
+            # cost_adv = advantage_normalization(cost_adv)
 
         delta = cost_returns.mean() - self.lagrangian.cost_limit
         lagrangian_penalty = self.lagrangian.calculate_psi(delta, self.lagrangian.lambda_, self.lagrangian.mu)
@@ -260,7 +260,8 @@ class DreamerLearner:
                     actions[idx],
                     av_actions[idx] if av_actions is not None else None,
                     old_policy[idx],
-                    lagrangian_adv[idx],
+                    # lagrangian_adv[idx],
+                    adv[idx],
                     self.actor,
                     self.entropy,
                 )
