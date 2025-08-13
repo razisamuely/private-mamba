@@ -5,9 +5,9 @@ import numpy as np
 import torch
 from torch.distributions import OneHotCategorical
 
-import wandb
 from agent.models.DreamerModel import DreamerModel
 from networks.dreamer.action import Actor
+from networks.dreamer.critic import AugmentedCritic
 
 
 class DreamerController:
@@ -15,20 +15,17 @@ class DreamerController:
     def __init__(self, config):
         self.model = DreamerModel(config).eval()
         self.actor = Actor(config.FEAT, config.ACTION_SIZE, config.ACTION_HIDDEN, config.ACTION_LAYERS)
+        self.critic = AugmentedCritic(config.FEAT, config.HIDDEN)
         self.expl_decay = config.EXPL_DECAY
         self.expl_noise = config.EXPL_NOISE
         self.expl_min = config.EXPL_MIN
         self.init_rnns()
         self.init_buffer()
 
-        global wandb
-        import wandb
-
-        wandb.init(dir=config.LOG_FOLDER)
-
     def receive_params(self, params):
         self.model.load_state_dict(params["model"])
         self.actor.load_state_dict(params["actor"])
+        self.critic.load_state_dict(params["critic"])
 
     def init_buffer(self):
         self.buffer = defaultdict(list)
@@ -132,12 +129,18 @@ class DreamerController:
                     if step == 0:
                         first_action = action.clone()
 
-                    # Get cost
-                    if hasattr(self.model, "cost_model") and self.model.cost_model is not None:
-                        predicted_cost = self.model.cost_model(feats)
-                        total_cost += predicted_cost.mean().item()
-                    else:
-                        raise NotImplementedError("Cost model not implemented")
+                    # # get cost with world model
+                    # if hasattr(self.model, "cost_model") and self.model.cost_model is not None:
+                    #     predicted_cost = self.model.cost_model(feats)
+                    #     total_cost += predicted_cost.mean().item()
+                    # else:
+                    #     raise NotImplementedError("Cost model not implemented")
+
+                    # cost using critic
+
+                    critic_output = self.critic(feats)
+                    predicted_cost = critic_output["cost"]
+                    total_cost += predicted_cost.mean().item()
 
                     if hasattr(self.model, "reward_model") and self.model.reward_model is not None:
                         predicted_reward = self.model.reward_model(feats)
@@ -152,9 +155,7 @@ class DreamerController:
             # get trajectory with minimal cost
         best_traj = min(trajectories, key=lambda t: t["cost"])
         worst_traj = max(trajectories, key=lambda t: t["cost"])
-        wandb.log(
-            {"rollout_plan_cost/best_cost": best_traj["cost"], "rollout_plan_cost/worst_cost": worst_traj["cost"]}
-        )
+
         # if len(safe_trajectories) >= min_safe_trajectories:
         #     best_traj = max(safe_trajectories, key=lambda t: t["reward"])
         #     current_score = best_traj["reward"]
