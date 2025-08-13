@@ -5,6 +5,7 @@ import numpy as np
 import torch
 from torch.distributions import OneHotCategorical
 
+import wandb
 from agent.models.DreamerModel import DreamerModel
 from networks.dreamer.action import Actor
 
@@ -90,8 +91,8 @@ class DreamerController:
         observations,
         avail_actions,
         nn_mask,
-        rollout_steps=15,
-        num_trajectories=10,
+        rollout_steps=1,
+        num_trajectories=50,
         num_iterations=3,
         cost_threshold=0.05,
         min_safe_trajectories=5,
@@ -101,11 +102,10 @@ class DreamerController:
         """
         best_action = None
         best_score = float("-inf")  # Changed from best_cost
-
+        trajectories = []
         for iteration in range(num_iterations):
 
             # Store trajectory info
-            trajectories = []
 
             for traj_idx in range(num_trajectories):
                 initial_state = self.model(observations, self.prev_actions, self.prev_rnn_state, nn_mask)
@@ -143,19 +143,24 @@ class DreamerController:
 
                 trajectories.append({"action": first_action, "cost": total_cost, "reward": total_reward})
 
-            safe_trajectories = [t for t in trajectories if t["cost"] < cost_threshold]
+            # safe_trajectories = [t for t in trajectories if t["cost"] < cost_threshold]
+            # get trajectory with minimal cost
+        best_traj = min(trajectories, key=lambda t: t["cost"])
+        worst_traj = max(trajectories, key=lambda t: t["cost"])
+        wandb.log(
+            {"rollout_plan_cost/best_cost": best_traj["cost"], "rollout_plan_cost/worst_cost": worst_traj["cost"]}
+        )
+        # if len(safe_trajectories) >= min_safe_trajectories:
+        #     best_traj = max(safe_trajectories, key=lambda t: t["reward"])
+        #     current_score = best_traj["reward"]
 
-            if len(safe_trajectories) >= min_safe_trajectories:
-                best_traj = max(safe_trajectories, key=lambda t: t["reward"])
-                current_score = best_traj["reward"]
+        # else:
+        #     best_traj = min(trajectories, key=lambda t: t["cost"])
+        #     current_score = -best_traj["cost"]  # Negative cost as score (higher is better)
 
-            else:
-                best_traj = min(trajectories, key=lambda t: t["cost"])
-                current_score = -best_traj["cost"]  # Negative cost as score (higher is better)
-
-            if current_score > best_score:
-                best_score = current_score
-                best_action = best_traj["action"]
+        # if current_score > best_score:
+        #     best_score = current_score
+        best_action = best_traj["action"]
 
         if best_action is None:
             initial_state = self.model(observations, self.prev_actions, self.prev_rnn_state, nn_mask)
