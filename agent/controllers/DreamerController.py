@@ -21,6 +21,11 @@ class DreamerController:
         self.init_rnns()
         self.init_buffer()
 
+        global wandb
+        import wandb
+
+        wandb.init(dir=config.LOG_FOLDER)
+
     def receive_params(self, params):
         self.model.load_state_dict(params["model"])
         self.actor.load_state_dict(params["actor"])
