@@ -234,7 +234,7 @@ class DreamerLearner:
         )
 
         # Calculate Lagrangian penalty
-        lagrangian_penalty = self.lagrangian.get_penalty(trajectory_costs)
+        self.lagrangian.update(trajectory_costs)
 
         value_pred = self.critic(imag_feat)["value"]
         adv = returns.detach() - value_pred.detach()
@@ -246,8 +246,8 @@ class DreamerLearner:
             cost_adv = advantage_normalization(cost_adv)
 
         delta = cost_returns.mean() - self.lagrangian.cost_limit
-        lagrangian_penalty = self.lagrangian.calculate_psi(delta, self.lagrangian.lambda_, self.lagrangian.mu)
-        lagrangian_adv = adv - lagrangian_penalty * cost_adv
+        # lagrangian_penalty = self.lagrangian.calculate_psi(delta, self.lagrangian.lambda_, self.lagrangian.mu)
+        lagrangian_adv = adv - self.lagrangian.lambda_ * cost_adv
 
         wandb.log({"Agent/Returns": returns.mean()})
         for epoch in range(self.config.PPO_EPOCHS):
