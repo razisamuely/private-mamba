@@ -59,8 +59,8 @@ class DreamerWorker:
         observations = torch.cat(observations).unsqueeze(0)
         av_action = torch.stack(avail_actions).unsqueeze(0) if len(avail_actions) > 0 else None
         nn_mask = nn_mask.unsqueeze(0).repeat(8, 1, 1) if nn_mask is not None else None
-        actions = self.controller.step_roll_out_simple_safedreamer(observations, av_action, nn_mask)
-        # actions = self.controller.step(observations, av_action, nn_mask)
+        # actions = self.controller.step_roll_out_simple_safedreamer(observations, av_action, nn_mask)
+        actions = self.controller.step(observations, av_action, nn_mask)
         return actions, observations, torch.cat(fakes).unsqueeze(0), av_action
 
     def _wrap(self, d):

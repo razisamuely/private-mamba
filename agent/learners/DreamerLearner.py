@@ -15,42 +15,43 @@ from environments import Env
 from networks.dreamer.action import Actor
 from networks.dreamer.critic import AugmentedCritic
 
-# class Lagrange:
-#     def __init__(self, cost_limit=0, lagrangian_multiplier_init=0.001, lr=0.01):
-#         self.cost_limit = cost_limit
-#         self.lambda_ = torch.tensor(lagrangian_multiplier_init, requires_grad=False, device="cuda")
-#         self.lr = lr
-
-#     def update(self, cost):
-#         with torch.no_grad():
-#             self.lambda_ += self.lr * (cost - self.cost_limit)
-#             self.lambda_ = self.lambda_.clamp(min=0)
-
 
 class Lagrange:
     def __init__(self, cost_limit=0, lagrangian_multiplier_init=0.001, lr=0.01):
         self.cost_limit = cost_limit
         self.lambda_ = torch.tensor(lagrangian_multiplier_init, requires_grad=False, device="cuda")
         self.lr = lr
-        self.mu = 0.000001
 
     def update(self, cost):
         with torch.no_grad():
-            dalta = cost - self.cost_limit
-            self.lambda_ += self.mu * dalta
+            self.lambda_ += self.lr * (cost - self.cost_limit)
             self.lambda_ = self.lambda_.clamp(min=0)
-            self.mu = max(self.mu * 1.00001, 1)
-            return self.calculate_psi(dalta, self.lambda_, self.mu)
 
-    def calculate_psi(self, delta, lambda_, mu):
-        """Calculate the Lagrangian penalty without updating parameters"""
-        with torch.no_grad():
-            if lambda_ > 0:
-                psi = lambda_ * delta + (mu / 2) * delta**2
-            else:
-                psi = -(lambda_**2) / (2 * mu)
 
-        return psi
+# class Lagrange:
+#     def __init__(self, cost_limit=0, lagrangian_multiplier_init=0.001, lr=0.01):
+#         self.cost_limit = cost_limit
+#         self.lambda_ = torch.tensor(lagrangian_multiplier_init, requires_grad=False, device="cuda")
+#         self.lr = lr
+#         self.mu = 0.000001
+
+#     def update(self, cost):
+#         with torch.no_grad():
+#             dalta = cost - self.cost_limit
+#             self.lambda_ += self.mu * dalta
+#             self.lambda_ = self.lambda_.clamp(min=0)
+#             self.mu = max(self.mu * 1.00001, 1)
+#             return self.calculate_psi(dalta, self.lambda_, self.mu)
+
+#     def calculate_psi(self, delta, lambda_, mu):
+#         """Calculate the Lagrangian penalty without updating parameters"""
+#         with torch.no_grad():
+#             if lambda_ > 0:
+#                 psi = lambda_ * delta + (mu / 2) * delta**2
+#             else:
+#                 psi = -(lambda_**2) / (2 * mu)
+
+#         return psi
 
 
 # class Lagrange:
@@ -233,7 +234,7 @@ class DreamerLearner:
         )
 
         # Calculate Lagrangian penalty
-        # lagrangian_penalty = self.lagrangian.get_penalty(trajectory_costs)
+        lagrangian_penalty = self.lagrangian.get_penalty(trajectory_costs)
 
         value_pred = self.critic(imag_feat)["value"]
         adv = returns.detach() - value_pred.detach()
@@ -242,7 +243,7 @@ class DreamerLearner:
 
         if self.config.NORMALIZE_ADVANTAGE:
             adv = advantage_normalization(adv)
-            # cost_adv = advantage_normalization(cost_adv)
+            cost_adv = advantage_normalization(cost_adv)
 
         delta = cost_returns.mean() - self.lagrangian.cost_limit
         lagrangian_penalty = self.lagrangian.calculate_psi(delta, self.lagrangian.lambda_, self.lagrangian.mu)
@@ -260,8 +261,8 @@ class DreamerLearner:
                     actions[idx],
                     av_actions[idx] if av_actions is not None else None,
                     old_policy[idx],
-                    # lagrangian_adv[idx],
-                    adv[idx],
+                    lagrangian_adv[idx],
+                    # adv[idx],
                     self.actor,
                     self.entropy,
                 )
