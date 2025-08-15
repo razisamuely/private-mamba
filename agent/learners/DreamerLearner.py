@@ -234,7 +234,7 @@ class DreamerLearner:
         )
 
         # Calculate Lagrangian penalty
-        self.lagrangian.update(trajectory_costs)
+        # self.lagrangian.update(trajectory_costs)
 
         value_pred = self.critic(imag_feat)["value"]
         adv = returns.detach() - value_pred.detach()
@@ -287,12 +287,12 @@ class DreamerLearner:
         )
         wandb.log(
             {
-                "Lag/lambda": self.lagrangian.lambda_,
-                "Lag/mu": self.lagrangian.mu,
-                "Lag/psi": self.lagrangian.calculate_psi(delta, self.lagrangian.lambda_, self.lagrangian.mu),
+                # "Lag/lambda": self.lagrangian.lambda_,
+                # "Lag/mu": self.lagrangian.mu,
+                # "Lag/psi": self.lagrangian.calculate_psi(delta, self.lagrangian.lambda_, self.lagrangian.mu),
                 "Lag/mean_cost": mean_cost,
                 "Lag/delta": delta,
-                "Lag/lagrangian_penalty": lagrangian_penalty,
+                # "Lag/lagrangian_penalty": lagrangian_penalty,
                 "Lag/lagrangian_adv": lagrangian_adv.mean(),
                 "Lag/advantage": adv.mean(),
                 "Lag/cost_advantage": cost_adv.mean(),
