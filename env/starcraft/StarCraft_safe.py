@@ -229,6 +229,10 @@ class StarCraft(Config):
 
         return resource_cost + position_cost + danger_cost + formation_cost
 
+    def get_cost_debug_constant(self, info):
+        """Cost based on a constant value for debugging purposes"""
+        return 1.0
+
     def get_cost(self, info):
         """Main cost function - selects based on cost_type"""
         if self.cost_type == "resource_waste":
