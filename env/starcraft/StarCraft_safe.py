@@ -248,6 +248,8 @@ class StarCraft(Config):
         elif self.cost_type == "dead_allies":
             # Original cost (for comparison)
             return info.get("dead_allies", 0)
+        elif self.cost_type == "debug_constant":
+            return self.get_cost_debug_constant(info)
         else:
             return 0
 
