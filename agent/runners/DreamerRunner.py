@@ -34,16 +34,16 @@ class DreamerRunner:
         cur_steps, cur_episode = 0, 0
 
         wandb.define_metric("steps")
-        wandb.define_metric("reward", step_metric="steps")
-        wandb.define_metric("cost", step_metric="steps")
+        wandb.define_metric("main/reward", step_metric="steps")
+        wandb.define_metric("main/cost", step_metric="steps")
 
         while True:
             rollout, info = self.server.run()
             self.learner.step(rollout)
             cur_steps += info["steps_done"]
             cur_episode += 1
-            wandb.log({"reward": info["reward"], "steps": cur_steps})
-            wandb.log({"cost": info["cost"], "steps": cur_steps})
+            wandb.log({"main/reward": info["reward"], "steps": cur_steps})
+            wandb.log({"main/cost": info["cost"], "steps": cur_steps})
 
             print(cur_episode, self.learner.total_samples, info["reward"])  # ----- <<---- print
 
