@@ -17,7 +17,7 @@ from networks.dreamer.critic import AugmentedCritic
 
 
 class Lagrange:
-    def __init__(self, cost_limit=0, lagrangian_multiplier_init=0.001, lr=0.01):
+    def __init__(self, cost_limit, lagrangian_multiplier_init, lr):
         self.cost_limit = cost_limit
         self.lambda_ = torch.tensor(lagrangian_multiplier_init, requires_grad=False, device="cuda")
         self.lr = lr
