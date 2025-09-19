@@ -26,6 +26,9 @@ class DreamerLearnerConfig(DreamerConfig):
         self.GRAD_CLIP_POLICY = 100.0
         self.NORMALIZE_ADVANTAGE = True
         self.ROLLOUT_WITH_TARGET_CRITIC = False
+        self.COST_LIMIT = 0.05
+        self.LAGRANGIAN_MULTIPLIER_INIT = 0.01
+        self.LAGRANGIAN_LR = 0.01
 
     def create_learner(self):
         return DreamerLearner(self)

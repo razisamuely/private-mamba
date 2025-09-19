@@ -70,6 +70,7 @@ def parse_args():
     # parser.add_argument("--env_name", type=str, default="balance", help="Specific setting")
     parser.add_argument("--env", type=str, default="starcraft", help="Flatland or SMAC env")
     parser.add_argument("--env_name", type=str, default="8m", help="Specific setting")
+    parser.add_argument("--cost_type", type=str, default="danger_zone", help="Specific setting")
     # parser.add_argument("--env", type=str, default="safety_gym", help="Flatland or SMAC env")
     # parser.add_argument("--env_name", type=str, default="SafetyPointMultiGoal1-v0", help="Specific setting")
     parser.add_argument("--n_workers", type=int, default=4, help="Number of workers")
@@ -98,9 +99,9 @@ def get_env_info_flatland(configs):
         config.ACTION_SIZE = FLATLAND_ACTION_SIZE
 
 
-def prepare_starcraft_configs(env_name):
+def prepare_starcraft_configs(args):
     agent_configs = [DreamerControllerConfig(), DreamerLearnerConfig()]
-    env_config = StarCraft(env_name)
+    env_config = StarCraft(args.env_name, args.cost_type)
     get_env_info(agent_configs, env_config.create_env())
     return {
         "env_config": (env_config, 100),
@@ -185,15 +186,16 @@ if __name__ == "__main__":
     args = parse_args()
 
     current_run_time = time.strftime("%Y%m%d_%H%M%S", time.localtime())
+    agent_configs = DreamerLearnerConfig()
     wandb.init(
-        name=f"danger_zone_test_lagrangian_{args.env}_{args.env_name}_time_{current_run_time}",
-        id=f"danger_zone_test_lagrangian_{args.env}_{args.env_name}_{RANDOM_SEED}_time_{current_run_time}",
+        name=f"{args.cost_type}_{args.env}_laglr={agent_configs.LAGRANGIAN_LR}_{args.env_name}_time_{current_run_time}",
+        id=f"{args.cost_type}_{args.env}_laglr={agent_configs.LAGRANGIAN_LR}_{args.env_name}_{RANDOM_SEED}_time_{current_run_time}",
     )
 
     if args.env == Env.FLATLAND:
         configs = prepare_flatland_configs(args.env_name)
     elif args.env == Env.STARCRAFT:
-        configs = prepare_starcraft_configs(args.env_name)
+        configs = prepare_starcraft_configs(args)
     elif args.env == Env.SIMPLE_SPREAD:
         configs = prepare_simple_spread_configs(args.env_name)
     elif args.env == Env.VMAS_BALANCE:

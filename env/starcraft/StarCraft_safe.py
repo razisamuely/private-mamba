@@ -12,7 +12,7 @@ class StarCraft(Config):
     that don't naturally decrease as agents improve at the main task.
     """
 
-    def __init__(self, env_name, cost_type="danger_zone", safe_distance=3.0, formation_threshold=5.0):
+    def __init__(self, env_name, cost_type="---", safe_distance=3.0, formation_threshold=5.0):
         self.env_name = env_name
         self.cost_type = cost_type
         self.safe_distance = safe_distance

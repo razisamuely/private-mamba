@@ -125,7 +125,11 @@ class DreamerLearner:
         self.config = config
         # ---- > Lagrangian TODO: remove hardcoded values
         # self.lagrangian = Lagrange(cost_limit=0, lagrangian_multiplier_init=0.001)
-        self.lagrangian = Lagrange()
+        self.lagrangian = Lagrange(
+            cost_limit=config.COST_LIMIT,
+            lagrangian_multiplier_init=config.LAGRANGIAN_MULTIPLIER_INIT,
+            lr=config.LAGRANGIAN_LR,
+        )
         # ---- < Lagrangian
         self.model = DreamerModel(config).to(config.DEVICE).eval()
         self.actor = Actor(config.FEAT, config.ACTION_SIZE, config.ACTION_HIDDEN, config.ACTION_LAYERS).to(
