@@ -188,10 +188,9 @@ if __name__ == "__main__":
     current_run_time = time.strftime("%Y%m%d_%H%M%S", time.localtime())
     agent_configs = DreamerLearnerConfig()
     wandb.init(
-        name=f"{args.cost_type}_{args.env}_laglr={agent_configs.LAGRANGIAN_LR}_{args.env_name}_time_{current_run_time}",
-        id=f"{args.cost_type}_{args.env}_laglr={agent_configs.LAGRANGIAN_LR}_{args.env_name}_{RANDOM_SEED}_time_{current_run_time}",
+        name=f"{args.cost_type}_{args.env}_laglr={agent_configs.LAGRANGIAN_LR}_cost_lim={agent_configs.COST_LIMIT}_{args.env_name}_time_{current_run_time}",
+        id=f"{args.cost_type}_{args.env}_laglr={agent_configs.LAGRANGIAN_LR}_cost_lim={agent_configs.COST_LIMIT}_{args.env_name}_{RANDOM_SEED}_time_{current_run_time}",
     )
-
     if args.env == Env.FLATLAND:
         configs = prepare_flatland_configs(args.env_name)
     elif args.env == Env.STARCRAFT:

@@ -229,6 +229,19 @@ class StarCraft(Config):
 
         return resource_cost + position_cost + danger_cost + formation_cost
 
+    def get_cost_damage(self, info):
+        """Cost based on damage taken by allies"""
+        total_damage = 0
+        for agent_id in range(self.n_agents):
+            unit = self.env.get_unit_by_id(agent_id)
+            if unit and unit.health > 0:
+                # Calculate damage as reduction from max health
+                max_health = unit.health_max + (unit.shield_max if hasattr(unit, "shield_max") else 0)
+                current_health = unit.health + (unit.shield if hasattr(unit, "shield") else 0)
+                damage_taken = max_health - current_health
+                total_damage += damage_taken
+        return total_damage
+
     def get_cost_debug_constant(self, info):
         """Cost based on a constant value for debugging purposes"""
         return 1.0
@@ -250,8 +263,10 @@ class StarCraft(Config):
             return info.get("dead_allies", 0)
         elif self.cost_type == "debug_constant":
             return self.get_cost_debug_constant(info)
+        elif self.cost_type == "damage":
+            return self.get_cost_damage(info)
         else:
-            return 0
+            raise ValueError(f"Unknown cost_type: {self.cost_type}")
 
 
 if __name__ == "__main__":
