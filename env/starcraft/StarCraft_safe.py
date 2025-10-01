@@ -242,9 +242,27 @@ class StarCraft(Config):
                 total_damage += damage_taken
         return total_damage
 
+    def get_cost_health_loss(self, info):
+        """Cost based on health lost this step"""
+        total_health_loss = 0
+        for agent_id in range(self.n_agents):
+            current_health = self.get_health(agent_id)
+            prev_health = getattr(self, f"prev_health_{agent_id}", current_health)
+            health_loss = max(0, prev_health - current_health)
+            total_health_loss += health_loss
+            setattr(self, f"prev_health_{agent_id}", current_health)
+        return total_health_loss
+
     def get_cost_debug_constant(self, info):
         """Cost based on a constant value for debugging purposes"""
         return 1.0
+
+    def get_cost_dead_allies_incremental(self, info):
+        """Cost based on NEW deaths this step only"""
+        current_deaths = info.get("dead_allies", 0)
+        new_deaths = current_deaths - getattr(self, "prev_deaths", 0)
+        self.prev_deaths = current_deaths
+        return new_deaths
 
     def get_cost(self, info):
         """Main cost function - selects based on cost_type"""
@@ -265,6 +283,10 @@ class StarCraft(Config):
             return self.get_cost_debug_constant(info)
         elif self.cost_type == "damage":
             return self.get_cost_damage(info)
+        elif self.cost_type == "health_loss":
+            return self.get_cost_health_loss(info)
+        elif self.cost_type == "dead_allies_incremental":
+            return self.get_cost_dead_allies_incremental(info)
         else:
             raise ValueError(f"Unknown cost_type: {self.cost_type}")
 
