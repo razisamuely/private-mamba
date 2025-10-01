@@ -262,7 +262,7 @@ class StarCraft(Config):
         current_deaths = info.get("dead_allies", 0)
         new_deaths = current_deaths - getattr(self, "prev_deaths", 0)
         new_deaths = max(0, new_deaths)
-        self.prev_deaths = current_deaths
+        self.prev_deaths = max(0, current_deaths)
         return new_deaths
 
     def get_cost(self, info):
