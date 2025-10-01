@@ -6,6 +6,8 @@ bower_components/
 dist/
 build/
 out/
+*.err
+*.out
 
 # Environment and configuration
 .env
