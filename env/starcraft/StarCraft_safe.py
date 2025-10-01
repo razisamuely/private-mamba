@@ -261,6 +261,7 @@ class StarCraft(Config):
         """Cost based on NEW deaths this step only"""
         current_deaths = info.get("dead_allies", 0)
         new_deaths = current_deaths - getattr(self, "prev_deaths", 0)
+        new_deaths = max(0, new_deaths)
         self.prev_deaths = current_deaths
         return new_deaths
 
