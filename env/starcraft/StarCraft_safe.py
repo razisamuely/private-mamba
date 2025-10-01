@@ -289,6 +289,7 @@ class StarCraft(Config):
             return self.get_cost_dead_allies_incremental(info)
         else:
             raise ValueError(f"Unknown cost_type: {self.cost_type}")
+            raise ValueError(f"Unknown cost_type: {self.cost_type}")
 
 
 if __name__ == "__main__":
