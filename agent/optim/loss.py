@@ -35,10 +35,12 @@ def model_loss(config, model, obs, action, av_action, reward, cost, done, fake, 
         obs[:-1].reshape(-1, n_agents, obs.shape[-1]),
         1.0 - fake[:-1].reshape(-1, n_agents, 1),
     )
-    reward_loss = F.smooth_l1_loss(model.reward_model(feat), reward[1:])
+    model_reward = model.reward_model(feat)
+    reward_loss = F.smooth_l1_loss(model_reward, reward[1:])
     if model.cost_model is not None:
+        model_cost = model.cost_model(feat)
         cost_loss = F.smooth_l1_loss(
-            model.cost_model(feat), cost[1:]
+            model_cost, cost[1:]
         )  #  TODO (razisamuely): May use other loss function that fits to cost term, for example, F.binary_cross_entropy_with_logits
     else:
         cost_loss = 0.0  # TODO (razisamuely): Better no cost handling, but for now we just ignore it
@@ -61,6 +63,10 @@ def model_loss(config, model, obs, action, av_action, reward, cost, done, fake, 
                 "Model/reconstruction_loss": reconstruction_loss,
                 "Model/info_loss": dis_loss,
                 "Model/pcont_loss": pcont_loss,
+                "Model/Predicted_average_cost": model_cost.mean() if model.cost_model is not None else 0.0,
+                "Model/Actual_average_cost": cost[1:].mean(),
+                "Model/Predicted_average_reward": model_reward.mean(),
+                "Model/Actual_average_reward": reward[1:].mean(),
             }
         )
 
