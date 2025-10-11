@@ -34,7 +34,7 @@ class StarCraft(Config):
 
     def step(self, action_dict, use_reward_shaping=False):
         reward, done, info = self.env.step(action_dict)
-        cost = self.get_cost(info)
+        cost = self.get_cost(info, terminated=done)
         info["cost"] = {i: cost for i in range(self.n_agents)}
 
         if cost > 0 and use_reward_shaping:
@@ -257,15 +257,20 @@ class StarCraft(Config):
         """Cost based on a constant value for debugging purposes"""
         return 1.0
 
-    def get_cost_dead_allies_incremental(self, info):
+    def get_cost_dead_allies_incremental(self, info, terminated):
         """Cost based on NEW deaths this step only"""
         current_deaths = info.get("dead_allies", 0)
         new_deaths = current_deaths - getattr(self, "prev_deaths", 0)
         new_deaths = max(0, new_deaths)
         self.prev_deaths = max(0, current_deaths)
+
+        if terminated and (self.env.n_enemies - info.get("dead_enemies", 0)) > 0:
+            total_allies = self.n_agents
+            new_deaths = total_allies - current_deaths
+            self.prev_deaths = total_allies  # Update to max
         return new_deaths
 
-    def get_cost(self, info):
+    def get_cost(self, info, terminated=False):
         """Main cost function - selects based on cost_type"""
         if self.cost_type == "resource_waste":
             return self.get_cost_resource_waste(info)
@@ -287,7 +292,7 @@ class StarCraft(Config):
         elif self.cost_type == "health_loss":
             return self.get_cost_health_loss(info)
         elif self.cost_type == "dead_allies_incremental":
-            return self.get_cost_dead_allies_incremental(info)
+            return self.get_cost_dead_allies_incremental(info, terminated=terminated)
         else:
             raise ValueError(f"Unknown cost_type: {self.cost_type}")
 
