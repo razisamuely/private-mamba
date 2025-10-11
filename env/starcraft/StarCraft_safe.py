@@ -265,6 +265,9 @@ class StarCraft(Config):
         self.prev_deaths = max(0, current_deaths)
 
         if terminated and (self.env.n_enemies - info.get("dead_enemies", 0)) > 0:
+            if new_deaths == 1:
+                return new_deaths  # Normal death
+            # Penalize for leave  in termination
             total_allies = self.n_agents
             new_deaths = total_allies - current_deaths
             self.prev_deaths = total_allies  # Update to max
