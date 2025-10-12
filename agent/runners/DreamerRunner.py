@@ -44,9 +44,12 @@ class DreamerRunner:
             cur_episode += 1
             wandb.log({"main/winrate": info["reward"], "steps": cur_steps})
             wandb.log({"main/cost": info["cost"], "steps": cur_steps})
+            wandb.log({"main/score": info["score"], "steps": cur_steps})
 
-            print(cur_episode, self.learner.total_samples, info["reward"])  # ----- <<---- print
-
+            # print(cur_episode, self.learner.total_samples, info["reward"], info["score"])  # ----- <<---- print
+            print(
+                f"Episode {cur_episode}, Samples {self.learner.total_samples}, Reward {info['reward']}, Cost {info['cost']}, Score {info['score']}"
+            )
             if cur_episode >= max_episodes or cur_steps >= max_steps:
                 break
             self.server.append(info["idx"], self.learner.params())

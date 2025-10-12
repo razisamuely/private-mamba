@@ -160,4 +160,5 @@ class DreamerWorker:
             "reward": reward,
             "steps_done": steps_done,
             "cost": total_episode_cost,
+            "score": total_episode_reward,
         }

@@ -51,7 +51,10 @@ def run_one_process_one_env_debug(exp):
 
         wandb.log({"reward": info["reward"], "steps": cur_steps})
         wandb.log({"cost": info["cost"], "steps": cur_steps})
-        print(f"Episode {cur_episode}, Samples {learner.total_samples}, Reward {info['reward']}")
+        wandb.log({"score": info["score"], "steps": cur_steps})
+        print(
+            f"Episode {cur_episode}, Samples {learner.total_samples}, Reward {info['reward']}, Cost {info['cost']}, Score {info['score']}"
+        )
 
         if cur_episode >= exp.episodes or cur_steps >= exp.steps:
             break
@@ -70,7 +73,7 @@ def parse_args():
     # parser.add_argument("--env_name", type=str, default="balance", help="Specific setting")
     parser.add_argument("--env", type=str, default="starcraft", help="Flatland or SMAC env")
     parser.add_argument("--env_name", type=str, default="8m", help="Specific setting")
-    parser.add_argument("--cost_type", type=str, default="danger_zone", help="Specific setting")
+    parser.add_argument("--cost_type", type=str, default="dead_allies_incremental", help="Specific setting")
     # parser.add_argument("--env", type=str, default="safety_gym", help="Flatland or SMAC env")
     # parser.add_argument("--env_name", type=str, default="SafetyPointMultiGoal1-v0", help="Specific setting")
     parser.add_argument("--n_workers", type=int, default=4, help="Number of workers")
