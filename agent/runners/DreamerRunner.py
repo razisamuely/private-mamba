@@ -36,6 +36,7 @@ class DreamerRunner:
         wandb.define_metric("steps")
         wandb.define_metric("main/winrate", step_metric="steps")
         wandb.define_metric("main/cost", step_metric="steps")
+        wandb.define_metric("main/score", step_metric="steps")
 
         while True:
             rollout, info = self.server.run()

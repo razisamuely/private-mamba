@@ -39,6 +39,7 @@ def run_one_process_one_env_debug(exp):
     wandb.define_metric("steps")
     wandb.define_metric("reward", step_metric="steps")
     wandb.define_metric("cost", step_metric="steps")
+    wandb.define_metric("score", step_metric="steps")
 
     while True:
 
