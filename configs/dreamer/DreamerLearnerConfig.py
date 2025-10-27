@@ -3,7 +3,7 @@ from configs.dreamer.DreamerAgentConfig import DreamerConfig
 
 
 class DreamerLearnerConfig(DreamerConfig):
-    def __init__(self):
+    def __init__(self, cost_limit=180.0):
         super().__init__()
         self.MODEL_LR = 2e-4
         self.ACTOR_LR = 5e-4
@@ -26,9 +26,9 @@ class DreamerLearnerConfig(DreamerConfig):
         self.GRAD_CLIP_POLICY = 100.0
         self.NORMALIZE_ADVANTAGE = True
         self.ROLLOUT_WITH_TARGET_CRITIC = False
-        self.COST_LIMIT = 0.05
-        self.LAGRANGIAN_MULTIPLIER_INIT = 0.01
-        self.LAGRANGIAN_LR = 0.01
+        self.COST_LIMIT = cost_limit
+        self.LAGRANGIAN_MULTIPLIER_INIT = 0.0001
+        self.LAGRANGIAN_LR = 0.00001
 
     def create_learner(self):
         return DreamerLearner(self)

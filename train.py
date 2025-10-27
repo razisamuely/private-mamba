@@ -78,6 +78,7 @@ def parse_args():
     # parser.add_argument("--env", type=str, default="safety_gym", help="Flatland or SMAC env")
     # parser.add_argument("--env_name", type=str, default="SafetyPointMultiGoal1-v0", help="Specific setting")
     parser.add_argument("--n_workers", type=int, default=4, help="Number of workers")
+    parser.add_argument("--cost_limit", type=float, default=25.0, help="Cost limit for Lagrangian methods")
     return parser.parse_args()
 
 
@@ -104,7 +105,7 @@ def get_env_info_flatland(configs):
 
 
 def prepare_starcraft_configs(args):
-    agent_configs = [DreamerControllerConfig(), DreamerLearnerConfig()]
+    agent_configs = [DreamerControllerConfig(), DreamerLearnerConfig(cost_limit=args.cost_limit)]
     env_config = StarCraft(args.env_name, args.cost_type)
     get_env_info(agent_configs, env_config.create_env())
     return {
@@ -116,8 +117,8 @@ def prepare_starcraft_configs(args):
     }
 
 
-def prepare_simple_spread_configs(env_name):
-    agent_configs = [DreamerControllerConfig(), DreamerLearnerConfig()]
+def prepare_simple_spread_configs(env_name, cost_limit=180.0):
+    agent_configs = [DreamerControllerConfig(), DreamerLearnerConfig(cost_limit=cost_limit)]
     env_config = VmasSpread(env_name)
     get_env_info(agent_configs, env_config.create_env())
     return {
@@ -129,8 +130,8 @@ def prepare_simple_spread_configs(env_name):
     }
 
 
-def prepare_vmas_balance_configs(env_name):
-    agent_configs = [DreamerControllerConfig(), DreamerLearnerConfig()]
+def prepare_vmas_balance_configs(env_name, cost_limit=180.0):
+    agent_configs = [DreamerControllerConfig(), DreamerLearnerConfig(cost_limit=cost_limit)]
     env_config = VmasBalance(env_name, n_agents=2, device="cpu", seed=42, max_steps=100)
     get_env_info(agent_configs, env_config.create_env())
     return {
@@ -142,8 +143,8 @@ def prepare_vmas_balance_configs(env_name):
     }
 
 
-def prepare_safety_gym_configs(env_name):
-    agent_configs = [DreamerControllerConfig(), DreamerLearnerConfig()]
+def prepare_safety_gym_configs(env_name, cost_limit=180.0):
+    agent_configs = [DreamerControllerConfig(), DreamerLearnerConfig(cost_limit=cost_limit)]
     env_config = SafetyGymWrapper(env_name)
     # get_env_info(agent_configs, env_config.create_env())
     for config in agent_configs:
@@ -158,7 +159,7 @@ def prepare_safety_gym_configs(env_name):
     }
 
 
-def prepare_flatland_configs(env_name):
+def prepare_flatland_configs(env_name, cost_limit=180.0):
     if env_name == FlatlandType.FIVE_AGENTS:
         env_config = SeveralAgents(RANDOM_SEED + 100)
     elif env_name == FlatlandType.TEN_AGENTS:
@@ -173,7 +174,7 @@ def prepare_flatland_configs(env_name):
     reward_config = RewardsComposerConfig(
         (FinishRewardConfig(finish_value=10), NearRewardConfig(coeff=0.01), DeadlockPunishmentConfig(value=-5))
     )
-    agent_configs = [DreamerControllerConfig(), DreamerLearnerConfig()]
+    agent_configs = [DreamerControllerConfig(), DreamerLearnerConfig(cost_limit=cost_limit)]
     get_env_info_flatland(agent_configs)
     return {
         "env_config": (env_config, 100),
@@ -190,21 +191,21 @@ if __name__ == "__main__":
     args = parse_args()
 
     current_run_time = time.strftime("%Y%m%d_%H%M%S", time.localtime())
-    agent_configs = DreamerLearnerConfig()
+    temp_config = DreamerLearnerConfig()
     wandb.init(
-        name=f"{args.cost_type}_{args.env}_laglr={agent_configs.LAGRANGIAN_LR}_cost_lim={agent_configs.COST_LIMIT}_{args.env_name}_time_{current_run_time}",
-        id=f"{args.cost_type}_{args.env}_laglr={agent_configs.LAGRANGIAN_LR}_cost_lim={agent_configs.COST_LIMIT}_{args.env_name}_{RANDOM_SEED}_time_{current_run_time}",
+        name=f"{args.cost_type}_{args.env}_laglr={temp_config.LAGRANGIAN_LR}_cost_lim={args.cost_limit}_{args.env_name}_time_{current_run_time}",
+        id=f"{args.cost_type}_{args.env}_laglr={temp_config.LAGRANGIAN_LR}_cost_lim={args.cost_limit}_{args.env_name}_{RANDOM_SEED}_time_{current_run_time}",
     )
     if args.env == Env.FLATLAND:
-        configs = prepare_flatland_configs(args.env_name)
+        configs = prepare_flatland_configs(args.env_name, args.cost_limit)
     elif args.env == Env.STARCRAFT:
         configs = prepare_starcraft_configs(args)
     elif args.env == Env.SIMPLE_SPREAD:
-        configs = prepare_simple_spread_configs(args.env_name)
+        configs = prepare_simple_spread_configs(args.env_name, args.cost_limit)
     elif args.env == Env.VMAS_BALANCE:
-        configs = prepare_vmas_balance_configs(args.env_name)
+        configs = prepare_vmas_balance_configs(args.env_name, args.cost_limit)
     elif args.env == Env.SAFETY_GYM:
-        configs = prepare_safety_gym_configs(args.env_name)
+        configs = prepare_safety_gym_configs(args.env_name, args.cost_limit)
     else:
         raise Exception("Unknown environment")
     configs["env_config"][0].ENV_TYPE = Env(args.env)
@@ -225,4 +226,4 @@ if __name__ == "__main__":
         learner_config=configs["learner_config"],
     )
 
-    train_dreamer(exp, n_workers=args.n_workers, debug=True)
+    train_dreamer(exp, n_workers=args.n_workers, debug=False)
