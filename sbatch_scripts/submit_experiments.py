@@ -45,9 +45,15 @@ def main():
     if not os.path.exists(history_file):
         with open(history_file, "w", newline="") as f:
             writer = csv.writer(f)
-            writer.writerow(["Timestamp", "Algo", "Env", "Map", "CostLimit", "Seed", "JobID", "RunName"])
+            writer.writerow(["Timestamp", "Algo", "Env", "Map", "CostLimit", "Seed", "JobID", "RunName", "Branch"])
 
     timestamp_str = datetime.now().strftime("date%m-%d-hr%H-%M-%S")
+
+    # Get current branch
+    try:
+        current_branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).decode().strip()
+    except Exception:
+        current_branch = "unknown"
 
     for env_name in args.envs:
         for cost_limit in args.cost_limits:
@@ -68,6 +74,7 @@ def main():
                     "SEED": seed,
                     "N_WORKERS": args.n_workers,
                     "ALGO": args.algo_name,
+                    "BRANCH_NAME": current_branch,
                 }
 
                 create_sbatch_file(template_path, sbatch_filename, params)
@@ -107,6 +114,7 @@ def main():
                                 seed,
                                 job_id,
                                 run_identifier,
+                                current_branch,
                             ]
                         )
 

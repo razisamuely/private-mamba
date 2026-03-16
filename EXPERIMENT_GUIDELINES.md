@@ -15,16 +15,17 @@ This document outlines the professional workflow for developing and running expe
 
 ## 2. Standardized Experiment Naming
 
-To ensure experiments are distinguishable across different algorithms, researchers, and timeframes, every run must follow this strict naming convention:
+To ensure experiments are distinguishable across different algorithms, researchers, and timeframes, eEvery run must follow this strict naming convention:
 
-`{ALGO}_{COST_TYPE}_{ENV}_lag{LAGLR}_{COST_LIMIT}_{MAP}_s{SEED}_{TIMESTAMP}_{SLURM_ID}`
+`{ALGO}_{COST_TYPE}_{ENV}_lag{LAGLR}_{COST_LIMIT}_{MAP}_s{SEED}_{TIMESTAMP}_{SLURM_ID}_{BRANCH}`
 
 ### Example:
-`safedreamer_dead_allies_incremental_starcraft_lag1e-05_10.0_3m_s3_date03-16-hr16-05-04_15925096`
+`safedreamer_dead_allies_incremental_starcraft_lag1e-05_10.0_3m_s3_date03-16-hr16-05-04_15925096_main`
 
 *   **ALGO**: The algorithm identifier (e.g., `safedreamer`, `mamba`).
 *   **LAGLR**: The Lagrangian learning rate (crucial for stability).
 *   **SLURM_ID**: Automatically appended at runtime to link WandB logs directly to cluster output files.
+*   **BRANCH**: The git branch name from which the experiment was launched.
 
 ---
 

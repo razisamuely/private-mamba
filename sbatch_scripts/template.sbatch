@@ -35,7 +35,8 @@ python train.py \
     --seed {{SEED}} \
     --n_workers {{N_WORKERS}} \
     --algo_name {{ALGO}} \
-    --slurm_id $SLURM_JOB_ID
+    --slurm_id $SLURM_JOB_ID \
+    --branch {{BRANCH_NAME}}
 
 # Deactivate environment
 deactivate

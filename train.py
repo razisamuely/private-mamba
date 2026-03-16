@@ -82,6 +82,7 @@ def parse_args():
     parser.add_argument("--seed", type=int, default=23, help="Random seed")
     parser.add_argument("--algo_name", type=str, default="safedreamer", help="Algorithm name")
     parser.add_argument("--slurm_id", type=str, default="none", help="Slurm Job ID")
+    parser.add_argument("--branch", type=str, default="unknown", help="Git branch name")
     return parser.parse_args()
 
 
@@ -196,11 +197,11 @@ if __name__ == "__main__":
     temp_config = DreamerLearnerConfig()
 
     # Standardized Naming Convention
-    # {algo}_{costtype}_{env}_{laglr}_{costlim}_{map}_{seed}_{time}_{slurm_id}
+    # {algo}_{costtype}_{env}_{laglr}_{costlim}_{map}_{seed}_{time}_{slurm_id}_{branch}
     run_name = (
         f"{args.algo_name}_{args.cost_type}_{args.env}_"
         f"lag{temp_config.LAGRANGIAN_LR}_{args.cost_limit}_{args.env_name}_"
-        f"s{args.seed}_{current_run_time}_{args.slurm_id}"
+        f"s{args.seed}_{current_run_time}_{args.slurm_id}_{args.branch}"
     )
 
     wandb.init(
