@@ -198,10 +198,11 @@ if __name__ == "__main__":
 
     # Standardized Naming Convention
     # {algo}_{costtype}_{env}_{laglr}_{costlim}_{map}_{seed}_{time}_{slurm_id}_{branch}
+    sanitized_branch = args.branch.replace("/", "-")
     run_name = (
         f"{args.algo_name}_{args.cost_type}_{args.env}_"
         f"lag{temp_config.LAGRANGIAN_LR}_{args.cost_limit}_{args.env_name}_"
-        f"s{args.seed}_{current_run_time}_{args.slurm_id}_{args.branch}"
+        f"s{args.seed}_{current_run_time}_{args.slurm_id}_{sanitized_branch}"
     )
 
     wandb.init(

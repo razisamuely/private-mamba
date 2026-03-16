@@ -52,6 +52,7 @@ def main():
     # Get current branch
     try:
         current_branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).decode().strip()
+        current_branch = current_branch.replace("/", "-")
     except Exception:
         current_branch = "unknown"
 
