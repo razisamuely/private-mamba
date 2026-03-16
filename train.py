@@ -79,6 +79,7 @@ def parse_args():
     # parser.add_argument("--env_name", type=str, default="SafetyPointMultiGoal1-v0", help="Specific setting")
     parser.add_argument("--n_workers", type=int, default=4, help="Number of workers")
     parser.add_argument("--cost_limit", type=float, default=25.0, help="Cost limit for Lagrangian methods")
+    parser.add_argument("--seed", type=int, default=23, help="Random seed")
     return parser.parse_args()
 
 
@@ -186,9 +187,8 @@ def prepare_flatland_configs(env_name, cost_limit=180.0):
 
 
 if __name__ == "__main__":
-    RANDOM_SEED = 23
-
     args = parse_args()
+    RANDOM_SEED = args.seed
 
     current_run_time = time.strftime("%Y%m%d_%H%M%S", time.localtime())
     temp_config = DreamerLearnerConfig()
