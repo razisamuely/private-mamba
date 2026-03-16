@@ -12,11 +12,12 @@ class StarCraft(Config):
     that don't naturally decrease as agents improve at the main task.
     """
 
-    def __init__(self, env_name, cost_type="---", safe_distance=3.0, formation_threshold=5.0):
+    def __init__(self, env_name, cost_type="---", safe_distance=3.0, formation_threshold=5.0, collision_threshold=1.0):
         self.env_name = env_name
         self.cost_type = cost_type
         self.safe_distance = safe_distance
         self.formation_threshold = formation_threshold
+        self.collision_threshold = collision_threshold
 
         self.env = StarCraft2Env(map_name=env_name, continuing_episode=True, difficulty="7")
         env_info = self.env.get_env_info()
@@ -68,7 +69,9 @@ class StarCraft(Config):
         return "episode_limit" not in info
 
     def create_env(self):
-        return StarCraft(self.env_name, self.cost_type, self.safe_distance, self.formation_threshold)
+        return StarCraft(
+            self.env_name, self.cost_type, self.safe_distance, self.formation_threshold, self.collision_threshold
+        )
 
     def get_random_action(self):
         actions = []
@@ -257,6 +260,35 @@ class StarCraft(Config):
         """Cost based on a constant value for debugging purposes"""
         return 1.0
 
+    def get_cost_collision(self, info):
+        """Cost based on ally-ally proximity (clumping) for MOVING agents only"""
+        moving_agents = []
+
+        # Get last actions to check for movement (2-5 are move commands in SMAC)
+        if hasattr(self.env, "last_action") and self.env.last_action is not None:
+            action_indices = [row.argmax() for row in self.env.last_action]
+        else:
+            action_indices = []
+
+        for i in range(self.n_agents):
+            unit = self.env.get_unit_by_id(i)
+            if unit and unit.health > 0:
+                # Exclude stationary: check if action is a move command (indices 2-5)
+                action = action_indices[i] if i < len(action_indices) else 0
+                if 2 <= action <= 5:
+                    moving_agents.append((unit.pos.x, unit.pos.y))
+
+        cost = 0
+        n = len(moving_agents)
+        for i in range(n):
+            for j in range(i + 1, n):
+                x1, y1 = moving_agents[i]
+                x2, y2 = moving_agents[j]
+                dist = np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+                if dist < self.collision_threshold:
+                    cost += 1
+        return cost
+
     def get_cost_dead_allies_incremental(self, info, terminated):
         """Cost based on NEW deaths this step only"""
         current_deaths = info.get("dead_allies", 0)
@@ -296,6 +328,8 @@ class StarCraft(Config):
             return self.get_cost_health_loss(info)
         elif self.cost_type == "dead_allies_incremental":
             return self.get_cost_dead_allies_incremental(info, terminated=terminated)
+        elif self.cost_type == "collision":
+            return self.get_cost_collision(info)
         else:
             raise ValueError(f"Unknown cost_type: {self.cost_type}")
 
