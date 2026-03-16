@@ -6,6 +6,20 @@ import numpy as np
 import torch
 
 
+class BasicLagrange:
+    def __init__(self, cost_limit, lagrangian_multiplier_init, lr, device="cuda"):
+        self.cost_limit = cost_limit
+        self.lambda_ = torch.tensor(lagrangian_multiplier_init, requires_grad=False, device=device)
+        self.lr = lr
+
+    def update(self, cost):
+        with torch.no_grad():
+            if torch.is_tensor(cost):
+                cost = cost.item()
+            self.lambda_ += self.lr * (cost - self.cost_limit)
+            self.lambda_ = self.lambda_.clamp(min=0)
+
+
 class Lagrange:
     def __init__(
         self,

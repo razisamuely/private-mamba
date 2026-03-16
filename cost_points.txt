@@ -1,1 +1,0 @@
-reward loss is """reward_loss = F.smooth_l1_loss(model.reward_model(feat), reward[1:])"" should we use the same for cost ?

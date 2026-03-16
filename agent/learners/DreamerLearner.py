@@ -10,81 +10,9 @@ from agent.models.DreamerModel import DreamerModel
 from agent.optim.loss import actor_loss, actor_rollout, model_loss, value_loss
 from agent.optim.utils import advantage_normalization
 from environments import Env
-
-# from lagrange import Lagrange
+from lagrange import BasicLagrange
 from networks.dreamer.action import Actor
 from networks.dreamer.critic import AugmentedCritic
-
-
-class Lagrange:
-    def __init__(self, cost_limit, lagrangian_multiplier_init, lr):
-        self.cost_limit = cost_limit
-        self.lambda_ = torch.tensor(lagrangian_multiplier_init, requires_grad=False, device="cuda")
-        self.lr = lr
-
-    def update(self, cost):
-        with torch.no_grad():
-            self.lambda_ += self.lr * (cost - self.cost_limit)
-            self.lambda_ = self.lambda_.clamp(min=0)
-
-
-# class Lagrange:
-#     def __init__(self, cost_limit=0, lagrangian_multiplier_init=0.001, lr=0.01):
-#         self.cost_limit = cost_limit
-#         self.lambda_ = torch.tensor(lagrangian_multiplier_init, requires_grad=False, device="cuda")
-#         self.lr = lr
-#         self.mu = 0.000001
-
-#     def update(self, cost):
-#         with torch.no_grad():
-#             dalta = cost - self.cost_limit
-#             self.lambda_ += self.mu * dalta
-#             self.lambda_ = self.lambda_.clamp(min=0)
-#             self.mu = max(self.mu * 1.00001, 1)
-#             return self.calculate_psi(dalta, self.lambda_, self.mu)
-
-#     def calculate_psi(self, delta, lambda_, mu):
-#         """Calculate the Lagrangian penalty without updating parameters"""
-#         with torch.no_grad():
-#             if lambda_ > 0:
-#                 psi = lambda_ * delta + (mu / 2) * delta**2
-#             else:
-#                 psi = -(lambda_**2) / (2 * mu)
-
-#         return psi
-
-
-# class Lagrange:
-#     def __init__(self, cost_limit=0, lambda_init=0.001, penalty_init=5e-9):
-#         self.lambda_ = torch.tensor(lambda_init, device="cuda")
-#         self.penalty_mult = torch.tensor(penalty_init, device="cuda")
-#         self.cost_limit = cost_limit
-
-#     def get_penalty(self, trajectory_costs):
-#         """Calculate penalty without updating parameters"""
-#         g = trajectory_costs.mean() - self.cost_limit
-#         cond = self.lambda_ + self.penalty_mult * g
-
-#         penalty = (
-#             (self.lambda_ * g + self.penalty_mult / 2 * g**2)
-#             if cond > 0
-#             else (-self.lambda_**2 / (2 * self.penalty_mult))
-#         )
-#         return penalty
-
-#     def update(self, trajectory_costs):
-#         """Update Lagrangian multipliers"""
-#         g = trajectory_costs.mean() - self.cost_limit
-#         cond = self.lambda_ + self.penalty_mult * g
-#         self.lambda_ = torch.clamp(cond, min=0.0)
-
-#         penalty = (
-#             (self.lambda_ * g + self.penalty_mult / 2 * g**2)
-#             if cond > 0
-#             else (-self.lambda_**2 / (2 * self.penalty_mult))
-#         )
-#         self.penalty_mult = torch.clamp(self.penalty_mult * 1.00001, min=self.penalty_mult, max=1.0)
-#         return penalty
 
 
 def orthogonal_init(tensor, gain=1):
@@ -123,12 +51,12 @@ class DreamerLearner:
 
     def __init__(self, config):
         self.config = config
-        # ---- > Lagrangian TODO: remove hardcoded values
-        # self.lagrangian = Lagrange(cost_limit=0, lagrangian_multiplier_init=0.001)
-        self.lagrangian = Lagrange(
+        # ---- > Lagrangian
+        self.lagrangian = BasicLagrange(
             cost_limit=config.COST_LIMIT,
             lagrangian_multiplier_init=config.LAGRANGIAN_MULTIPLIER_INIT,
             lr=config.LAGRANGIAN_LR,
+            device=config.DEVICE,
         )
         # ---- < Lagrangian
         self.model = DreamerModel(config).to(config.DEVICE).eval()
