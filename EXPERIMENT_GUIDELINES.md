@@ -62,8 +62,58 @@ Whenever you update your code locally:
 
 ---
 
-## 5. Cleanup & Maintenance
+## 5. Git & Commits
+
+Use [Conventional Commits](https://www.conventionalcommits.org/) for all commit messages. This helps in maintaining a clean and searchable history.
+
+```
+<type>(<scope>): <short description>
+
+[optional body]
+```
+
+**Types:**
+- `feat` - New feature or algorithm modification
+- `fix` - Bug fix in the environment or agent
+- `refactor` - Code restructuring (e.g., moving classes to `lagrange.py`)
+- `docs` - Documentation updates
+- `test` - Adding or updating tests
+- `chore` - Tooling, config, dependencies
+- `perf` - Performance optimization
+
+**Scopes:**
+- `learner`, `worker`, `runner`, `model`, `networks`, `env`, `config`, `sbatch`
+
+---
+
+## 6. Python Code Style
+
+Maintain high code quality and consistency across the repository:
+
+- **Naming**: 
+  - `snake_case` for functions/variables.
+  - `PascalCase` for classes (e.g., `DreamerLearner`).
+  - `UPPER_SNAKE` for constants and config parameters.
+- **Formatting**: Use `black` and `isort` for formatting. All code should be formatted before pushing.
+- **Imports**: standard library → third-party (torch, ray, etc.) → local modules.
+- **Type hints**: Use type hints on function signatures wherever possible.
+
+---
+
+## 7. Testing
+
+Verification is key to experiment integrity:
+
+- **New Features**: Write unit tests for new logic (e.g., new Lagrangian update law).
+- **Run verification**: Before launching a large 8-worker experiment on the cluster, always perform a short local test run to verify WandB and basic logging:
+  ```bash
+  python train.py --env starcraft --env_name 3m --n_workers 1 --debug
+  ```
+
+---
+
+## 8. Cleanup & Maintenance
 Before merging a branch back into `main`:
-1.  **Delete Junk**: Remove any temporary text files, `cost_points.txt`, or draft scripts.
-2.  **Format**: Ensure hooks (`black`, `isort`) have run.
-3.  **Consolidate**: Ensure all math/logic classes are in their dedicated files (e.g., `lagrange.py`), not inside `train.py` or `DreamerLearner.py`.
+1.  **Delete Junk**: Remove any temporary text files, draft scripts, or experimental `.sbatch` files generated locally.
+2.  **Format**: Ensure pre-commit hooks have passed.
+3.  **Consolidate**: Ensure logic is modular (e.g., move `BasicLagrange` to `lagrange.py`).
