@@ -1,0 +1,6 @@
+. Key Integration Points
+
+Cost Prediction: Add cost head to world model
+Safety Constraint: Implement hazard distance calculation
+Lagrangian Method: Add penalty term to actor loss
+Safe Planning: Use constrained planning instead of pure reward maximization

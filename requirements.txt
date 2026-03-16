@@ -11,3 +11,5 @@ safety-gymnasium
 gymnasium
 pygame 
 numpy
+
+flatland-rl
