@@ -43,7 +43,7 @@ def main():
             writer = csv.writer(f)
             writer.writerow(["Timestamp", "Algo", "Env", "Map", "CostLimit", "Seed", "JobID", "RunName"])
 
-    timestamp_str = datetime.now().strftime("%d%m_%H%M%S")
+    timestamp_str = datetime.now().strftime("date%m-%d-hr%H-%M-%S")
 
     for env_name in args.envs:
         for cost_limit in args.cost_limits:

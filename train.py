@@ -192,7 +192,7 @@ if __name__ == "__main__":
     args = parse_args()
     RANDOM_SEED = args.seed
 
-    current_run_time = time.strftime("%d%m_%H%M%S", time.localtime())
+    current_run_time = time.strftime("date%m-%d-hr%H-%M-%S", time.localtime())
     temp_config = DreamerLearnerConfig()
 
     # Standardized Naming Convention
