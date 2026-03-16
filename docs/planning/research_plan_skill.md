@@ -2,8 +2,10 @@
 
 Adapted from the global Project Planning Process to optimize RL research and hardware-heavy experimenting.
 
-## 1. Branching & Issue Policy
+## 1. Environment & Scope Constraints
 
+*   **Project Scope**: This research focuses exclusively on StarCraft and SafetyGym. **Flatland is not relevant** and should be ignored in all logic and documentation.
+*   **Virtual Environment**: All local testing and remote execution MUST use the dedicated virtual environment: `./venv310/bin/python3`.
 *   **Branch Mandatory**: No development or experiment submission ever happens on `main`.
 *   **Issue Linking**: Every branch MUST be created for and linked to a specific GitHub Issue (e.g., `feat/issue-4-new-cost-loss`).
 *   **Cleanup and Merge**: Merging to `main` only happens after the experiment is concluded, documentation is finalized, and code is consolidated.

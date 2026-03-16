@@ -6,9 +6,10 @@
 This method will:
 1.  Iterate through all agents.
 2.  Filter for alive agents (`health > 0`).
-3.  Calculate pairwise Euclidean distance between all alive agents.
-4.  Increment a counter if `distance < self.collision_threshold`.
-5.  Return the total count.
+3.  Filter for moving agents (exclude stationary based on `last_action`).
+4.  Calculate pairwise Euclidean distance between all moving allies.
+5.  Increment a counter if `distance < self.collision_threshold`.
+6.  Return the total count.
 
 ### Update `get_cost(self, info, terminated=False)`
 Add the following branch:
