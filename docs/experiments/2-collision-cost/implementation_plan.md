@@ -8,11 +8,11 @@ This plan follows the "Skeleton-First" approach.
 - [ ] Launch a "Dry Run" using `submit_experiments.py` with 1 seed and 100 steps to verify sbatch generation and remote syncing.
 
 ## Phase 2: Logic Implementation
-- [ ] Implement distance calculation in `get_cost_collision`.
-- [ ] Add unit test in `if __name__ == "__main__":` block of `StarCraft_safe.py` to verify pairwise distance logic with dummy unit positions.
+- [x] Implement distance calculation in `get_cost_collision`.
+- [x] Add unit test in `tests/test_collision_logic.py` to verify pairwise distance logic.
 
 ## Phase 3: Pilot Run
-- [ ] Submit a pilot experiment (1 seed, `map=3m`, `cost_limit=5.0`).
+- [/] Submit a pilot experiment (1 seed, `map=3m`, `cost_limit=5.0`). JobID: 15927036.
 - [ ] Verify `Cost/Collision` is being logged correctly in WandB.
 
 ## Phase 4: Full Grid Execution
