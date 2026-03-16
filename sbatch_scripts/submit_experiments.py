@@ -32,10 +32,14 @@ def main():
     args = parser.parse_args()
 
     template_path = "sbatch_scripts/template.sbatch"
-    history_file = "experiments_history.csv"
+    log_dir = "sbatch_scripts/logs"
+    history_file = os.path.join(log_dir, "experiments_history.csv")
 
     if not os.path.exists("sbatch_scripts/generated"):
         os.makedirs("sbatch_scripts/generated")
+
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
 
     # CSV Header if file doesn't exist
     if not os.path.exists(history_file):
