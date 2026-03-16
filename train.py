@@ -80,6 +80,8 @@ def parse_args():
     parser.add_argument("--n_workers", type=int, default=4, help="Number of workers")
     parser.add_argument("--cost_limit", type=float, default=25.0, help="Cost limit for Lagrangian methods")
     parser.add_argument("--seed", type=int, default=23, help="Random seed")
+    parser.add_argument("--algo_name", type=str, default="safedreamer", help="Algorithm name")
+    parser.add_argument("--slurm_id", type=str, default="none", help="Slurm Job ID")
     return parser.parse_args()
 
 
@@ -190,11 +192,20 @@ if __name__ == "__main__":
     args = parse_args()
     RANDOM_SEED = args.seed
 
-    current_run_time = time.strftime("%Y%m%d_%H%M%S", time.localtime())
+    current_run_time = time.strftime("%d%m_%H%M%S", time.localtime())
     temp_config = DreamerLearnerConfig()
+
+    # Standardized Naming Convention
+    # {algo}_{costtype}_{env}_{laglr}_{costlim}_{map}_{seed}_{time}_{slurm_id}
+    run_name = (
+        f"{args.algo_name}_{args.cost_type}_{args.env}_"
+        f"lag{temp_config.LAGRANGIAN_LR}_{args.cost_limit}_{args.env_name}_"
+        f"s{args.seed}_{current_run_time}_{args.slurm_id}"
+    )
+
     wandb.init(
-        name=f"{args.cost_type}_{args.env}_laglr={temp_config.LAGRANGIAN_LR}_cost_lim={args.cost_limit}_{args.env_name}_time_{current_run_time}",
-        id=f"{args.cost_type}_{args.env}_laglr={temp_config.LAGRANGIAN_LR}_cost_lim={args.cost_limit}_{args.env_name}_{RANDOM_SEED}_time_{current_run_time}",
+        name=run_name,
+        id=run_name,
     )
     if args.env == Env.FLATLAND:
         configs = prepare_flatland_configs(args.env_name, args.cost_limit)

@@ -33,7 +33,9 @@ python train.py \
     --cost_type {{COST_TYPE}} \
     --cost_limit {{COST_LIMIT}} \
     --seed {{SEED}} \
-    --n_workers {{N_WORKERS}}
+    --n_workers {{N_WORKERS}} \
+    --algo_name {{ALGO}} \
+    --slurm_id $SLURM_JOB_ID
 
 # Deactivate environment
 deactivate
