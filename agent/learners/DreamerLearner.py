@@ -130,11 +130,15 @@ class DreamerLearner:
         sys.stdout.flush()
 
         for i in range(self.config.MODEL_EPOCHS):
-            samples = self.replay_buffer.sample(self.config.MODEL_BATCH_SIZE)
+            samples = self.replay_buffer.sample(
+                self.config.MODEL_BATCH_SIZE, cost_priority_ratio=self.config.COST_PRIORITY_RATIO
+            )
             self.train_model(samples)
 
         for i in range(self.config.EPOCHS):
-            samples = self.replay_buffer.sample(self.config.BATCH_SIZE)
+            samples = self.replay_buffer.sample(
+                self.config.BATCH_SIZE, cost_priority_ratio=self.config.COST_PRIORITY_RATIO
+            )
             self.train_agent(samples)
 
     def train_model(self, samples):

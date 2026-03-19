@@ -81,6 +81,8 @@ def parse_args():
     parser.add_argument("--cost_limit", type=float, default=25.0, help="Cost limit for Lagrangian methods")
     parser.add_argument("--seed", type=int, default=23, help="Random seed")
     parser.add_argument("--algo_name", type=str, default="safedreamer", help="Algorithm name")
+    parser.add_argument("--laglr", type=float, default=0.00001, help="Lagrangian learning rate")
+    parser.add_argument("--cost_priority", type=float, default=0.0, help="Cost prioritized sampling ratio")
     parser.add_argument("--slurm_id", type=str, default="none", help="Slurm Job ID")
     parser.add_argument("--branch", type=str, default="unknown", help="Git branch name")
     return parser.parse_args()
@@ -110,6 +112,11 @@ def get_env_info_flatland(configs):
 
 def prepare_starcraft_configs(args):
     agent_configs = [DreamerControllerConfig(), DreamerLearnerConfig(cost_limit=args.cost_limit)]
+    for config in agent_configs:
+        if hasattr(config, "LAGRANGIAN_LR"):
+            config.LAGRANGIAN_LR = args.laglr
+        if hasattr(config, "COST_PRIORITY_RATIO"):
+            config.COST_PRIORITY_RATIO = args.cost_priority
     env_config = StarCraft(args.env_name, args.cost_type)
     get_env_info(agent_configs, env_config.create_env())
     return {
@@ -194,14 +201,14 @@ if __name__ == "__main__":
     RANDOM_SEED = args.seed
 
     current_run_time = time.strftime("date%m-%d-hr%H-%M-%S", time.localtime())
-    temp_config = DreamerLearnerConfig()
+    # temp_config = DreamerLearnerConfig()
 
     # Standardized Naming Convention
     # {algo}_{costtype}_{env}_{laglr}_{costlim}_{map}_{seed}_{time}_{slurm_id}_{branch}
     sanitized_branch = args.branch.replace("/", "-")
     run_name = (
         f"{args.algo_name}_{args.cost_type}_{args.env}_"
-        f"lag{temp_config.LAGRANGIAN_LR}_{args.cost_limit}_{args.env_name}_"
+        f"lag{args.laglr}_{args.cost_limit}_{args.env_name}_"
         f"s{args.seed}_{current_run_time}_{args.slurm_id}_{sanitized_branch}"
     )
 
