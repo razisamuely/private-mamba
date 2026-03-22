@@ -3,9 +3,9 @@
 
 #SBATCH --time=7-00:00:00
 #SBATCH --mem=64G
-#SBATCH --job-name=safedreamer_collision_starcraft_5.0_bane_vs_bane_s2_date03-16-hr19-57-32
-#SBATCH --output=safedreamer_collision_starcraft_5.0_bane_vs_bane_s2_date03-16-hr19-57-32-id-%J.out
-#SBATCH --error=safedreamer_collision_starcraft_5.0_bane_vs_bane_s2_date03-16-hr19-57-32-id-%J.err
+#SBATCH --job-name=safedreamer_collision_starcraft_lag1e-05_cp0.15_0.5_8m_s1_date03-20-hr12-32-08
+#SBATCH --output=safedreamer_collision_starcraft_lag1e-05_cp0.15_0.5_8m_s1_date03-20-hr12-32-08-id-%J.out
+#SBATCH --error=safedreamer_collision_starcraft_lag1e-05_cp0.15_0.5_8m_s1_date03-20-hr12-32-08-id-%J.err
 #SBATCH --mail-user=razshmue@post.bgu.ac.il
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --partition=rtx3090
@@ -30,14 +30,16 @@ cd /home/razshmue/workspace/private-mamba/
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 python train.py \
     --env starcraft \
-    --env_name bane_vs_bane \
+    --env_name 8m \
     --cost_type collision \
-    --cost_limit 5.0 \
-    --seed 2 \
+    --cost_limit 0.5 \
+    --seed 1 \
     --n_workers 4 \
     --algo_name safedreamer \
+    --laglr 1e-05 \
+    --cost_priority 0.15 \
     --slurm_id $SLURM_JOB_ID \
-    --branch feat-issue-2-collision-cost
+    --branch feat-issue-2-collision-cost-fix
 
 # Deactivate environment
 deactivate

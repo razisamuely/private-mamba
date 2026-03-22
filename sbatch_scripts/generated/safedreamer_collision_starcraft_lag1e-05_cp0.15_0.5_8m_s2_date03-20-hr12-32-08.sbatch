@@ -3,12 +3,13 @@
 
 #SBATCH --time=7-00:00:00
 #SBATCH --mem=64G
-#SBATCH --job-name=safedreamer_collision_starcraft_5.0_8m_s2_date03-16-hr17-50-30
-#SBATCH --output=safedreamer_collision_starcraft_5.0_8m_s2_date03-16-hr17-50-30-id-%J.out
-#SBATCH --error=safedreamer_collision_starcraft_5.0_8m_s2_date03-16-hr17-50-30-id-%J.err
+#SBATCH --job-name=safedreamer_collision_starcraft_lag1e-05_cp0.15_0.5_8m_s2_date03-20-hr12-32-08
+#SBATCH --output=safedreamer_collision_starcraft_lag1e-05_cp0.15_0.5_8m_s2_date03-20-hr12-32-08-id-%J.out
+#SBATCH --error=safedreamer_collision_starcraft_lag1e-05_cp0.15_0.5_8m_s2_date03-20-hr12-32-08-id-%J.err
 #SBATCH --mail-user=razshmue@post.bgu.ac.il
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --partition=rtx3090
+#SBATCH --qos=normal
 #SBATCH --gpus=1
 
 ### Print job info ###
@@ -31,12 +32,14 @@ python train.py \
     --env starcraft \
     --env_name 8m \
     --cost_type collision \
-    --cost_limit 5.0 \
+    --cost_limit 0.5 \
     --seed 2 \
     --n_workers 4 \
     --algo_name safedreamer \
+    --laglr 1e-05 \
+    --cost_priority 0.15 \
     --slurm_id $SLURM_JOB_ID \
-    --branch feat-issue-2-collision-cost
+    --branch feat-issue-2-collision-cost-fix
 
 # Deactivate environment
 deactivate

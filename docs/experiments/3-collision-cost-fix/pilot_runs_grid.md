@@ -23,9 +23,9 @@ python sbatch_scripts/submit_experiments.py \
 | :--- | :--- | :--- | :--- |
 | `8m` | 5.0 | 1, 2, 3 | Verify if the model can now enforce the tightest constraint. |
 | `8m` | 10.0 | 1, 2, 3 | Comparative baseline for stability. |
-| `bane_vs_bane` | 5.0 | 1 | Smoke test for high-density units with the new sampling strategy. |
+| `bane_vs_bane` | 5.0 | 1 | Smoke test for high-density units with the new sampling strategy. |m 
 
 ## Submissions
-- **Submission Time**: TBD
-- **Job IDs**: TBD
+- **Submission Time**: 2026-03-19 23:15
+- **Job IDs**: `16169165` through `16169246`
 - **Branch**: `feat/issue-2-collision-cost-fix`
