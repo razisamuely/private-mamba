@@ -150,6 +150,8 @@ class DreamerWorker:
             reward = (
                 sum([1 for agent in self.env.agents if agent.status == TrainState.DONE_REMOVED]) / self.env.n_agents
             )
+        elif self.env_type == Env.SAFETY_GYM:
+            reward = total_episode_reward
         else:
             if "battle_won" in info and info["battle_won"]:
                 reward = 1

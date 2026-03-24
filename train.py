@@ -18,13 +18,16 @@ from configs.EnvConfigs import EnvCurriculumConfig
 from configs.flatland.RewardConfigs import FinishRewardConfig
 from configs.flatland.TimetableConfigs import AllAgentLauncherConfig
 from env.flatland.params import LotsOfAgents, PackOfAgents, SeveralAgents
-from env.mpe.vmas_simple_spread import VmasSpread
-from env.safetygym.SafetyGymWrapper import SafetyGymWrapper
+
+# from env.mpe.vmas_simple_spread import VmasSpread
+from env.safety_gym.SwimmerWrapper import SwimmerWrapper as SafetyGymWrapper
 
 # from env.starcraft.StarCraft import StarCraft
 from env.starcraft.StarCraft_safe import StarCraft
 from env.vmas.balance import VmasBalance
 from environments import FLATLAND_ACTION_SIZE, FLATLAND_OBS_SIZE, Env, FlatlandType
+
+# from env.safetygym.SafetyGymWrapper import SafetyGymWrapper
 
 
 def run_one_process_one_env_debug(exp):
@@ -85,6 +88,8 @@ def parse_args():
     parser.add_argument("--cost_priority", type=float, default=0.0, help="Cost prioritized sampling ratio")
     parser.add_argument("--slurm_id", type=str, default="none", help="Slurm Job ID")
     parser.add_argument("--branch", type=str, default="unknown", help="Git branch name")
+    parser.add_argument("--steps", type=int, default=10**10, help="Total number of steps")
+    parser.add_argument("--episodes", type=int, default=50000, help="Total number of episodes")
     return parser.parse_args()
 
 
@@ -154,13 +159,16 @@ def prepare_vmas_balance_configs(env_name, cost_limit=180.0):
     }
 
 
-def prepare_safety_gym_configs(env_name, cost_limit=180.0):
-    agent_configs = [DreamerControllerConfig(), DreamerLearnerConfig(cost_limit=cost_limit)]
-    env_config = SafetyGymWrapper(env_name)
-    # get_env_info(agent_configs, env_config.create_env())
-    for config in agent_configs:
-        config.IN_DIM = 152  # From your output
-        config.ACTION_SIZE = 9
+def prepare_safety_gym_configs(args):
+    """Refined dynamic configuration for Safety-Gymnasium tasks."""
+    agent_configs = [DreamerControllerConfig(), DreamerLearnerConfig(cost_limit=args.cost_limit)]
+    env_config = SafetyGymWrapper(args.env_name)
+
+    # Initialize real env briefly to capture meta-data (n_obs, n_actions)
+    real_env = env_config.create_env()
+    real_env._initialize_env()
+    get_env_info(agent_configs, real_env)
+
     return {
         "env_config": (env_config, 100),
         "controller_config": agent_configs[0],
@@ -225,7 +233,7 @@ if __name__ == "__main__":
     elif args.env == Env.VMAS_BALANCE:
         configs = prepare_vmas_balance_configs(args.env_name, args.cost_limit)
     elif args.env == Env.SAFETY_GYM:
-        configs = prepare_safety_gym_configs(args.env_name, args.cost_limit)
+        configs = prepare_safety_gym_configs(args)
     else:
         raise Exception("Unknown environment")
     configs["env_config"][0].ENV_TYPE = Env(args.env)
@@ -233,8 +241,8 @@ if __name__ == "__main__":
     configs["controller_config"].ENV_TYPE = Env(args.env)
 
     exp = Experiment(
-        steps=10**10,
-        episodes=50000,
+        steps=args.steps,
+        episodes=args.episodes,
         random_seed=RANDOM_SEED,
         env_config=EnvCurriculumConfig(
             *zip(configs["env_config"]),
