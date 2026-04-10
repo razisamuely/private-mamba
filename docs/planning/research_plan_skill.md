@@ -28,7 +28,14 @@ Every branch must contain its own planning folder (e.g., `docs/experiments/<issu
 12. **Grid Launch**: Full submission via automation script.
 13. **Analysis & Synthesis**: Post-processing CSVs and WandB reports into a final result summary.
 
-## 2. Key Principles for Research
+## 3. Cluster (slurm.bgu.ac.il) Tips
+
+- **SSH config**: Always set `IdentitiesOnly yes` + `ControlMaster auto` + `ControlPersist 10m` for `slurm.bgu.ac.il` in `~/.ssh/config` — prevents "too many auth failures" when submitting multiple jobs rapidly.
+- **Rate limiting**: The cluster drops connections if too many SSH sessions open in quick succession. ControlMaster reuses one socket and avoids this.
+- **Branch sync**: Before submitting, always `git pull` the correct branch on the cluster (`ssh slurm && cd workspace/private-mamba && git checkout <branch> && git pull`).
+- **Cancel all jobs**: `scancel -u razshmue`
+- **Check queue**: `squeue -u razshmue`
+
 
 *   **Decide Before Running**: Never launch a grid until the `draft.md` is locked and logic is merged.
 *   **Tables Over Prose**: Keep experiment definitions in dense tables for quick comparison.
