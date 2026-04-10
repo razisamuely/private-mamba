@@ -212,7 +212,7 @@ class DreamerLearner:
                 if self.config.ENV_TYPE == Env.FLATLAND and self.cur_update % self.config.TARGET_UPDATE == 0:
                     self.old_critic = deepcopy(self.critic)
 
-        mean_cost = cost_returns.mean()
+        mean_cost = trajectory_costs.mean()  # use real env cost (not imagined) to match MACPO signal
         self.lagrangian.update(mean_cost)
         wandb.log(
             {

@@ -1,0 +1,2060 @@
+Safe Dreamers: Proactive Safety in Multi-Agent Reinforcement
+Learning with Model-Based World Models
+Anonymous Submission
+
+Abstract
+Deploying multi-agent reinforcement learning
+(MARL) in safety-critical applications requires
+both strict safety guarantees and sample efficiency. Existing constrained policy optimization methods are inherently reactive, requiring agents to experience real-world failures to
+learn safety, while model-based approaches often ignore safety constraints entirely. We propose Safe Dreamers, the first framework unifying multi-agent world models with Lagrangian
+safety constraints. By learning to predict costs
+in a latent space, Safe Dreamers enables agents
+to be proactive: they learn to avoid safety
+violations in imagination, removing the need
+to experience them in reality. Evaluated on
+the StarCraft Multi-Agent Challenge (SMAC)
+with strict casualty constraints, Safe Dreamers achieves competitive task performance with
+25× greater sample efficiency than baselines,
+successfully satisfying constraints where reactive methods fail.
+
+1
+
+Introduction
+
+Deploying multi-agent reinforcement learning (MARL)
+in real-world applications requires satisfying two often
+conflicting objectives: maximizing task performance and
+strictly adhering to safety constraints. In domains such
+as autonomous warehouse logistics, coordinated drone
+fleets, and power grid management, agents must learn
+complex cooperative behaviors without causing catastrophic failures during the learning process. However,
+standard RL relies on trial-and-error, posing unacceptable risks in safety-critical environments where a single
+violation can be catastrophic.
+Current approaches to Safe Reinforcement Learning (Safe RL)—defined as learning policies that maximize reward while satisfying a set of cost constraints—typically rely on constrained policy optimization methods, such as MACPO [Gu et al., 2021]. While
+effective at converging to safe policies eventually, these
+model-free methods suffer from severe sample inefficiency, often requiring millions of environment interac-
+
+tions to learn even simple tasks. Conversely, modelbased MARL approaches, such as MAMBA [Egorov and
+Shpilman, 2022], have demonstrated remarkable sample
+efficiency by learning world models that simulate environment dynamics. Yet, these methods traditionally focus solely on reward maximization, ignoring safety constraints and leaving agents blind to the potential costs
+of their actions during planning.
+This creates a critical gap: practitioners are forced
+to choose between the sample efficiency of model-based
+methods and the safety guarantees of constrained policy
+optimization. To bridge this gap, we propose that the
+key to safe and efficient MARL lies in imagination: if
+agents can accurately predict the safety consequences
+of their actions within a learned world model, they can
+learn to avoid unsafe behaviors without ever executing
+them in the real world.
+We introduce Safe Dreamers, the first framework that
+integrates multi-agent world models with Lagrangian
+safety constraints. Our approach extends the world
+model to jointly learn the dynamics of both rewards and
+costs in a latent space, enabling agents to ”dream” potential futures and evaluate their safety during training.
+By optimizing policies within this constrained imagination, Safe Dreamers learns to satisfy safety constraints
+proactively rather than reactively.
+Our contributions are as follows:
+• We propose Safe Dreamers, a novel Model-Based
+Safe MARL framework that unifies world model
+learning with Lagrangian constraint optimization.
+• We introduce a Cost-Aware World Model architecture that predicts safety costs alongside system dynamics, enabling interpretable safety planning in latent space.
+• We empirically demonstrate that Safe Dreamers
+achieves 25× greater sample efficiency than stateof-the-art model-free baselines (MACPO) on the
+StarCraft Multi-Agent Challenge (SMAC).
+• We show that our method successfully satisfies strict
+safety constraints (e.g., zero friendly fire or casualty
+limits) in scenarios where baselines fail to find any
+feasible solution.
+
+2
+
+Related Work
+
+The fundamental limitation of current Safe RL is its reliance on real-world failure. Traditional approaches formulate safety as a Constrained MDP [Altman, 1999] and
+enforce constraints via Lagrangian relaxation [Liu et al.,
+2020] or trust-region updates [Achiam et al., 2017]. In
+the multi-agent domain, methods like MACPO [Gu et
+al., 2021] successfully extend these disparate constraints
+to cooperative settings. However, theoretical guarantees aside, these methods are inherently reactive: they
+require the agent to sample unsafe trajectories in the
+environment to estimate the cost gradients. In practice,
+this means agents must ”learn by dying”—accumulating
+thousands of safety violations to map out the dangerous regions of the state space. For systems like drone
+swarms, retroactive learning is unacceptable; reliance on
+extensive real-world failures should be replaced by learning from imagined violations, drastically reducing the
+cost of safety.
+Model-based reinforcement learning (MBRL) offers a
+path to reduce real-world interaction by substituting
+it with planning in a learned world model [Hafner et
+al., 2020; Krinner et al., 2025]. In multi-agent domains, methods like MAMBA [Egorov and Shpilman,
+2022] have successfully scaled this ”imagination” to complex coordination tasks, achieving high sample efficiency.
+However, these frameworks have traditionally focused
+on a single objective: reward maximization. Without
+an explicit mechanism to represent and predict risk, the
+”imagination” of these agents remains incomplete. They
+can plan for victory but cannot plan for safety, leaving them vulnerable to the same catastrophic failures as
+standard RL, albeit with fewer samples. The missing
+piece is a world model that understands danger as well
+as it understands dynamics.
+We propose that the solution lies in combining these
+paradigms to enable proactive safety. Recent singleagent efforts like SafeDreamer [Huang et al., 2024] have
+demonstrated that world models can be augmented to
+predict costs, allowing agents to ”feel” the penalty of
+a safety violation in imagination without executing it.
+While other multi-agent approaches have attempted distinct safety mechanisms such as shielding [Xiao et al.,
+2023], they often rely on hand-crafted rules or simplified
+transition models. Safe Dreamers generalizes the proactive imagination of SafeDreamer to the multi-agent setting, providing the first fully learned, end-to-end framework where teams of agents learn to avoid danger by
+optimizing policies within a safe, imagined simulator.
+
+3
+
+Methodology
+
+We present Safe Dreamers, a framework for safe multiagent coordination that leverages world models to
+strictly enforce safety constraints. In this section, we
+first formally define the problem as a Constrained DecPOMDP. We then detail our proactive safety mechanism
+via latent imagination and present the full algorithm and
+network architecture.
+
+3.1
+
+Preliminaries
+
+We formulate the safe multi-agent coordination problem as a Constrained Decentralized Partially Observable Markov Decision Process (C-Dec-POMDP), defined
+by the tuple M = ⟨I, S, A, P, R, C, Ω, O, γ, d⟩. Here,
+I = {1, . . . , N } is the set of agents; S is the global
+state space; A = ×i∈I Ai is the joint action space; and
+O = ×i∈I Oi is the joint observation space. At each
+timestep t, each agent i observes a partial observation
+oit ∈ Oi and selects an action ait ∈ Ai . The environment transitions to a new state st+1 ∼ P(·|st , at ) based
+on the joint action at , yielding a shared global reward
+rt = R(st , at ) and a shared safety cost ct = C(st , at ).
+The objective is to find a joint policy π that P
+maximizes
+∞
+the expected discounted return JR (π) = Eπ [ t=0 γ t rt ]
+subject to a safetyPconstraint on the expected discounted
+∞
+cost JC (π) = Eπ [ t=0 γ t ct ] ≤ d, where d is a pre-defined
+safety threshold.
+
+3.2
+
+Proactive Safety via Imagination
+
+Safe Dreamers is built on the insight that safety is best
+learned through imagination, not experience. Rather
+than failing in the real world to update a safety critic, we
+first build a safe simulator in the latent space and then
+use it to train agents to avoid dangerous states proactively. This process operates in three iterative phases.
+Phase 1: Learning the Safety Dynamics. The
+world model serves as the agent’s internal simulator. Unlike standard MBRL, which focuses purely on dynamics
+and rewards, our world model must also approximate
+the ”safety landscape” of the environment. We extend
+the MAMBA architecture to learn a joint distribution
+over observations, rewards, and safety costs. Following
+the RSSM framework, the model consists of six components:
+
+hit = fθ (hit−1 , sit−1 , ait−1 )
+
+Recurrent model:
+
+
+i
+i i i
+
+Representation model: st ∼ qθ (st |ht , ot )
+
+
+Transition predictor:
+ŝit ∼ pθ (ŝit |hit )
+RSSM =
+Observation predictor: ôit ∼ pθ (ôit |hit , sit )
+
+
+
+
+Reward predictor:
+r̂ti ∼ pθ (r̂ti |hit , sit )
+
+
+
+Cost predictor:
+ĉit ∼ pθ (ĉit |hit , sit )
+where hit is the deterministic hidden state, sit is the
+stochastic latent state, and oit , ait , rti , cit are observations, actions, rewards, and costs for agent i. The world
+model is trained to minimize the joint objective Lmodel :
+Lmodel = Lobs + Lreward + Lcost + βKL LKL
+=−
+
+T
+X
+
+ln pθ (oit |hit , sit ) −
+
+t=1
+
+−
+
+T
+X
+
+T
+X
+
+ln pθ (r̂ti |hit , sit )
+
+t=1
+
+ln pθ (ĉit |hit , sit )
+
+t=1
+
++ βKL
+
+T
+X
+t=1
+
+KL(qθ (sit |hit , oit )∥pθ (ŝit |hit ))
+
+(a) World Model Learning
+
+(b) Actor-Critic Learning
+actor
+
+t=1
+
+o1
+
+enc
+
+z1
+
+h1
+
+dec
+
+ô1
+
+V1r
+
+r̂1
+
+critic
+
+ĉ1
+a1
+
+V1c
+
+a1
+
+actor
+
+t=2
+
+o2
+
+enc
+
+z2
+
+h2
+
+dec
+
+a1
+
+h1
+
+ô2
+
+a2
+
+h2
+V2r
+
+r̂2
+critic
+
+ĉ2
+a2
+
+V2c
+
+a2
+
+actor
+
+t=3
+
+o3
+
+enc
+
+z3
+
+h3
+
+dec
+
+ô3
+
+a3
+
+h3
+V3r
+
+r̂3
+critic
+
+ĉ3
+
+V3c
+
+ALag =
+Ar −β·Ac
+
+Figure 1: Training Phase: (a) Learning the Safety Dynamics: The world model learns to predict costs alongside
+rewards, embedding the safety landscape into the latent space. (b) Proactive Safety via Imagination: The
+actor optimizes a Lagrangian objective ALag entirely within imagination, effectively ”violating” constraints in the
+simulator to learn safe behaviors without real-world risk.
+where βKL scales the regularization term. The KL divergence is computed per categorical dimension and then
+averaged across dimensions to form a scalar value per
+step. We additionally employ KL balancing to regularize the prior and posterior separately before the final
+aggregation for optimization. Crucially, adding the cost
+prediction loss − ln pθ (ĉit |·) ensures the latent state st encodes safety-critical information alongside task features.
+This allows the agent to predict not just the outcome of
+an action, but its risk, directly from the low-dimensional
+latent representation.
+Phase 2: Proactive Safety via Imagination.
+Once the world model captures the safety dynamics, the
+agent uses it to generate rollouts for policy optimization. In this phase, we freeze the world model and train
+the actor and critic entirely within the latent imagination. The agent generates imagined trajectories of horizon H = 15 starting from states s0 sampled from the
+replay buffer. At each step τ of the imagination, the actor πϕ (aτ |sτ ) selects an action. The world model then
+performs a two-step forward pass: first, the recurrent
+model updates the deterministic hidden state hτ +1 =
+fθ (hτ , sτ , aτ ); second, the transition predictor samples
+the next stochastic latent state sτ +1 ∼ pθ (sτ +1 |hτ +1 ),
+reward r̂τ ∼ pϕ (r̂τ |hτ , sτ ), and cost ĉτ ∼ pϕ (ĉτ |hτ , sτ ),
+where these distributions are conditioned on the hidden
+state and stochastic latent state.
+To evaluate the policy, we compute value targets using Generalized Advantage Estimation (GAE). Unlike
+standard Dreamer, we maintain two value functions: a
+reward value Vψr (s) and a safety cost value Vψc (s). The
+
+Lagrangian advantage ALag combines these signals:
+ALag
+= Arτ − β · Acτ
+τ
+
+(1)
+
+where Arτ and Acτ represent the advantage for reward
+and cost, respectively. By optimizing this joint advantage, the actor effectively ”imagines” safety violations
+and learns to avoid them, converging to a constrained
+policy without exposing the real agent to danger. We
+update the policy using Proximal Policy Optimization
+(PPO) [Schulman et al., 2017]. Unlike purely analytic
+gradient methods (e.g., DreamerV2), applying PPO’s
+clipped objective within imagination prevents the policy
+from exploiting transient errors in the learned safety dynamics, ensuring stable convergence in the constrained
+landscape.
+Phase 3: Adaptive Lagrangian Update. To balance task performance and safety, we employ an adaptive
+Lagrangian multiplier β. This multiplier acts as a ”safety
+thermostat”: if the agent’s recent behavior (measured by
+C̄) exceeds the cost limit d, β increases, forcing the actor
+to prioritize safety in the next imagination phase. If the
+agent is safe, β decreases, allowing it to pursue higher
+rewards.
+β ← max(0, β + αβ (C̄ − d))
+(2)
+where αβ is the learning rate that controls the sensitivity of the Lagrangian update. By adjusting β based on
+real-world feedback, we ensure that any mismatch between the world model’s cost predictions and reality is
+corrected. The complete training procedure is summarized in Algorithm 1 (Appendix A).
+
+at
+
+Actor πϕ
+ot
+
+World Model
+(RSSM)
+
+latent state (ht , zt )
+
+All agents’
+latent states
+
+cost head enforces safety
+
+Dual Critic
+Vψr , Vψc
+
+Predictors
+(reward, cost, transition pθ )
+
+Figure 2: Method Overview: Integration of the World Model, Actor, and Safety Critics.
+
+3.3
+
+Network Architecture
+
+All networks use 256 hidden dimensions, as illustrated
+in Figure 2. The world model consists of: (1) encoder
+and decoder (2-layer MLPs), (2) RSSM with 256-dim
+deterministic state (GRU) and 1024-dim stochastic state
+(32 categorical distributions, 32 classes each), (3) 3-layer
+self-attention in the transition model (0.1 dropout), and
+(4) reward/cost predictors (2-layer MLPs). The actor is
+a 4-layer MLP outputting action logits. The dual critic
+uses single-layer self-attention followed by separate heads
+for V r and V c . Full architecture specifications are provided in Appendix C.
+In the multi-agent setting, each agent has its own
+encoder and actor (decentralized execution), while the
+world model and critic are centralized. Coordination is
+achieved through self-attention in the RSSM transition
+(3 layers) and critic (1 layer).
+
+3.4
+
+Execution
+
+During execution, each agent maintains its own copy
+of the world model to enable decentralized decisionmaking, consistent with the Centralized Training with
+Decentralized Execution (CTDE) paradigm. At each decision step, agents exchange latent states and action logits through a multi-head attention mechanism (8 heads
+with positional encoding), implementing all-to-all communication across agents. The attention block is applied
+before action selection, aggregating teammate information with computational complexity O(n2 · d) per step,
+where n is the number of agents and d is the feature
+dimension. Each agent then uses its observation and
+the attention-aggregated information to select actions
+via the trained actor policy.
+While standard self-attention scales quadratically with
+the number of agents, this cost is negligible for the agent
+counts typical in SMAC (up to n = 27). For massivescale scenarios (e.g., hundreds of agents), this communication block can be seamlessly replaced with more scalable alternatives without altering the core Safe Dreamers
+framework. Valid options include Mean Field approximations [Yang et al., 2018] which reduce complexity to
+O(1) by averaging neighbor embeddings, or sparse attention mechanisms [Mao et al., 2022] that limit interaction
+to the k-nearest neighbors for O(n · k) scaling. In our
+evaluated domain, however, the all-to-all attention provides the necessary expressivity to capture complex coordination patterns without hitting computational bottlenecks.
+
+o1
+t
+
+World Model
+
+..
+.
+
+..
+.
+
+on
+t
+
+World Model
+
+s1t
+
+context
+
+Multi-Head
+Attention
+(All-to-All)
+sn
+t
+
+context
+
+Actor π
+
+a1
+t
+
+..
+.
+
+..
+.
+
+Actor π
+
+an
+t
+
+Figure 3: Execution Phase: Each agent maintains its
+own world model copy. At each decision step, all
+agents communicate via multi-head attention (all-to-all,
+O(n2 · d) complexity) before action selection, enabling
+decentralized execution.
+
+4
+
+Experiments
+
+For all results, we report Safe Dreamers’ performance
+at 100k steps for a fair comparison, though further improvements are possible with continued training.
+We test the hypothesis that learning safety in latent
+imagination is superior to real-world failure learning, addressing three research questions:
+• RQ1 (Proactive Safety): Can Safe Dreamers
+maintain high performance under strict safety constraints where reactive methods fail?
+• RQ2 (Sample Efficiency): Does learning in
+imagination quantifiably reduce the real-world samples needed to converge to a safe policy?
+• RQ3 (Mechanism): Are the world model’s cost
+predictions and the Lagrangian mechanism essential
+for this success? ( addressed in Section 4.3).
+
+4.1
+
+Experimental Setup
+
+Domain: StarCraft II (SMAC). We evaluate our
+framework on the StarCraft Multi-Agent Challenge
+(SMAC) [Samvelyan et al., 2019], a standard benchmark
+for complex multi-agent coordination. SMAC requires
+precise micro-management and coordination in a highdimensional state space. We select scenarios ranging
+from homogeneous units (e.g., 3m, 8m) to heterogeneous
+teams (e.g., 1c3s5z, 2s3z ) to test the generalizability of
+our method. See Appendix B for game rules, scenario
+maps, and visualization details.
+Safety Constraint: Casualty Aversion. We define the safety cost as the number of dead allied units per
+episode. This metric is particularly challenging because
+it is sparse (deaths occur only at specific moments), irreversible, and critical for real-world deployment where as-
+
+(a) MACPO-Discrete: Reactive Failure (Win = 0)
+
+(b) Safe Dreamers (Ours): Proactive Safety (Win = 1)
+
+Figure 4: Visualizing Proactive vs. Reactive Safety on SMAC 8m. Top (MACPO): The baseline fails to learn
+a safe policy. Relying on sparse real-world penalties, it learns to retreat to avoid immediate costs, but this leads
+to eventual defeat and maximum casualties (cost = 8). Bottom (Safe Dreamers): Our method anticipates the
+danger. Agents coordinate a defensive concave formation before engagement, winning with minimal casualties. This
+confirms RQ1: imagination enables the learning of preventative behaviors that reactive methods struggle to discover.
+set preservation is paramount. Unlike smooth distancebased costs often used in robotic control, casualty costs
+require the agent to anticipate and avoid discrete failure events. We evaluate with cost limits proportional
+to team size: d ∈ {0, 1} for small teams (2–3 agents),
+and d ∈ {0, 4} for larger teams (8–9 agents), since the
+maximum possible cost equals the team size.
+Baseline: MACPO. We compare against MultiAgent Constrained Policy Optimization (MACPO) [Gu
+et al., 2021], the current state-of-the-art method for
+safe MARL. MACPO represents the best-in-class reactive approach: it uses a trust-region update to enforce constraints based on collected cost advantages. As
+demonstrated in [Gu et al., 2021], MACPO significantly
+outperforms earlier methods like IPPO-Lagrangian and
+MAPPO-Lagrangian on these same SMAC benchmarks,
+making it the strongest reactive competitor to beat. By
+comparing against MACPO, we directly test the value
+of the model-based element in Safe Dreamers.
+Implementation. We use standard hyperparameters
+(see Appendix D) and train for 100K environment steps.
+Baselines are trained for 5 million steps (50× more) to
+strictly test sample efficiency.
+
+4.2
+
+Comparative Analysis (RQ1 & RQ2)
+
+Qualitative Study: Visualizing Proactive Safety
+To see why reactive methods struggle, Figure 4 contrasts
+SMAC 8m behaviors: MACPO engages chaotically because it learns only from delayed penalties, while Safe
+Dreamers forms a defensive concave line learned in imag-
+
+ination before deployment.
+These behaviors align with the learning mechanisms:
+reactive updates miss links between early positioning
+and later casualties, while imagination exposes dangerous futures and trains preventative policies that yield
+coordinated, low-cost engagements.
+Quantitative Study
+To fairly compare algorithms with 50× different sample
+budgets, we plot learning curves with a side-by-side dualscale layout: the left column shows the full training range
+(0–5M steps), while the right column shows the zoomed
+0–100k step range for direct comparison. This visualization simultaneously reveals SafeDreamer’s rapid convergence (<100k steps) and MACPO’s extended training
+behavior, enabling fair comparison across both scales.
+We quantify these observations in Figure 5, which
+shows learning curves for Safe Dreamers and MACPO
+across easy maps (bane vs bane, 2m vs 1z) and hard
+maps (8m, 1c3s5z). Safe Dreamers consistently converges within 100k steps across all scenarios. On easy
+maps, MACPO eventually reaches comparable performance but requires 5M steps—a 50× sample overhead.
+On hard maps, MACPO fails entirely, remaining at
+0% win rate even after 5M steps, while Safe Dreamers
+achieves 78–84% win rate. See Appendix 3 for full metrics across all scenarios and seeds.
+Performance (RQ1). Safe Dreamers consistently
+outperforms MACPO in sample-matched comparisons.
+At 100k steps, Safe Dreamers achieves 90% win rate on
+2m vs 1z and 99% on bane vs bane, while MACPO re-
+
+Figure 5: Learning Curves (d = 0). Due to the 50× sample budget difference, we show both full training range
+(left, 0–5M steps) and zoomed view (right, 0–100k steps) for fair comparison. Top row: win rate; bottom row: cost.
+SafeDreamer (green) converges within 100k steps across all maps. On easy maps (bane vs bane, 2m vs 1z), MACPO
+(orange) eventually converges after 5M steps. On hard maps (8m, 1c3s5z), MACPO fails to learn, remaining at 0%
+win rate even after 5M steps, while SafeDreamer achieves 78–84% win rate in 100k steps.
+mains near 0% on the former and 79% on the latter.
+On hard maps (8m, 1c3s5z ), Safe Dreamers maintains
+78–84% win rates with significantly reduced cost, while
+MACPO fails completely (0% win rate) even after 5M
+steps.
+Sample Efficiency (RQ2). The learning curves
+(Figure 5) demonstrate dramatic efficiency gains. On
+easy maps, MACPO eventually converges but requires
+50× more samples. On hard maps, MACPO never converges regardless of sample budget, while Safe Dreamers
+succeeds within 100k steps. This confirms RQ2: learning
+in imagination reduces real-environment samples by 50×
+on easy maps and enables success on hard maps where
+reactive methods fail entirely.
+
+4.3
+
+Mechanism Analysis (RQ3)
+
+To answer RQ3 (”Are the world model’s cost predictions
+and the Lagrangian mechanism essential?”), we conduct
+ablation studies on the 8m SMAC scenario. We systematically vary the cost limit d and the loss components to
+isolate the contribution of each mechanism. Additionally, we verify the necessity of the safety layer by compar-
+
+ing against an unconstrained MAMBA baseline [Egorov
+and Shpilman, 2022]; results in Appendix G show that
+the unconstrained agent incurs high costs, confirming the
+role of our mechanism.
+Cost Limit Sensitivity
+Sweeping cost limits across 8m and 1c3s5z shows a clear
+trend: tighter limits induce larger learned Lagrangian
+penalties, and costs stay below the allowed bound; as
+limits loosen, penalties decrease and costs smoothly rise
+toward the permitted level. The figures below show only
+the actual cost versus cost limit for each map.
+Across both maps, the controller adapts continuously
+rather than flipping abruptly: penalties decline as constraints relax, costs track the target bound, and mission
+success stays strong. This trend indicates safety control
+does not trade off performance.
+Lagrangian Multiplier Response to Cost Limits
+Because the Lagrangian multiplier β enforces the cost
+constraint, its learned magnitude should correlate with
+the tightness of the limit. We extract the final nonnull Agent/Lagrangian value from each cost-limit run to
+
+Actual Cost
+Constraint boundary
+
+8
+
+4.4
+
+Actual Cost
+
+6
+
+Actual Cost
+
+6
+4
+
+4
+
+2
+0
+
+Actual Cost
+Constraint boundary
+
+8
+
+2
+
+0
+
+2
+
+4
+
+Cost Limit d
+
+6
+
+8
+
+0
+
+0
+
+2
+
+4
+
+Cost Limit d
+
+6
+
+8
+
+Figure 6: Cost limit sensitivity: actual cost versus cost
+limit for (a) 8m and (b) 1c3s5z maps. As the cost limit
+increases, the agent’s actual cost tracks the constraint
+boundary, demonstrating effective safety control.
+
+Figure 7: Lagrangian multiplier vs. cost limit. β decreases as limits rise, decaying rapidly on 8m but gradually on 1c3s5z, reflecting differing constraint needs.
+visualize how β adapts across maps.
+Across both maps, tighter limits drive larger β. The
+8m scenario exhibits rapid penalty decay as constraints
+relax, while 1c3s5z shows more sustained penalty enforcement, reflecting higher intrinsic cost pressure on
+this harder map. This matches the cost trajectories in
+Figure 6 and demonstrates that the controller adapts
+smoothly to different constraint regimes. Importantly,
+enforcing safety keeps mission reliability high while
+bounding cost, showing that safety does not fundamentally trade off task performance.
+Key Findings
+Our ablations highlight three core findings. The Lagrangian mechanism robustly adapts to constraint tightness, consistently enforcing constraints while preserving
+75–99% win rates; the learned multiplier β scales as expected. The principal contribution is methodological:
+the world model’s transparency lets us decompose predictions (cost, reward, dynamics), inspect logged losses,
+and debug components, making it straightforward to improve safety across domains without sacrificing performance. Safe Dreamers generalizes across map topologies and unit compositions, with a consistent constraint
+threshold despite different optimal operating points between scenarios, indicating the approach extends beyond
+single-scenario tuning.
+
+Discussion
+
+Why Imagination-Based Safety Works.
+Safe
+Dreamers’ superior performance stems from its ability
+to anticipate safety violations during imagination rather
+than experiencing them in the real environment. The
+world model learns to predict both next states and associated costs in latent space, enabling the policy to
+evaluate trajectories for safety before execution. When
+the cost predictor identifies a potentially unsafe action
+sequence during imagination rollouts, the policy can
+proactively avoid it. In contrast, model-free methods
+like MACPO-Discrete must experience constraint violations through trial-and-error in the actual environment before learning to avoid them. This fundamental difference—proactive safety through imagination versus reactive learning through experience—explains Safe
+Dreamers’ 25x sample efficiency advantage and ability to
+satisfy strict constraints where MACPO-Discrete completely fails.
+Computational Tradeoff. Safe Dreamers at 100k
+steps requires comparable wall-clock time (30-50 hours
+depending on scenario) to MACPO at 5M steps, reflecting 50x fewer environment steps but higher per-step computation for world model training. This tradeoff favors
+Safe Dreamers when environment interaction is expensive or safety-critical.
+
+5
+
+Conclusion
+
+We presented Safe Dreamers, which extends MAMBA’s
+imagination-based planning to predict both rewards and
+costs in latent space, enabling agents to learn policies
+that anticipate and avoid safety violations.
+Our evaluation on StarCraft Multi-Agent Challenge
+scenarios demonstrates that Safe Dreamers achieves
+competitive task performance while satisfying safety
+constraints that model-free baselines violate. Explicit
+cost modeling provides sample-efficient safe exploration
+through imagination-based planning, addressing the fundamental tradeoff between safety and sample efficiency
+in multi-agent reinforcement learning.
+Limitations. Our current implementation focuses on
+cooperative scenarios with centralized training and decentralized execution. The cost prediction accuracy depends on the world model’s ability to capture safetyrelevant dynamics, which may require careful tuning of
+the latent space representation.
+Future Work. Promising directions include extending Safe Dreamers to competitive and mixed-motive scenarios, investigating hierarchical safety constraints at
+different abstraction levels, and developing theoretical
+guarantees for constraint satisfaction in imaginationbased planning. Additionally, while we currently use
+imagination only for training, future work could explore runtime imagination for anomaly detection, allowing agents to detect and avoid unforeseen hazards during execution without retraining. Incorporating human
+feedback to refine cost functions could also improve applicability to real-world safety-critical domains.
+
+References
+[Achiam et al., 2017] Joshua Achiam, David Held, Aviv
+Tamar, and Pieter Abbeel. Constrained policy optimization. In International conference on machine
+learning, pages 22–31. PMLR, 2017.
+[Akiba et al., 2019] Takuya Akiba, Shotaro Sano, Tetsuo Yanase, Takeru Ohta, and Masanori Koyama. Optuna: A next-generation hyperparameter optimization
+framework. In Proceedings of the 25th ACM SIGKDD
+International Conference on Knowledge Discovery &
+Data Mining, pages 2623–2631, 2019.
+[Altman, 1999] Eitan Altman. Constrained Markov decision processes, volume 7. CRC Press, 1999.
+[Egorov and Shpilman, 2022] Vladimir Egorov and
+Alexey Shpilman. Scalable multi-agent model-based
+reinforcement learning. In Piotr Faliszewski, Viviana
+Mascardi, Catherine Pelachaud, and Matthew E.
+Taylor, editors, 21st International Conference on Autonomous Agents and Multiagent Systems, AAMAS
+2022, Auckland, New Zealand, May 9-13, 2022, pages
+381–390. International Foundation for Autonomous
+Agents and Multiagent Systems (IFAAMAS), 2022.
+[Gu et al., 2021] Shangding Gu, Jakub Kuba, Yuanpei Chen, Yali Du, Long Yang, Sanmi Koyejo, and
+Yaodong Yang. Multi-agent constrained policy optimization. arXiv preprint arXiv:2110.02793, 2021.
+[Hafner et al., 2020] Danijar Hafner, Timothy P. Lillicrap, Jimmy Ba, and Mohammad Norouzi. Dream
+to control: Learning behaviors by latent imagination.
+In 8th International Conference on Learning Representations, ICLR 2020, Addis Ababa, Ethiopia, April
+26-30, 2020. OpenReview.net, 2020.
+[Huang et al., 2024] Weidong Huang, Jiaming Ji,
+Chunhe Xia, Borong Zhang, and Yaodong Yang.
+Safedreamer: Safe reinforcement learning with world
+models. In The Twelfth International Conference
+on Learning Representations, ICLR 2024, Vienna,
+Austria, May 7-11, 2024. OpenReview.net, 2024.
+[Krinner et al., 2025] Maria Krinner, Elie Aljalbout,
+Angel Romero, and Davide Scaramuzza. Accelerating
+model-based reinforcement learning with state-space
+world models. CoRR, abs/2502.20168, 2025.
+[Liu et al., 2020] Yongshuai Liu, Jiaxin Ding, and Xin
+Liu. Ipo: Interior-point policy optimization under
+constraints. In Proceedings of the AAAI conference
+on artificial intelligence, volume 34, pages 4940–4947,
+2020.
+[Mao et al., 2022] Weichao Mao, Zitong Yang, Kaiqing
+Zhang, and Tamer Basr. Neighborhood cognition consistency for multi-agent reinforcement learning. In
+Proceedings of the AAAI Conference on Artificial Intelligence, volume 36, pages 7819–7827, 2022.
+[Samvelyan et al., 2019] Mikayel Samvelyan, Tabish
+Rashid, Christian Schroeder de Witt, Gregory Farquhar, Nantas Nardelli, Tim G. J. Rudner, Chia-Man
+
+Hung, Philiph H. S. Torr, Jakob Foerster, and Shimon
+Whiteson. The StarCraft Multi-Agent Challenge.
+CoRR, abs/1902.04043, 2019.
+[Schulman et al., 2017] John Schulman, Filip Wolski,
+Prafulla Dhariwal, Alec Radford, and Oleg Klimov.
+Proximal policy optimization algorithms.
+arXiv
+preprint arXiv:1707.06347, 2017.
+[Xiao et al., 2023] Wenli Xiao, Yiwei Lyu, and John M.
+Dolan. Model-based dynamic shielding for safe and efficient multi-agent reinforcement learning. In Noa Agmon, Bo An, Alessandro Ricci, and William Yeoh, editors, Proceedings of the 2023 International Conference
+on Autonomous Agents and Multiagent Systems, AAMAS 2023, London, United Kingdom, 29 May 2023 2 June 2023, pages 1587–1596. ACM, 2023.
+[Yang et al., 2018] Yaodong Yang, Rui Luo, Minne Li,
+Ming Zhou, Weinan Zhang, and Jun Wang. Mean field
+multi-agent reinforcement learning. In International
+Conference on Machine Learning, pages 5567–5576.
+PMLR, 2018.
+
+Appendix for ”Safe Dreamers: Proactive Safety in Multi-Agent Reinforcement
+Learning with Model-Based World Models”
+
+A
+
+Algorithm Pseudocode
+
+Algorithm 1: Safe Dreamers: Safe Multi-Agent Model-Based RL
+The Safe Dreamers algorithm operates in three distinct phases within each update step.
+Phase 1: Model Learning. The agent updates its world model using experience sampled from the replay
+buffer. It learns to reconstruct observations and predict rewards, costs, and state transitions, minimizing a
+comprehensive loss function Lmodel that includes reconstruction, prediction, and KL divergence terms.
+Phase 2: Proactive Safety via Imagination. This is the core novelty. The agent imagines trajectories in
+the latent space of the learned world model. By rolling out policies in imagination, it estimates values and
+costs (Vψr and Vψc ) without real-world interaction. The Lagrangian advantage ALag
+is computed to penalize
+τ
+unsafe actions, updating the actor to maximize rewards while satisfying cost constraints.
+Phase 3: Adaptive Lagrangian Update. The Lagrangian multiplier β is updated based on the actual
+costs incurred during the most recent data collection. This ensures the constraint enforcement strength
+adapts to the current safety performance, increasing penalty magnitude if the cost limit d is violated.
+Input: Environment E, cost limit d, horizon H
+Initialize: World model θ, actor ϕ, dual critic ψ, β = 0, buffer D
+while not converged do
+// Collect data
+Collect episodes using policy πϕ , store in D
+for update step do
+▷ Phase 1: Learning the Safety-Aware World Model
+Sample batch {(ot , at , rt , ct )} ∼ D
+Encode observations: et ← Encoderθ (ot )
+Compute latent states via RSSM: st ∼ qθ (st |st−1 , at−1 , et )
+Compute loss:
+Lmodel = Lrecon + Lr (r̂θ (st ), rt )
++Lc (ĉθ (st ), ct ) + KL(qθ ∥pθ )
+Update θ using ∇θ Lmodel
+▷ Phase 2: Proactive Safety via Imagination
+Sample initial states: s0 ∼ qθ
+Roll out imagined trajectories for H steps:
+for τ = 0 to H do
+aτ ∼ πϕ (·|sτ )
+sτ +1 ∼ pθ (·|sτ , aτ )
+r̂τ ← r̂θ (sτ ), ĉτ ← ĉθ (sτ )
+Compute returns: Rτ , Cτ ← TD-λ(r̂, ĉ, Vψ )
+Compute advantages:
+Arτ ← Rτ − Vψr (sτ ), Acτ ← Cτ − Vψc (sτ )
+ALag
+← Arτ − β · Acτ (Lagrangian advantage)
+τ
+Update actor with PPO:
+π (a |s )
+ρτ ← πϕ ϕ (aτ τ |sτ τ )
+old
+
+Lag
+Lactor ← −E[min(ρτ ALag
+τ , clip(ρτ , 1 − ϵ, 1 + ϵ)Aτ )]
+Update ϕ via gradient ascent
+Update dual critic:
+Lcritic ← E[(Vψr − Rτ )2 + (Vψc − Cτ )2 ]
+Update ψ
+▷ Phase 3: Adaptive Lagrangian Update
+C̄ ← mean episode cost
+// Penalize violations seen in rollout
+β ← max(0, β + αβ (C̄ − d))
+
+B
+
+SMAC Scenario Overview
+
+The StarCraft Multi-Agent Challenge (SMAC) [Samvelyan et al., 2019] is a benchmark for multi-agent reinforcement
+learning based on StarCraft II micromanagement. Each scenario uses a different map, featuring unique team compositions and tactical challenges. Allied agents (green circles) face enemy units (red circles); the goal is to defeat all
+enemies while minimizing allied losses. Episodes progress in steps, with agents moving, attacking, or using abilities.
+In visualizations (e.g., Figure 4), green lines show allied agents shooting. The images illustrate tactical positioning,
+combat, and episode outcomes across varied scenarios.
+
+C
+
+Network Architecture Details
+
+This appendix provides detailed specifications of the network architectures used in Safe Dreamers. All networks use
+256 hidden dimensions unless otherwise specified.
+We employ Multi-Layer Perceptrons (MLPs) for the Encoder, Reward/Cost Predictors, and Actor/Critic networks
+(Table 1) to maintain computational efficiency given the high-frequency interaction required in SMAC. For the
+Dynamics Model, we use a Gated Recurrent Unit (GRU) to capture the temporal dependencies inherent in partially
+observable multi-agent environments. This recurrent structure allows agents to maintain a memory of past events,
+which is crucial for coordinating safe maneuvers over extended horizons.
+
+Table 1: Network Architecture Specifications
+
+D
+
+Component
+
+Architecture
+
+Details
+
+Encoder
+
+MLP
+
+Dynamics Model
+
+GRU
+
+Reward Predictor
+
+MLP
+
+Cost Predictor
+
+MLP
+
+Actor
+
+MLP
+
+Critic (Value)
+
+MLP
+
+Critic (Cost)
+
+MLP
+
+Input: obs dim, Hidden: [256, 256], Output:
+latent dim
+Input: (latent, action), Hidden: 256, Output:
+next latent
+Input: latent dim, Hidden: [256, 256], Output: 1
+Input: latent dim, Hidden: [256, 256], Output: 1
+Input: latent dim, Hidden: [256, 256], Output: action dim
+Input: latent dim, Hidden: [256, 256], Output: 1
+Input: latent dim, Hidden: [256, 256], Output: 1
+
+Training Hyperparameters
+
+This appendix provides complete hyperparameter specifications for Safe Dreamers training, ensuring full reproducibility of our experimental results. Hyperparameters for both Safe Dreamers and MACPO were optimized using Optuna
+[Akiba et al., 2019], a Bayesian hyperparameter optimization framework, searching over learning rates, entropy
+coefficients, clipping parameters, and safety-related hyperparameters.
+To ensure a rigorous and fair comparison, we adhered to a strict experimental protocol. Both Safe Dreamers and
+the MACPO baseline were tuned using the same compute budget via Optuna. We optimized critical hyperparameters including learning rates, entropy coefficients, and clipping bounds. Crucially, while we report Safe Dreamers
+performance at 100k steps, we trained baselines for 5 million steps (50× more) to demonstrate that our method’s
+efficiency gains are not artifacts of insufficient baseline training. The hyperparameters listed in Table 2 represent the
+optimal configurations found for the 8m scenario, which provided robust performance across all maps.
+
+Table 2: Safe Dreamers Hyperparameters
+
+E
+
+Parameter
+
+Value
+
+Learning Rates
+World model
+Actor
+Critic
+Lagrangian multiplier (αβ )
+
+2 × 10−4
+5 × 10−4
+5 × 10−4
+1 × 10−5
+
+Training
+Batch size
+Sequence length
+Replay buffer capacity
+Minimum buffer size
+Imagination horizon (H)
+Model training epochs
+PPO epochs
+Gradient clipping
+
+40
+20
+250,000
+500
+15
+60
+5
+100.0
+
+Reinforcement Learning
+Discount factor (γ)
+TD(λ) parameter
+Entropy regularization
+Initial Lagrangian multiplier (β0 )
+
+0.99
+0.95
+0.001
+1 × 10−4
+
+Complete Baseline Comparison Results
+
+This appendix provides complete performance comparisons between Safe Dreamers and MACPO-Discrete across all
+evaluated SMAC scenarios and cost limit configurations. The main paper presents results visually in Figure 5. This
+section includes all experimental configurations for completeness and reproducibility.
+Table 3 presents the exhaustive evaluation results. For each scenario and cost limit, we report:
+• Score: The mean cumulative reward.
+• Cost: The mean number of allied deaths (casualty cost).
+• Win Rate: The percentage of episodes won.
+We compare Safe Dreamers (trained for 100k steps) against MACPO (trained for both 100k and 5M steps). This
+dual comparison highlights two key findings: first, matched at 100k steps, Safe Dreamers dominates MACPO in both
+safety and success; second, even when MACPO is given 50× more samples (5M steps), Safe Dreamers still achieves
+superior or comparable safety-performance trade-offs, particularly in harder scenarios like 8m and 1c3s5z.
+Table 3: Complete performance comparison at 100k steps vs SafePO at 5M steps.
+Algorithm
+
+Scenario
+
+Score ↑
+
+Cost ↓
+
+Winrate ↑
+
+Steps
+
+Cost Limit
+
+MACPO
+MACPO
+Safe Dreamers
+
+1c3s5z
+1c3s5z
+1c3s5z
+
+8.72 ± 0.68
+7.64 ± 0.17
+19.48 ± 0.35
+
+9.00 ± 0.00
+9.00 ± 0.00
+3.40 ± 1.08
+
+0.00 ± 0.00
+0.00 ± 0.00
+0.86 ± 0.10
+
+5M
+100k
+100k
+
+0
+0
+0
+
+MACPO
+MACPO
+Safe Dreamers
+
+1c3s5z
+1c3s5z
+1c3s5z
+
+10.07 ± 1.76
+7.79 ± 0.05
+19.17 ± 0.21
+
+9.00 ± 0.00
+9.00 ± 0.00
+4.94 ± 0.49
+
+0.00 ± 0.00
+0.00 ± 0.00
+0.79 ± 0.03
+
+5M
+100k
+100k
+
+4
+4
+4
+
+MACPO
+MACPO
+Safe Dreamers
+
+2m vs 1z
+2m vs 1z
+2m vs 1z
+
+11.74 ± 8.95
+2.71 ± 0.19
+18.67 ± 0.29
+
+1.01 ± 1.08
+2.00 ± 0.00
+0.27 ± 0.04
+
+0.49 ± 0.54
+0.00 ± 0.00
+0.90 ± 0.02
+
+5M
+100k
+100k
+
+0
+0
+0
+
+MACPO
+MACPO
+Safe Dreamers
+
+2m vs 1z
+2m vs 1z
+2m vs 1z
+
+12.05 ± 8.71
+3.13 ± 0.01
+19.75 ± 0.19
+
+1.00 ± 1.09
+2.00 ± 0.00
+0.14 ± 0.01
+
+0.50 ± 0.55
+0.00 ± 0.00
+0.98 ± 0.02
+
+5M
+100k
+100k
+
+1
+1
+1
+
+Continued on next page
+
+Algorithm
+
+Table 3 – continued from previous page
+Scenario
+Score ↑
+Cost ↓
+Winrate ↑
+
+Steps
+
+Cost Limit
+
+MACPO
+MACPO
+Safe Dreamers
+
+2s3z
+2s3z
+2s3z
+
+1.86 ± 1.96
+3.69 ± 0.02
+18.29 ± 0.53
+
+5.00 ± 0.00
+5.00 ± 0.00
+2.46 ± 0.29
+
+0.00 ± 0.00
+0.00 ± 0.00
+0.71 ± 0.09
+
+5M
+100k
+100k
+
+0
+0
+0
+
+MACPO
+MACPO
+Safe Dreamers
+
+2s3z
+2s3z
+2s3z
+
+12.81 ± 7.41
+4.86 ± 0.04
+18.11 ± 0.78
+
+3.47 ± 1.69
+5.00 ± 0.00
+2.89 ± 0.17
+
+0.46 ± 0.51
+0.00 ± 0.00
+0.69 ± 0.11
+
+5M
+100k
+100k
+
+4
+4
+4
+
+MACPO
+MACPO
+Safe Dreamers
+
+2s vs 1sc
+2s vs 1sc
+2s vs 1sc
+
+2.51 ± 1.91
+2.45 ± 0.12
+19.81 ± 0.13
+
+2.00 ± 0.00
+2.00 ± 0.00
+0.25 ± 0.09
+
+0.00 ± 0.00
+0.00 ± 0.00
+0.95 ± 0.02
+
+5M
+100k
+100k
+
+0
+0
+0
+
+MACPO
+MACPO
+Safe Dreamers
+
+2s vs 1sc
+2s vs 1sc
+2s vs 1sc
+
+13.50 ± 7.32
+4.21 ± 0.24
+19.97 ± 0.12
+
+1.08 ± 1.01
+2.00 ± 0.00
+0.32 ± 0.15
+
+0.50 ± 0.54
+0.00 ± 0.00
+0.97 ± 0.01
+
+5M
+100k
+100k
+
+1
+1
+1
+
+MACPO
+MACPO
+Safe Dreamers
+
+3m
+3m
+3m
+
+1.35 ± 1.43
+2.06 ± 0.12
+19.32 ± 0.53
+
+3.00 ± 0.00
+3.00 ± 0.00
+0.78 ± 0.14
+
+0.00 ± 0.00
+0.00 ± 0.00
+0.95 ± 0.04
+
+5M
+100k
+100k
+
+0
+0
+0
+
+MACPO
+MACPO
+Safe Dreamers
+
+3m
+3m
+3m
+
+11.81 ± 8.96
+2.55 ± 0.04
+19.12 ± 0.42
+
+1.64 ± 1.50
+3.00 ± 0.00
+0.81 ± 0.15
+
+0.50 ± 0.55
+0.00 ± 0.00
+0.93 ± 0.03
+
+5M
+100k
+100k
+
+1
+1
+1
+
+MACPO
+MACPO
+Safe Dreamers
+
+3s5z vs 3s6z
+3s5z vs 3s6z
+3s5z vs 3s6z
+
+2.44 ± 1.10
+3.47 ± 0.03
+12.89 ± 0.67
+
+8.00 ± 0.00
+8.00 ± 0.00
+7.81 ± 0.25
+
+0.00 ± 0.00
+0.00 ± 0.00
+0.06 ± 0.08
+
+5M
+100k
+100k
+
+0
+0
+0
+
+MACPO
+MACPO
+Safe Dreamers
+
+3s5z vs 3s6z
+3s5z vs 3s6z
+3s5z vs 3s6z
+
+5.23 ± 0.27
+3.86 ± 0.04
+11.31 ± 0.16
+
+8.00 ± 0.00
+8.00 ± 0.00
+7.99 ± 0.02
+
+0.00 ± 0.00
+0.00 ± 0.00
+0.00 ± 0.00
+
+5M
+100k
+100k
+
+4
+4
+4
+
+MACPO
+MACPO
+Safe Dreamers
+
+3s vs 3z
+3s vs 3z
+3s vs 3z
+
+4.05 ± 3.23
+6.04 ± 0.05
+19.83 ± 0.29
+
+3.00 ± 0.00
+3.00 ± 0.00
+0.89 ± 0.22
+
+0.00 ± 0.00
+0.00 ± 0.00
+0.95 ± 0.03
+
+5M
+100k
+100k
+
+0
+0
+0
+
+MACPO
+MACPO
+Safe Dreamers
+
+3s vs 3z
+3s vs 3z
+3s vs 3z
+
+13.07 ± 6.56
+6.28 ± 0.11
+19.56 ± 0.15
+
+1.91 ± 1.31
+3.00 ± 0.00
+1.16 ± 0.32
+
+0.41 ± 0.47
+0.00 ± 0.00
+0.92 ± 0.01
+
+5M
+100k
+100k
+
+1
+1
+1
+
+MACPO
+MACPO
+Safe Dreamers
+
+3s vs 4z
+3s vs 4z
+3s vs 4z
+
+3.76 ± 1.29
+4.39 ± 0.04
+20.39 ± 0.64
+
+3.00 ± 0.00
+3.00 ± 0.00
+1.68 ± 0.39
+
+0.00 ± 0.00
+0.00 ± 0.00
+0.83 ± 0.11
+
+5M
+100k
+100k
+
+0
+0
+0
+
+MACPO
+MACPO
+Safe Dreamers
+
+3s vs 4z
+3s vs 4z
+3s vs 4z
+
+6.09 ± 1.45
+4.55 ± 0.01
+19.68 ± 1.29
+
+3.00 ± 0.00
+3.00 ± 0.00
+2.01 ± 0.38
+
+0.00 ± 0.00
+0.00 ± 0.00
+0.67 ± 0.20
+
+5M
+100k
+100k
+
+1
+1
+1
+
+MACPO
+MACPO
+Safe Dreamers
+
+3s vs 5z
+3s vs 5z
+3s vs 5z
+
+2.89 ± 0.93
+3.44 ± 0.03
+19.81 ± 1.25
+
+3.00 ± 0.00
+3.00 ± 0.00
+2.34 ± 0.51
+
+0.00 ± 0.00
+0.00 ± 0.00
+0.44 ± 0.28
+
+5M
+100k
+100k
+
+0
+0
+0
+
+MACPO
+MACPO
+Safe Dreamers
+
+3s vs 5z
+3s vs 5z
+3s vs 5z
+
+5.21 ± 1.56
+3.52 ± 0.02
+17.42 ± 1.39
+
+3.00 ± 0.00
+3.00 ± 0.00
+2.74 ± 0.14
+
+0.00 ± 0.00
+0.00 ± 0.00
+0.19 ± 0.10
+
+5M
+100k
+100k
+
+1
+1
+1
+
+MACPO
+MACPO
+Safe Dreamers
+
+8m
+8m
+8m
+
+0.75 ± 0.62
+1.43 ± 0.01
+19.01 ± 0.79
+
+8.00 ± 0.00
+8.00 ± 0.00
+3.25 ± 1.14
+
+0.00 ± 0.00
+0.00 ± 0.00
+0.88 ± 0.10
+
+5M
+100k
+100k
+
+0
+0
+0
+
+MACPO
+MACPO
+
+8m
+8m
+
+1.37 ± 0.58
+1.63 ± 0.01
+
+8.00 ± 0.00
+8.00 ± 0.00
+
+0.00 ± 0.00
+0.00 ± 0.00
+
+5M
+100k
+
+4
+4
+
+Continued on next page
+
+Algorithm
+
+F
+
+Table 3 – continued from previous page
+Scenario
+Score ↑
+Cost ↓
+Winrate ↑
+
+Steps
+
+Cost Limit
+
+Safe Dreamers
+
+8m
+
+16.75 ± 1.29
+
+5.25 ± 0.95
+
+0.64 ± 0.13
+
+100k
+
+4
+
+MACPO
+MACPO
+Safe Dreamers
+
+bane vs bane
+bane vs bane
+bane vs bane
+
+19.72 ± 0.31
+19.26 ± 0.01
+19.13 ± 1.42
+
+14.97 ± 7.87
+22.55 ± 0.02
+11.33 ± 9.60
+
+0.90 ± 0.10
+0.79 ± 0.02
+0.80 ± 0.32
+
+5M
+100k
+100k
+
+0
+0
+0
+
+MACPO
+MACPO
+Safe Dreamers
+
+bane vs bane
+bane vs bane
+bane vs bane
+
+19.64 ± 0.26
+19.37 ± 0.10
+19.75 ± 0.41
+
+16.96 ± 6.11
+22.40 ± 0.07
+10.88 ± 6.59
+
+0.89 ± 0.08
+0.80 ± 0.02
+0.94 ± 0.09
+
+5M
+100k
+100k
+
+4
+4
+4
+
+MACPO
+MACPO
+Safe Dreamers
+
+MMM
+MMM
+MMM
+
+1.11 ± 0.72
+1.87 ± 0.01
+17.24 ± 0.89
+
+10.00 ± 0.00
+10.00 ± 0.00
+7.32 ± 0.64
+
+0.00 ± 0.00
+0.00 ± 0.00
+0.58 ± 0.06
+
+5M
+100k
+100k
+
+0
+0
+0
+
+MACPO
+MACPO
+Safe Dreamers
+
+MMM
+MMM
+MMM
+
+1.16 ± 0.67
+1.89 ± 0.04
+15.16 ± 1.24
+
+10.00 ± 0.00
+10.00 ± 0.00
+7.96 ± 0.93
+
+0.00 ± 0.00
+0.00 ± 0.00
+0.41 ± 0.13
+
+5M
+100k
+100k
+
+4
+4
+4
+
+Cost Prediction Loss Function Ablation
+
+During development, we observed that the world model’s cost prediction was not sufficiently accurate. This highlights
+a key advantage of our approach: the world model enables direct inspection and debugging of cost predictions,
+allowing us to identify and address prediction errors. To improve cost prediction accuracy, we evaluated alternative
+loss functions beyond the standard mean squared error (MSE), including Huber loss, Focal loss, and Exponential
+loss. While these variants showed improvements in cost prediction accuracy, we retained the standard MSE loss in
+our final implementation for simplicity and robustness, maintaining focus on the main contribution. This ablation
+demonstrates that the framework is extensible and that the world model provides valuable diagnostic capabilities
+for iterative improvement—a key methodological advantage that enables principled debugging and optimization of
+individual components.
+Table 4: Ablation: Cost prediction loss functions on 8M scenario. Results averaged over final training window (190k–
+240k steps). The world model’s transparency enables direct inspection of prediction quality and loss, demonstrating
+that component-level debugging is more tractable than traditional black-box approaches.
+Loss Function
+
+Score ↑
+
+Cost ↓
+
+Win Rate (%) ↑
+
+Model Loss ↓
+
+Notes
+
+Standard (MSE)
+Huber
+Focal
+Exponential
+
+19.75
+19.89
+19.80
+19.62
+
+1.75
+1.31
+1.53
+2.49
+
+96.9
+98.7
+98.0
+95.3
+
+0.0094
+0.0074
+0.0084
+0.0102
+
+Baseline, robust
+Best cost pred.
+Hard examples
+Outlier sensitive
+
+Huber reduces realized cost (1.31 vs. 1.75 for MSE) and model cost loss (0.0074), with a small score gain (19.89
+vs. 19.75). Focal is competitive; Exponential underperforms (cost 2.49, loss 0.0102), likely due to outliers. Crucially,
+the world model’s transparency lets us inspect Model/cost loss and tie higher model loss to higher realized cost,
+enabling targeted component-level debugging. MSE remains a reasonable default; the framework is extensible and
+debuggable.
+
+G
+
+Impact of Safety Mechanism
+
+To verify the effectiveness of our safety components (Cost-Aware World Model and Lagrangian Update), we perform
+an ablation study comparing Safe Dreamers against an unconstrained baseline (equivalent to the original MAMBA
+algorithm [Egorov and Shpilman, 2022]). Figure 9 demonstrates the necessity of proactive safety: the unconstrained
+agent (red) consistently violates the cost limit, whereas Safe Dreamers (green) significantly reduces costs throughout
+training.
+
+19.75
+
+Task Performance
+19.89
+
+19.80
+
+20
+
+Cost Prediction
+19.62
+
+4.0
+
+1.75
+
+2.49
+
+3.5
+
+1.31
+
+3.0
+
+15
+
+2.5
+
+Cost
+
+Score
+
+1.53
+
+10
+
+2.0
+1.5
+1.0
+
+5
+
+0.5
+0
+
+120
+
+Standard
+96.9%
+
+Huber
+
+Focal
+
+98.7%
+
+98.0%
+
+Mission Success
+
+Huber
+
+Focal
+
+Exp
+
+0.009
+
+0.007
+
+0.008
+
+0.010
+
+80
+60
+40
+
+Standard
+
+Huber
+
+Focal
+
+Exp
+
+0.04
+0.03
+0.02
+0.01
+
+20
+
+Standard
+
+Huber
+
+Focal
+
+World Model Prediction Error
+
+0.05
+
+Model Cost Loss
+
+Win Rate (%)
+
+Standard
+
+0.06
+
+95.3%
+
+100
+
+0
+
+0.0
+
+Exp
+
+Exp
+
+0.00
+
+Figure 8: Cost prediction loss ablation across MSE, Huber, Focal, and Exponential. Huber consistently reduces
+cost and model loss with near-perfect success; Exponential underperforms. Differences are modest overall, so MSE
+remains a reasonable default. The world model makes these components inspectable and debuggable.
+
+Safety Cost (8m)
+
+8
+
+4
+2
+
+Return
+
+Return
+
+4
+
+0
+
+Return (8m)
+
+20.0
+17.5
+15.0
+12.5
+10.0
+7.5
+
+Win Rate (8m)
+
+1.0
+
+Return (1c3s5z)
+
+20.0
+17.5
+15.0
+12.5
+10.0
+7.5
+5.0
+
+Win Rate (1c3s5z)
+
+1.0
+0.8
+
+Win Rate
+
+0.8
+
+Win Rate
+
+6
+
+2
+
+0
+
+0.6
+0.4
+0.2
+0.0
+
+SafeDreamer
+Without Safety Constraint
+
+8
+
+Cost
+
+6
+
+Cost
+
+Safety Cost (1c3s5z)
+
+SafeDreamer
+Without Safety Constraint
+
+0.6
+0.4
+0.2
+
+0
+
+100k
+
+200k
+
+Training Steps
+
+(a) 8m Scenario
+
+300k
+
+0.0
+
+0
+
+100k
+
+200k
+
+Training Steps
+
+300k
+
+(b) 1c3s5z Scenario
+
+Figure 9: Ablation study demonstrating the effectiveness of the safety mechanism. We remove the safety layer and
+compare the unconstrained MAMBA agent against Safe Dreamers (cost limit d = 0) on the 8m and 1c3s5z scenarios.
+The green line represents Safe Dreamers, which significantly reduces the cost, while the red line shows higher costs
+for the unconstrained agent. Shaded regions represent the 95% confidence interval.
+
+
