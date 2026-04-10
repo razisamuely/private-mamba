@@ -246,4 +246,4 @@ if __name__ == "__main__":
         learner_config=configs["learner_config"],
     )
 
-    train_dreamer(exp, n_workers=args.n_workers, debug=False)
+    train_dreamer(exp, n_workers=args.n_workers, debug=args.n_workers == 0)
