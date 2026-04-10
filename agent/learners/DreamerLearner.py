@@ -51,9 +51,15 @@ class DreamerLearner:
 
     def __init__(self, config):
         self.config = config
+        # Scale cost limit based on episode length for safety constraints in imagination
+        # The imagination horizon uses discounted returns: sum_{t=0}^H gamma^t * cost_t
+        # We scale the budget (per full episode) to this "effective horizon" sum.
+        effective_horizon = 1.0 / (1.0 - config.GAMMA)
+        scaled_cost_limit = config.COST_LIMIT * (effective_horizon / config.MAX_STEPS)
+
         # ---- > Lagrangian
         self.lagrangian = BasicLagrange(
-            cost_limit=config.COST_LIMIT,
+            cost_limit=scaled_cost_limit,
             lagrangian_multiplier_init=config.LAGRANGIAN_MULTIPLIER_INIT,
             lr=config.LAGRANGIAN_LR,
             device=config.DEVICE,
@@ -219,6 +225,7 @@ class DreamerLearner:
                 "Agent/Cost": trajectory_costs.mean(),
                 "Agent/Lagrangian": self.lagrangian.lambda_,
                 "Agent/Entropy": self.entropy,
+                "Lag/scaled_cost_limit": self.lagrangian.cost_limit,
             }
         )
         wandb.log(

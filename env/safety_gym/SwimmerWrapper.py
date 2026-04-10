@@ -84,26 +84,21 @@ class SwimmerWrapper:
 
     def step(self, action_vector):
         """
-        Input: list/array of discrete action indices per agent.
+        Input: list/array of discrete indices per agent (each 0..n_actions_discrete-1).
+
+        SafeMAEnv Swimmer 2x1: each agent has Box(-1,1,(1,)). The 9-bin table is a
+        *joint* (torque_a, torque_b): use agent 0's index as the joint row; apply
+        val[0] / val[1] to the two agents' 1D actions (agent 1's index unused for env).
         """
-        # Convert discrete indices to continuous dict for SafeMAEnv
-        # Swimmer 2x1 is a peculiar case: SafeMAEnv might expect actions partitioned.
-        # However, for the MAMBA agent, we assume it's like SMAC.
-
-        # We'll map the FIRST action index to BOTH agents for simplicity in Phase 2
-        # Or better: treat them independently if we have multiple actions.
-
-        # For simplicity, we assume action_vector is [idx_agent0, idx_agent1]
+        joint_idx = int(action_vector[0]) % self.n_actions_discrete
+        val = self.action_map.get(joint_idx, (0.0, 0.0))
+        agents = list(self.env.possible_agents)
         dict_actions = {}
-        for i, agent in enumerate(self.env.possible_agents):
-            discrete_idx = int(action_vector[i])
-            # The continuous action space for Swimmer is 2 per agent?
-            # We'll map to the space expected by the underlying task.
-            dict_actions[agent] = np.zeros(self.env.action_space(agent).shape)
-            # Map discrete idx to part of the continuous space
-            # (In MuJoCo, usually first 2 joint velocities etc.)
-            val = self.action_map.get(discrete_idx, (0.0, 0.0))
-            dict_actions[agent][:] = val[0]  # Very simple mapping for now
+        for i, agent in enumerate(agents):
+            t = float(val[i]) if i < len(val) else 0.0
+            lo = np.asarray(self.env.action_space(agent).low, dtype=np.float32)
+            hi = np.asarray(self.env.action_space(agent).high, dtype=np.float32)
+            dict_actions[agent] = np.clip(np.array([t], dtype=np.float32), lo, hi)
 
         _, rewards, costs, terminations, truncations, infos = self.env.step(dict_actions)
 
@@ -111,7 +106,7 @@ class SwimmerWrapper:
         reward_dict = {i: rewards[agent] for i, agent in enumerate(self.env.possible_agents)}
         done_dict = {i: terminations[agent] or truncations[agent] for i, agent in enumerate(self.env.possible_agents)}
 
-        # Prepare cost/info for DreamerWorker
+        # Safety-Gymnasium step cost only (not SMAC / train.py --cost_type).
         cost_dict = {i: costs[agent] for i, agent in enumerate(self.env.possible_agents)}
         infos["cost"] = cost_dict
 

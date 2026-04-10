@@ -26,6 +26,18 @@ source /home/razshmue/workspace/private-mamba/venv/bin/activate
 # Go to project directory
 cd /home/razshmue/workspace/private-mamba/
 
+### Start GPU Keep-Alive in background ###
+python sbatch_scripts/gpu_keepalive.py > sbatch_scripts/logs/gpu_keepalive_${SLURM_JOBID}.log 2>&1 &
+KEEPALIVE_PID=$!
+
+# Function to cleanup keep-alive on exit
+cleanup() {
+    if kill -0 $KEEPALIVE_PID 2>/dev/null; then
+        kill $KEEPALIVE_PID
+    fi
+}
+trap cleanup EXIT
+
 # Run training
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 python train.py \

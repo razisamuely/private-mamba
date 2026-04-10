@@ -30,6 +30,7 @@ class DreamerLearnerConfig(DreamerConfig):
         self.LAGRANGIAN_MULTIPLIER_INIT = 0.0001
         self.LAGRANGIAN_LR = 0.00001
         self.COST_PRIORITY_RATIO = 0.0
+        self.MAX_STEPS = 1000.0
 
     def create_learner(self):
         return DreamerLearner(self)

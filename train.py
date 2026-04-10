@@ -21,9 +21,6 @@ from env.flatland.params import LotsOfAgents, PackOfAgents, SeveralAgents
 
 # from env.mpe.vmas_simple_spread import VmasSpread
 from env.safety_gym.SwimmerWrapper import SwimmerWrapper as SafetyGymWrapper
-
-# from env.starcraft.StarCraft import StarCraft
-from env.starcraft.StarCraft_safe import StarCraft
 from env.vmas.balance import VmasBalance
 from environments import FLATLAND_ACTION_SIZE, FLATLAND_OBS_SIZE, Env, FlatlandType
 
@@ -77,7 +74,9 @@ def parse_args():
     # parser.add_argument("--env_name", type=str, default="balance", help="Specific setting")
     parser.add_argument("--env", type=str, default="starcraft", help="Flatland or SMAC env")
     parser.add_argument("--env_name", type=str, default="8m", help="Specific setting")
-    parser.add_argument("--cost_type", type=str, default="dead_allies_incremental", help="Specific setting")
+    parser.add_argument(
+        "--cost_type", type=str, default="dead_allies_incremental", help="SMAC cost only; ignored for safety_gym"
+    )
     # parser.add_argument("--env", type=str, default="safety_gym", help="Flatland or SMAC env")
     # parser.add_argument("--env_name", type=str, default="SafetyPointMultiGoal1-v0", help="Specific setting")
     parser.add_argument("--n_workers", type=int, default=4, help="Number of workers")
@@ -89,7 +88,7 @@ def parse_args():
     parser.add_argument("--slurm_id", type=str, default="none", help="Slurm Job ID")
     parser.add_argument("--branch", type=str, default="unknown", help="Git branch name")
     parser.add_argument("--steps", type=int, default=10**10, help="Total number of steps")
-    parser.add_argument("--episodes", type=int, default=50000, help="Total number of episodes")
+    parser.add_argument("--episodes", type=int, default=1000, help="Total number of episodes")
     return parser.parse_args()
 
 
@@ -116,12 +115,16 @@ def get_env_info_flatland(configs):
 
 
 def prepare_starcraft_configs(args):
+    from env.starcraft.StarCraft_safe import StarCraft
+
     agent_configs = [DreamerControllerConfig(), DreamerLearnerConfig(cost_limit=args.cost_limit)]
     for config in agent_configs:
         if hasattr(config, "LAGRANGIAN_LR"):
             config.LAGRANGIAN_LR = args.laglr
         if hasattr(config, "COST_PRIORITY_RATIO"):
             config.COST_PRIORITY_RATIO = args.cost_priority
+        if hasattr(config, "MAX_STEPS"):
+            config.MAX_STEPS = 400.0  # SMAC typical max steps
     env_config = StarCraft(args.env_name, args.cost_type)
     get_env_info(agent_configs, env_config.create_env())
     return {
@@ -162,6 +165,8 @@ def prepare_vmas_balance_configs(env_name, cost_limit=180.0):
 def prepare_safety_gym_configs(args):
     """Refined dynamic configuration for Safety-Gymnasium tasks."""
     agent_configs = [DreamerControllerConfig(), DreamerLearnerConfig(cost_limit=args.cost_limit)]
+    # Set MAX_STEPS for safety gymnasium tasks (1000 is default for multi-agent mujoco)
+    agent_configs[1].MAX_STEPS = 1000.0
     env_config = SafetyGymWrapper(args.env_name)
 
     # Initialize real env briefly to capture meta-data (n_obs, n_actions)
@@ -219,6 +224,8 @@ if __name__ == "__main__":
         f"lag{args.laglr}_{args.cost_limit}_{args.env_name}_"
         f"s{args.seed}_{current_run_time}_{args.slurm_id}_{sanitized_branch}"
     )
+    if len(run_name) > 120:
+        run_name = run_name[:120]
 
     wandb.init(
         name=run_name,
@@ -254,4 +261,4 @@ if __name__ == "__main__":
         learner_config=configs["learner_config"],
     )
 
-    train_dreamer(exp, n_workers=args.n_workers, debug=False)
+    train_dreamer(exp, n_workers=args.n_workers, debug=(args.n_workers == 0))
