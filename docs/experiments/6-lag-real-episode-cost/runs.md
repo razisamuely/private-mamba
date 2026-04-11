@@ -10,9 +10,9 @@
 2. SSH to cluster: `git checkout feat/lag-real-episode-cost -f && git pull`
 3. Submitted via `sbatch_scripts/submit_experiments.py`
 
-| Cost Limit | Seed | Slurm ID |
-|-----------|------|----------|
-| 0.1 | 1 | 16963067 |
-| 0.1 | 2 | 16963068 |
+| Cost Limit | Seed | Slurm ID | Notes |
+|-----------|------|----------|-------|
+| 0.1 | 1 | ~~16963067~~ → 16963070 | Resubmitted with 16h wall time |
+| 0.1 | 2 | ~~16963068~~ → 16963071 | Resubmitted with 16h wall time |
 
-**Status**: Pending
+**Status**: Pending (queued, within maintenance window)
