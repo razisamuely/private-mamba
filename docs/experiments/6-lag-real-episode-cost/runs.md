@@ -12,7 +12,12 @@
 
 | Cost Limit | Seed | Slurm ID | Notes |
 |-----------|------|----------|-------|
-| 0.1 | 1 | ~~16963067~~ → 16963070 | Resubmitted with 16h wall time |
-| 0.1 | 2 | ~~16963068~~ → 16963071 | Resubmitted with 16h wall time |
+| 0.1 | 1 | ~~16963067~~ → ~~16963070~~ → 16983660 | Resubmitted post-maintenance, 7d wall time |
+| 0.1 | 2 | ~~16963068~~ → ~~16963071~~ → 16983661 | Resubmitted post-maintenance, 7d wall time |
+| 0.1 | 3 | 16983662 | |
+| 0.0 | 1 | 16983654 | Baseline (no constraint) |
+| 0.0 | 2 | 16983658 | Baseline (no constraint) |
+| 0.0 | 3 | 16983659 | Baseline (no constraint) |
 
-**Status**: Pending (queued, within maintenance window)
+**Status**: Submitted — 2026-04-14  
+**Next**: Submit `cost_limit=0.5` (3 seeds) after reviewing these results.
