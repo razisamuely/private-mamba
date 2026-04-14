@@ -19,5 +19,8 @@
 | 0.0 | 2 | 16983658 | Baseline (no constraint) |
 | 0.0 | 3 | 16983659 | Baseline (no constraint) |
 
-**Status**: Submitted — 2026-04-14  
-**Next**: Submit `cost_limit=0.5` (3 seeds) after reviewing these results.
+| 0.5 | 1 | 16983666 | |
+| 0.5 | 2 | 16983667 | |
+| 0.5 | 3 | 16983668 | |
+
+**Status**: All 9 jobs submitted — 2026-04-14
