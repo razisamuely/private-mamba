@@ -1,7 +1,7 @@
 #!/bin/bash
 ### sbatch config parameters must start with #SBATCH and must precede any other command.
 
-#SBATCH --time=16:00:00
+#SBATCH --time=7-00:00:00
 #SBATCH --mem=64G
 #SBATCH --job-name={{JOB_NAME}}
 #SBATCH --output={{JOB_NAME}}-id-%J.out
