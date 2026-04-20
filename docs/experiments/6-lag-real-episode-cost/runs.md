@@ -50,5 +50,8 @@ Attempted 3 times, all OOM (10.9GB GPU, 24 agents too large for batch_size=40). 
 | 0.0 | 1 | 17105855 |
 | 0.0 | 2 | 17105856 |
 | 0.0 | 3 | 17105857 |
+| 0.5 | 1 | 17106290 |
+| 0.5 | 2 | 17106291 |
+| 0.5 | 3 | 17106292 |
 
 **Status**: Submitted — 2026-04-20
