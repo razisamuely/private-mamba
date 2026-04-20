@@ -32,8 +32,8 @@
 
 | Cost Limit | Seed | Slurm ID | Notes |
 |-----------|------|----------|-------|
-| 0.0 | 1 | ~~17105141~~ → 17105257 | Resubmitted on rtx6000 (OOM on 1080) |
-| 0.0 | 2 | ~~17105146~~ → 17105258 | Resubmitted on rtx6000 |
-| 0.0 | 3 | ~~17105147~~ → 17105259 | Resubmitted on rtx6000 |
+| 0.0 | 1 | ~~17105141~~ → ~~17105257~~ → 17105339 | Resubmitted with n_workers=2 (OOM) |
+| 0.0 | 2 | ~~17105146~~ → ~~17105258~~ → 17105344 | Resubmitted with n_workers=2 (OOM) |
+| 0.0 | 3 | ~~17105147~~ → ~~17105259~~ → 17105351 | Resubmitted with n_workers=2 (OOM) |
 
 **Status**: Submitted — 2026-04-20
