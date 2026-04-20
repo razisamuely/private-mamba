@@ -27,6 +27,25 @@
    git add -A && git commit -m "docs: add submitted runs" && git push origin <branch>
    ```
 
+## Monitoring & Debugging
+
+```bash
+# Job status
+ssh razshmue@slurm.bgu.ac.il "squeue -u razshmue"
+
+# Error log
+ssh razshmue@slurm.bgu.ac.il "tail -30 workspace/private-mamba/<job_name>-id-<JOBID>.err"
+
+# Output log
+ssh razshmue@slurm.bgu.ac.il "tail -30 workspace/private-mamba/<job_name>-id-<JOBID>.out"
+
+# Available GPUs by partition
+ssh razshmue@slurm.bgu.ac.il "sinfo -o '%P %G %l' | grep gpu"
+
+# Cancel all jobs
+ssh razshmue@slurm.bgu.ac.il "scancel -u razshmue"
+```
+
 ## Gotchas
 - Wall time: check maintenance windows — set `--time` to fit before downtime
 - GPU limit: max 7 GPUs per user (`QOSMaxGRESPerUser`) — excess jobs queue automatically
