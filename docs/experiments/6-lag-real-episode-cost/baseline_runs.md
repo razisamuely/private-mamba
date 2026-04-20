@@ -1,0 +1,23 @@
+# Experiment 6 — MACPO Baseline Runs
+
+**Repo**: `Safe-Policy-Optimization-Modified` (cluster) / `Safe-Policy-Optimization` (local)  
+**Branch**: main  
+**Date**: 2026-04-20  
+**Cluster**: `slurm.bgu.ac.il`  
+**Config**: `collision`, `num-envs=5`, `total-steps=10M`, GPU keepalive enabled
+
+## 3s_vs_3z
+
+| Cost Limit | Seed | Slurm ID |
+|-----------|------|----------|
+| 0.0 | 1 | 17106427 |
+| 0.0 | 2 | 17106428 |
+| 0.0 | 3 | 17106430 |
+| 0.5 | 1 | 17106431 |
+| 0.5 | 2 | 17106432 |
+| 0.5 | 3 | 17106434 |
+
+**Status**: Submitted — queued (pending GPU slots)
+
+## 8m
+Pending submission — to be submitted after reviewing `3s_vs_3z` results.
