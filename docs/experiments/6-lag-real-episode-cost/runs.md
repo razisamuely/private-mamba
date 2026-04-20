@@ -24,3 +24,16 @@
 | 0.5 | 3 | 16983668 | |
 
 **Status**: All 9 jobs submitted — 2026-04-14
+
+## Planned: bane_vs_bane
+
+**Map**: `bane_vs_bane`, `collision`, `laglr=1e-5`, `cost_priority=0.15`, `cost_limit=0.0`, seeds 1,2,3  
+**Rationale**: Banelings naturally cluster → collision cost more meaningful. `cost_limit=0` is a clean unconstrained baseline on a different map.
+
+| Cost Limit | Seed | Slurm ID |
+|-----------|------|----------|
+| 0.0 | 1 | 17105141 |
+| 0.0 | 2 | 17105146 |
+| 0.0 | 3 | 17105147 |
+
+**Status**: Submitted — 2026-04-20
