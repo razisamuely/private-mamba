@@ -37,3 +37,18 @@
 | 0.0 | 3 | ~~17105147~~ → ~~17105259~~ → 17105351 | Resubmitted with n_workers=2 (OOM) |
 
 **Status**: Submitted — 2026-04-20
+
+## Planned → Dropped: bane_vs_bane
+Attempted 3 times, all OOM (10.9GB GPU, 24 agents too large for batch_size=40). Dropped in favour of `3s_vs_3z`.
+
+## 3s_vs_3z (replacement for bane_vs_bane)
+
+**Map**: `3s_vs_3z`, `collision`, `laglr=1e-5`, `cost_priority=0.15`, `cost_limit=0.0`, `n_workers=4`, seeds 1,2,3
+
+| Cost Limit | Seed | Slurm ID |
+|-----------|------|----------|
+| 0.0 | 1 | 17105855 |
+| 0.0 | 2 | 17105856 |
+| 0.0 | 3 | 17105857 |
+
+**Status**: Submitted — 2026-04-20
