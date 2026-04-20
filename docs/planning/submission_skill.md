@@ -69,3 +69,30 @@ trap "kill $KEEPALIVE_PID 2>/dev/null" EXIT
 - SSH rate limiting: use `ControlMaster auto` + `ControlPersist 10m` in `~/.ssh/config`
 - Always use `./venv310/bin/python3`, not system python
 - Check queue: `ssh razshmue@slurm.bgu.ac.il "squeue -u razshmue"`
+
+---
+
+## SafePO/MACPO Baseline Submission
+
+**Repo**: `/home/corsound/workspace/Safe-Policy-Optimization` (local) → `workspace/Safe-Policy-Optimization-Modified` (cluster)
+
+**Steps**:
+1. Update scripts locally (template, submit script, keepalive)
+2. SCP to cluster:
+   ```bash
+   scp sbatch_scripts/{template_macpo.sbatch,submit_baseline.py,gpu_keepalive.py} \
+       razshmue@slurm.bgu.ac.il:workspace/Safe-Policy-Optimization-Modified/sbatch_scripts/
+   ```
+3. Submit:
+   ```bash
+   cd /home/corsound/workspace/Safe-Policy-Optimization
+   python3 sbatch_scripts/submit_baseline.py \
+       --tasks 3s_vs_3z \
+       --seeds 1 2 3 \
+       --cost_limits 0.0 0.5
+   ```
+
+**Key differences from private-mamba**:
+- Uses `conda activate safepo` (not venv)
+- GPU keepalive is **required** (CPU-heavy SC2 simulation)
+- Runs on `Safe-Policy-Optimization-Modified` repo on cluster
