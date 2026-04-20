@@ -46,6 +46,23 @@ ssh razshmue@slurm.bgu.ac.il "sinfo -o '%P %G %l' | grep gpu"
 ssh razshmue@slurm.bgu.ac.il "scancel -u razshmue"
 ```
 
+## GPU Keep-Alive (for CPU-heavy jobs)
+
+**Problem**: SLURM cancels jobs after 4 hours of GPU idle. CPU-heavy training (e.g. MACPO with SC2 simulation) triggers false positives.
+
+**Solution**: Background script that stresses GPU every 60 minutes for 10 seconds.
+
+**Locations**:
+- `/home/corsound/workspace/overleaf/scripts/gpu_keepalive.py`
+- `/home/corsound/workspace/Safe-Policy-Optimization/sbatch_scripts/gpu_keepalive.py`
+
+**Usage** (add to sbatch before training):
+```bash
+python scripts/gpu_keepalive.py > gpu_keepalive.log 2>&1 &
+KEEPALIVE_PID=$!
+trap "kill $KEEPALIVE_PID 2>/dev/null" EXIT
+```
+
 ## Gotchas
 - Wall time: check maintenance windows — set `--time` to fit before downtime
 - GPU limit: max 7 GPUs per user (`QOSMaxGRESPerUser`) — excess jobs queue automatically
