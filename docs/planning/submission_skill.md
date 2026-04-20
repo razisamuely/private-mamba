@@ -48,9 +48,9 @@ ssh razshmue@slurm.bgu.ac.il "scancel -u razshmue"
 
 ## GPU Keep-Alive (for CPU-heavy jobs)
 
-**Problem**: SLURM cancels jobs after 4 hours of GPU idle. CPU-heavy training (e.g. MACPO with SC2 simulation) triggers false positives.
+**Problem**: SLURM cancels jobs after 4 hours of GPU idle. CPU-heavy training (e.g. MACPO/SafePO with long SC2 simulation phases) triggers false positives.
 
-**Solution**: Background script that stresses GPU every 60 minutes for 10 seconds.
+**Relevance**: Mainly needed for `Safe-Policy-Optimization` (SafePO/MACPO) where SC2 simulation dominates and GPU sits idle between training bursts. `private-mamba` trains continuously so this is generally not needed there.
 
 **Locations**:
 - `/home/corsound/workspace/overleaf/scripts/gpu_keepalive.py`
