@@ -31,3 +31,13 @@ Pending submission — to be submitted after reviewing `3s_vs_3z` results.
 | 0.0 | 3 | 17136807 |
 
 **Status**: Submitted — 2026-04-23
+
+## MMM
+
+| Cost Limit | Seed | Slurm ID |
+|-----------|------|----------|
+| 0.0 | 1 | 17177172 |
+| 0.0 | 2 | 17177173 |
+| 0.0 | 3 | 17177174 |
+
+**Status**: Submitted — 2026-04-25

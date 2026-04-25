@@ -67,3 +67,15 @@ Attempted 3 times, all OOM (10.9GB GPU, 24 agents too large for batch_size=40). 
 | 0.0 | 3 | 17136804 |
 
 **Status**: Submitted — 2026-04-23
+
+## MMM
+
+**Map**: `MMM`, `collision`, `laglr=1e-5`, `cost_priority=0.15`, `cost_limit=0.0`, `n_workers=2`, seeds 1,2,3
+
+| Cost Limit | Seed | Slurm ID |
+|-----------|------|----------|
+| 0.0 | 1 | 17177168 |
+| 0.0 | 2 | 17177170 |
+| 0.0 | 3 | 17177171 |
+
+**Status**: Submitted — 2026-04-25
