@@ -17,7 +17,7 @@
 | 0.5 | 2 | 17106432 |
 | 0.5 | 3 | 17106434 |
 
-**Status**: Submitted — queued (pending GPU slots)
+**Status**: Submitted — 2026-04-20
 
 ## 8m
 Pending submission — to be submitted after reviewing `3s_vs_3z` results.
@@ -48,30 +48,6 @@ Pending submission — to be submitted after reviewing `3s_vs_3z` results.
 |-----------|------|----------|
 | 0.0 | 1 | ~~17198324~~ → 17203401 |
 | 0.0 | 2 | ~~17198325~~ → 17203412 |
-| 0.0 | 3 | ~~17198327~~ → 17203413 |
+| 0.0 | 3 | ~~17198327~~ → ~~17203413~~ → 17208987 |
 
-**Status**: Submitted — 2026-04-26 (resubmitted with dead_allies_incremental cost type)
-
-## 8m
-
-**Config**: `collision`, `num-envs=5`, `total-steps=10M`, GPU keepalive enabled
-
-| Cost Limit | Seed | Slurm ID |
-|-----------|------|----------|
-| 0.0 | 1 | ~~17208572~~ → 17208931 |
-| 0.0 | 2 | ~~17208574~~ → 17208947 |
-| 0.0 | 3 | ~~17208575~~ → 17208963 |
-
-**Status**: Submitted — 2026-04-26 (resubmitted with qos=razshmue on rtx3090 partition)
-
-## MMM — dead_allies_incremental
-
-**Config**: `dead_allies_incremental`, `num-envs=5`, `total-steps=10M`, GPU keepalive enabled
-
-| Cost Limit | Seed | Slurm ID |
-|-----------|------|----------|
-| 0.0 | 1 | 17203401 |
-| 0.0 | 2 | 17203412 |
-| 0.0 | 3 | ~~17203413~~ → 17208987 |
-
-**Status**: Seeds 1-2 running on gpu partition; seed 3 resubmitted with qos=razshmue — 2026-04-26
+**Status**: Submitted — 2026-04-26 (seed 3 resubmitted with qos=razshmue)
