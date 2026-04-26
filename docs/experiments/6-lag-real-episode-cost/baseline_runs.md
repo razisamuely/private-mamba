@@ -51,3 +51,15 @@ Pending submission — to be submitted after reviewing `3s_vs_3z` results.
 | 0.0 | 3 | ~~17198327~~ → 17203413 |
 
 **Status**: Submitted — 2026-04-26 (resubmitted with dead_allies_incremental cost type)
+
+## 8m
+
+**Config**: `collision`, `num-envs=5`, `total-steps=10M`, GPU keepalive enabled
+
+| Cost Limit | Seed | Slurm ID |
+|-----------|------|----------|
+| 0.0 | 1 | 17208572 |
+| 0.0 | 2 | 17208574 |
+| 0.0 | 3 | 17208575 |
+
+**Status**: Submitted — 2026-04-26
