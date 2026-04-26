@@ -46,8 +46,8 @@ Pending submission — to be submitted after reviewing `3s_vs_3z` results.
 
 | Cost Limit | Seed | Slurm ID |
 |-----------|------|----------|
-| 0.0 | 1 | 17198324 |
-| 0.0 | 2 | 17198325 |
-| 0.0 | 3 | 17198327 |
+| 0.0 | 1 | ~~17198324~~ → 17203401 |
+| 0.0 | 2 | ~~17198325~~ → 17203412 |
+| 0.0 | 3 | ~~17198327~~ → 17203413 |
 
-**Status**: Submitted — 2026-04-26
+**Status**: Submitted — 2026-04-26 (resubmitted with dead_allies_incremental cost type)
