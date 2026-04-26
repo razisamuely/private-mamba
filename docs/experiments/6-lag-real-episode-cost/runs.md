@@ -103,14 +103,26 @@ Attempted 3 times, all OOM (10.9GB GPU, 24 agents too large for batch_size=40). 
 
 **Status**: Submitted — 2026-04-26
 
-## 8m
+## 8m — dead_allies_incremental
 
-**Map**: `8m`, `collision`, `laglr=1e-5`, `cost_priority=0.15`, `cost_limit=0.0`, `n_workers=4`, seeds 1,2,3
+**Map**: `8m`, `dead_allies_incremental`, `laglr=1e-5`, `cost_priority=0.15`, `cost_limit=0.0`, `n_workers=4`, seeds 1,2,3
 
 | Cost Limit | Seed | Slurm ID |
 |-----------|------|----------|
-| 0.0 | 1 | ~~17208565~~ → 17208870 |
-| 0.0 | 2 | ~~17208566~~ → 17208872 |
-| 0.0 | 3 | ~~17208571~~ → 17208875 |
+| 0.0 | 1 | ~~17208565~~ → ~~17208870~~ → 17209123 |
+| 0.0 | 2 | ~~17208566~~ → ~~17208872~~ → 17209124 |
+| 0.0 | 3 | ~~17208571~~ → ~~17208875~~ → 17209125 |
 
-**Status**: Submitted — 2026-04-26 (resubmitted with qos=razshmue on rtx3090 partition)
+**Status**: Submitted — 2026-04-26 (resubmitted as dead_allies_incremental)
+
+## bane_vs_bane — dead_allies_incremental
+
+**Map**: `bane_vs_bane`, `dead_allies_incremental`, `laglr=1e-5`, `cost_priority=0.15`, `cost_limit=0.0`, `n_workers=4`, seeds 1,2,3
+
+| Cost Limit | Seed | Slurm ID |
+|-----------|------|----------|
+| 0.0 | 1 | ~~17209119~~ → 17209126 |
+| 0.0 | 2 | ~~17209120~~ → 17209127 |
+| 0.0 | 3 | ~~17209121~~ → 17209128 |
+
+**Status**: Submitted — 2026-04-26 (resubmitted as dead_allies_incremental; monitoring for OOM)

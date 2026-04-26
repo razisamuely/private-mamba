@@ -19,8 +19,29 @@
 
 **Status**: Submitted — 2026-04-20
 
-## 8m
-Pending submission — to be submitted after reviewing `3s_vs_3z` results.
+## 8m — dead_allies_incremental
+
+**Config**: `dead_allies_incremental`, `num-envs=5`, `total-steps=10M`, GPU keepalive enabled
+
+| Cost Limit | Seed | Slurm ID |
+|-----------|------|----------|
+| 0.0 | 1 | ~~17208572~~ → ~~17208931~~ → 17209129 |
+| 0.0 | 2 | ~~17208574~~ → ~~17208947~~ → 17209130 |
+| 0.0 | 3 | ~~17208575~~ → ~~17208963~~ → 17209131 |
+
+**Status**: Submitted — 2026-04-26 (resubmitted as dead_allies_incremental)
+
+## bane_vs_bane — dead_allies_incremental
+
+**Config**: `dead_allies_incremental`, `num-envs=5`, `total-steps=10M`, GPU keepalive enabled
+
+| Cost Limit | Seed | Slurm ID |
+|-----------|------|----------|
+| 0.0 | 1 | 17209132 |
+| 0.0 | 2 | 17209133 |
+| 0.0 | 3 | 17209134 |
+
+**Status**: Submitted — 2026-04-26
 
 ## 3s5z_vs_3s6z
 
