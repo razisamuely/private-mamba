@@ -98,8 +98,8 @@ Attempted 3 times, all OOM (10.9GB GPU, 24 agents too large for batch_size=40). 
 
 | Cost Limit | Seed | Slurm ID |
 |-----------|------|----------|
-| 0.0 | 1 | 17208565 |
-| 0.0 | 2 | 17208566 |
-| 0.0 | 3 | 17208571 |
+| 0.0 | 1 | ~~17208565~~ → 17208870 |
+| 0.0 | 2 | ~~17208566~~ → 17208872 |
+| 0.0 | 3 | ~~17208571~~ → 17208875 |
 
-**Status**: Submitted — 2026-04-26
+**Status**: Submitted — 2026-04-26 (resubmitted with qos=razshmue on rtx3090 partition)
