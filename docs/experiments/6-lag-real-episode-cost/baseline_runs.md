@@ -43,6 +43,18 @@
 
 **Status**: Submitted — 2026-04-26
 
+## bane_vs_bane — collision
+
+**Config**: `collision`, `num-envs=5`, `total-steps=10M`, GPU keepalive enabled
+
+| Cost Limit | Seed | Slurm ID |
+|-----------|------|----------|
+| 0.0 | 1 | 17209729 |
+| 0.0 | 2 | 17209730 |
+| 0.0 | 3 | 17209731 |
+
+**Status**: Submitted — 2026-04-26
+
 ## 3s_vs_5z — dead_allies_incremental
 
 **Config**: `dead_allies_incremental`, `num-envs=5`, `total-steps=10M`, GPU keepalive enabled
