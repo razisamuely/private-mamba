@@ -8,7 +8,7 @@
 #SBATCH --error={{JOB_NAME}}-id-%J.err
 #SBATCH --mail-user=razshmue@post.bgu.ac.il
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --partition=rtx6000
+#SBATCH --partition=rtx3090
 #SBATCH --qos=normal
 #SBATCH --gpus=1
 
