@@ -126,3 +126,15 @@ Attempted 3 times, all OOM (10.9GB GPU, 24 agents too large for batch_size=40). 
 | 0.0 | 3 | ~~17209121~~ → 17209128 |
 
 **Status**: Submitted — 2026-04-26 (resubmitted as dead_allies_incremental; monitoring for OOM)
+
+## 3s_vs_5z — dead_allies_incremental
+
+**Map**: `3s_vs_5z`, `dead_allies_incremental`, `laglr=1e-5`, `cost_priority=0.15`, `cost_limit=0.0`, `n_workers=4`, seeds 1,2,3
+
+| Cost Limit | Seed | Slurm ID |
+|-----------|------|----------|
+| 0.0 | 1 | 17209696 |
+| 0.0 | 2 | 17209697 |
+| 0.0 | 3 | 17209698 |
+
+**Status**: Submitted — 2026-04-26
