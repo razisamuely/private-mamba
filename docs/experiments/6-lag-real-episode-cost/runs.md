@@ -150,3 +150,37 @@ Attempted 3 times, all OOM (10.9GB GPU, 24 agents too large for batch_size=40). 
 | 0.0 | 3 | 17209698 |
 
 **Status**: Submitted — 2026-04-26
+
+## Batch submission — dead_allies_incremental, cost_limit=0.0, n_workers=4
+
+Submitted 2026-04-29. All maps from `safe_dreamers_runs.csv` with cost_limit=0, resubmitting 3s_vs_5z.
+
+| Map | Seed | Slurm ID |
+|-----|------|----------|
+| 1c3s5z | 1 | 17261571 |
+| 1c3s5z | 2 | 17261572 |
+| 1c3s5z | 3 | 17261573 |
+| 2m_vs_1z | 1 | 17261575 |
+| 2m_vs_1z | 2 | 17261576 |
+| 2m_vs_1z | 3 | 17261577 |
+| 2s3z | 1 | 17261578 |
+| 2s3z | 2 | 17261579 |
+| 2s3z | 3 | 17261580 |
+| 2s_vs_1sc | 1 | 17261581 |
+| 2s_vs_1sc | 2 | 17261582 |
+| 2s_vs_1sc | 3 | 17261584 |
+| 3m | 1 | 17261585 |
+| 3m | 2 | 17261586 |
+| 3m | 3 | 17261587 |
+| 3s_vs_3z | 1 | 17261588 |
+| 3s_vs_3z | 2 | 17261589 |
+| 3s_vs_3z | 3 | 17261590 |
+| 3s_vs_4z | 1 | 17261591 |
+| 3s_vs_4z | 2 | 17261592 |
+| 3s_vs_4z | 3 | 17261593 |
+| 3s_vs_5z | 1 | 17261594 |
+| 3s_vs_5z | 2 | 17261595 |
+| 3s_vs_5z | 3 | 17261596 |
+| 3s5z_vs_3s6z | 1 | 17261597 |
+| 3s5z_vs_3s6z | 2 | 17261598 |
+| 3s5z_vs_3s6z | 3 | 17261599 |
