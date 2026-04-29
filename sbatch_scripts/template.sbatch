@@ -37,7 +37,6 @@ python train.py \
     --n_workers {{N_WORKERS}} \
     --algo_name {{ALGO}} \
     --laglr {{LAGRANGIAN_LR}} \
-    --cost_priority {{COST_PRIORITY}} \
     --slurm_id $SLURM_JOB_ID \
     --branch {{BRANCH_NAME}}
 
