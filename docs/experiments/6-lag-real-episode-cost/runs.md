@@ -184,3 +184,37 @@ Submitted 2026-04-29. All maps from `safe_dreamers_runs.csv` with cost_limit=0, 
 | 3s5z_vs_3s6z | 1 | 17261597 |
 | 3s5z_vs_3s6z | 2 | 17261598 |
 | 3s5z_vs_3s6z | 3 | 17261599 |
+
+## Batch resubmission — dead_allies_incremental, cost_limit=0.0, n_workers=4 (fixed --cost_priority bug)
+
+Submitted 2026-04-29. Previous batch (17261571-17261599) crashed due to `--cost_priority` arg removed from train.py but still in template.
+
+| Map | Seed | Slurm ID |
+|-----|------|----------|
+| 1c3s5z | 1 | 17261617 |
+| 1c3s5z | 2 | 17261618 |
+| 1c3s5z | 3 | 17261619 |
+| 2m_vs_1z | 1 | 17261620 |
+| 2m_vs_1z | 2 | 17261621 |
+| 2m_vs_1z | 3 | 17261622 |
+| 2s3z | 1 | 17261623 |
+| 2s3z | 2 | 17261624 |
+| 2s3z | 3 | 17261625 |
+| 2s_vs_1sc | 1 | 17261626 |
+| 2s_vs_1sc | 2 | 17261627 |
+| 2s_vs_1sc | 3 | 17261628 |
+| 3m | 1 | 17261629 |
+| 3m | 2 | 17261630 |
+| 3m | 3 | 17261631 |
+| 3s_vs_3z | 1 | 17261632 |
+| 3s_vs_3z | 2 | 17261633 |
+| 3s_vs_3z | 3 | 17261634 |
+| 3s_vs_4z | 1 | 17261635 |
+| 3s_vs_4z | 2 | 17261636 |
+| 3s_vs_4z | 3 | 17261637 |
+| 3s_vs_5z | 1 | 17261638 |
+| 3s_vs_5z | 2 | 17261639 |
+| 3s_vs_5z | 3 | 17261640 |
+| 3s5z_vs_3s6z | 1 | 17261641 |
+| 3s5z_vs_3s6z | 2 | 17261643 |
+| 3s5z_vs_3s6z | 3 | 17261644 |
