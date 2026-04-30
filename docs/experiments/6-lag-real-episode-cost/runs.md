@@ -218,3 +218,19 @@ Submitted 2026-04-29. Previous batch (17261571-17261599) crashed due to `--cost_
 | 3s5z_vs_3s6z | 1 | 17261641 |
 | 3s5z_vs_3s6z | 2 | 17261643 |
 | 3s5z_vs_3s6z | 3 | 17261644 |
+
+## 3s5z_vs_3s6z, bane_vs_bane, MMM — dead_allies_incremental, cost_limit=0.0, n_workers=4
+
+Submitted 2026-04-30.
+
+| Map | Seed | Slurm ID |
+|-----|------|----------|
+| 3s5z_vs_3s6z | 1 | 17273368 |
+| 3s5z_vs_3s6z | 2 | 17273369 |
+| 3s5z_vs_3s6z | 3 | 17273370 |
+| bane_vs_bane | 1 | 17273371 |
+| bane_vs_bane | 2 | 17273372 |
+| bane_vs_bane | 3 | 17273373 |
+| MMM | 1 | 17273374 |
+| MMM | 2 | 17273375 |
+| MMM | 3 | 17273376 |

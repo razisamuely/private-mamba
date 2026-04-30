@@ -22,6 +22,26 @@
     {"map": "3s5z_vs_3s6z","cost_fn": "collision",               "cost_limit": 0, "seed": 3, "run_id": "safedreamer_collision_starcraft_lag1e-05_0.0_3s5z_vs_3s6z_s3_date04-23-hr15-16-48_17136804_feat-lag-real-episode-cost"},
     {"map": "bane_vs_bane","cost_fn": "collision",               "cost_limit": 0, "seed": 1, "run_id": "safedreamer_collision_starcraft_lag1e-05_0.0_bane_vs_bane_s1_date04-26-hr22-27-01_17209726_feat-lag-real-episode-cost"},
     {"map": "bane_vs_bane","cost_fn": "collision",               "cost_limit": 0, "seed": 2, "run_id": "safedreamer_collision_starcraft_lag1e-05_0.0_bane_vs_bane_s2_date04-26-hr22-27-12_17209727_feat-lag-real-episode-cost"},
-    {"map": "bane_vs_bane","cost_fn": "collision",               "cost_limit": 0, "seed": 3, "run_id": "safedreamer_collision_starcraft_lag1e-05_0.0_bane_vs_bane_s3_date04-26-hr22-27-13_17209728_feat-lag-real-episode-cost"}
+    {"map": "bane_vs_bane","cost_fn": "collision",               "cost_limit": 0, "seed": 3, "run_id": "safedreamer_collision_starcraft_lag1e-05_0.0_bane_vs_bane_s3_date04-26-hr22-27-13_17209728_feat-lag-real-episode-cost"},
+    {"map": "1c3s5z",      "cost_fn": "dead_allies_incremental", "cost_limit": 0, "seed": 1, "run_id": "safedreamer_dead_allies_incremental_starcraft_lag1e-05_0.0_1c3s5z_s1_date04-29-hr12-06-48-id-17261617"},
+    {"map": "1c3s5z",      "cost_fn": "dead_allies_incremental", "cost_limit": 0, "seed": 2, "run_id": "safedreamer_dead_allies_incremental_starcraft_lag1e-05_0.0_1c3s5z_s2_date04-29-hr12-06-48-id-17261618"},
+    {"map": "1c3s5z",      "cost_fn": "dead_allies_incremental", "cost_limit": 0, "seed": 3, "run_id": "safedreamer_dead_allies_incremental_starcraft_lag1e-05_0.0_1c3s5z_s3_date04-29-hr12-06-48-id-17261619"},
+    {"map": "2m_vs_1z",    "cost_fn": "dead_allies_incremental", "cost_limit": 0, "seed": 1, "run_id": "safedreamer_dead_allies_incremental_starcraft_lag1e-05_0.0_2m_vs_1z_s1_date04-29-hr12-06-48-id-17261620"},
+    {"map": "2m_vs_1z",    "cost_fn": "dead_allies_incremental", "cost_limit": 0, "seed": 2, "run_id": "safedreamer_dead_allies_incremental_starcraft_lag1e-05_0.0_2m_vs_1z_s2_date04-29-hr12-06-48-id-17261621"},
+    {"map": "2m_vs_1z",    "cost_fn": "dead_allies_incremental", "cost_limit": 0, "seed": 3, "run_id": "safedreamer_dead_allies_incremental_starcraft_lag1e-05_0.0_2m_vs_1z_s3_date04-29-hr12-06-48-id-17261622"},
+    {"map": "2s3z",        "cost_fn": "dead_allies_incremental", "cost_limit": 0, "seed": 1, "run_id": "safedreamer_dead_allies_incremental_starcraft_lag1e-05_0.0_2s3z_s1_date04-29-hr12-06-48-id-17261623"},
+    {"map": "2s3z",        "cost_fn": "dead_allies_incremental", "cost_limit": 0, "seed": 2, "run_id": "safedreamer_dead_allies_incremental_starcraft_lag1e-05_0.0_2s3z_s2_date04-29-hr12-06-48-id-17261624"},
+    {"map": "2s3z",        "cost_fn": "dead_allies_incremental", "cost_limit": 0, "seed": 3, "run_id": "safedreamer_dead_allies_incremental_starcraft_lag1e-05_0.0_2s3z_s3_date04-29-hr12-06-48-id-17261625"},
+    {"map": "2s_vs_1sc",   "cost_fn": "dead_allies_incremental", "cost_limit": 0, "seed": 1, "run_id": "safedreamer_dead_allies_incremental_starcraft_lag1e-05_0.0_2s_vs_1sc_s1_date04-29-hr12-06-48-id-17261626"},
+    {"map": "2s_vs_1sc",   "cost_fn": "dead_allies_incremental", "cost_limit": 0, "seed": 2, "run_id": "safedreamer_dead_allies_incremental_starcraft_lag1e-05_0.0_2s_vs_1sc_s2_date04-29-hr12-06-48-id-17261627"},
+    {"map": "2s_vs_1sc",   "cost_fn": "dead_allies_incremental", "cost_limit": 0, "seed": 3, "run_id": "safedreamer_dead_allies_incremental_starcraft_lag1e-05_0.0_2s_vs_1sc_s3_date04-29-hr12-06-48-id-17261628"},
+    {"map": "3m",          "cost_fn": "dead_allies_incremental", "cost_limit": 0, "seed": 1, "run_id": "safedreamer_dead_allies_incremental_starcraft_lag1e-05_0.0_3m_s1_date04-29-hr12-06-48-id-17261629"},
+    {"map": "3m",          "cost_fn": "dead_allies_incremental", "cost_limit": 0, "seed": 2, "run_id": "safedreamer_dead_allies_incremental_starcraft_lag1e-05_0.0_3m_s2_date04-29-hr12-06-48-id-17261630"},
+    {"map": "3m",          "cost_fn": "dead_allies_incremental", "cost_limit": 0, "seed": 3, "run_id": "safedreamer_dead_allies_incremental_starcraft_lag1e-05_0.0_3m_s3_date04-29-hr12-06-48-id-17261631"},
+    {"map": "3s_vs_3z",    "cost_fn": "dead_allies_incremental", "cost_limit": 0, "seed": 1, "run_id": "safedreamer_dead_allies_incremental_starcraft_lag1e-05_0.0_3s_vs_3z_s1_date04-29-hr12-06-48-id-17261632"},
+    {"map": "3s_vs_3z",    "cost_fn": "dead_allies_incremental", "cost_limit": 0, "seed": 2, "run_id": "safedreamer_dead_allies_incremental_starcraft_lag1e-05_0.0_3s_vs_3z_s2_date04-29-hr12-06-48-id-17261633"},
+    {"map": "3s_vs_3z",    "cost_fn": "dead_allies_incremental", "cost_limit": 0, "seed": 3, "run_id": "safedreamer_dead_allies_incremental_starcraft_lag1e-05_0.0_3s_vs_3z_s3_date04-29-hr12-06-48-id-17261634"},
+    {"map": "3s_vs_4z",    "cost_fn": "dead_allies_incremental", "cost_limit": 0, "seed": 1, "run_id": "safedreamer_dead_allies_incremental_starcraft_lag1e-05_0.0_3s_vs_4z_s1_date04-29-hr12-06-48-id-17261635"},
+    {"map": "3s_vs_4z",    "cost_fn": "dead_allies_incremental", "cost_limit": 0, "seed": 2, "run_id": "safedreamer_dead_allies_incremental_starcraft_lag1e-05_0.0_3s_vs_4z_s2_date04-29-hr12-06-48-id-17261636"}
   ]
 }
