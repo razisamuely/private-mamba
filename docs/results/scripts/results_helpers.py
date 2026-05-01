@@ -94,7 +94,22 @@ def fetch_run_at_step(
     run = api.run(f"{WANDB_PROJECT}/{run_id}")
     df = get_history_from_artifact(run)
     if df is None:
-        return {"score": None, "cost": None, "winrate": None, "max_step": None, "status": "no_artifact"}
+        # Fallback: use scan_history with narrow step range
+        keys = ["main/score", "main/cost", "main/winrate"]
+        try:
+            rows = list(
+                run.scan_history(
+                    keys=keys,
+                    min_step=max(0, target_step - window),
+                    max_step=target_step,
+                )
+            )
+            if rows:
+                df = pd.DataFrame(rows).rename(columns={"_step": "steps"})
+            else:
+                return {"score": None, "cost": None, "winrate": None, "max_step": None, "status": "no_artifact"}
+        except Exception:
+            return {"score": None, "cost": None, "winrate": None, "max_step": None, "status": "no_artifact"}
 
     max_step = int(df["steps"].dropna().max())
     score, cost, wr = extract_at_step(df, target_step, window)
