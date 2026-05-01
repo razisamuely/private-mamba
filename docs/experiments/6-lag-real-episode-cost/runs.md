@@ -234,3 +234,19 @@ Submitted 2026-04-30.
 | MMM | 1 | 17273374 |
 | MMM | 2 | 17273375 |
 | MMM | 3 | 17273376 |
+
+## MMM, 3s5z_vs_3s6z, bane_vs_bane — collision, cost_limit=0.0, n_workers=4
+
+Submitted 2026-05-01.
+
+| Map | Seed | Slurm ID |
+|-----|------|----------|
+| MMM | 1 | 17289244 |
+| MMM | 2 | 17289245 |
+| MMM | 3 | 17289246 |
+| 3s5z_vs_3s6z | 1 | 17289247 |
+| 3s5z_vs_3s6z | 2 | 17289248 |
+| 3s5z_vs_3s6z | 3 | 17289249 |
+| bane_vs_bane | 1 | 17289250 |
+| bane_vs_bane | 2 | 17289251 |
+| bane_vs_bane | 3 | 17289252 |

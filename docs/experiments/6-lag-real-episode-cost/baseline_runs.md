@@ -96,3 +96,19 @@
 | 0.0 | 3 | ~~17198327~~ → ~~17203413~~ → 17208987 |
 
 **Status**: Submitted — 2026-04-26 (seed 3 resubmitted with qos=razshmue)
+
+## MMM, 3s5z_vs_3s6z, bane_vs_bane — collision, cost_limit=0.0
+
+Submitted 2026-05-01.
+
+| Map | Seed | Slurm ID |
+|-----|------|----------|
+| MMM | 1 | 17289253 |
+| MMM | 2 | 17289254 |
+| MMM | 3 | 17289255 |
+| 3s5z_vs_3s6z | 1 | 17289256 |
+| 3s5z_vs_3s6z | 2 | 17289257 |
+| 3s5z_vs_3s6z | 3 | 17289258 |
+| bane_vs_bane | 1 | 17289259 |
+| bane_vs_bane | 2 | 17289260 |
+| bane_vs_bane | 3 | 17289261 |
