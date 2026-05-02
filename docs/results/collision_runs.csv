@@ -1,7 +1,10 @@
 map,algorithm,cost_type,cost_limit,seed,status,wandb_link,slurm_job_id,score,cost,winrate,metric_step,notes
-8m,SafeDreamers,collision,0,1,crashed,https://wandb.ai/raz-shmueli-corsound-ai/private-mamba/runs/safedreamer_collision_starcraft_lag1e-05_0.0_8m_s1_date04-14-hr14-56-02_16983654_feat-lag-real-episode-cost,16983654,,,,100000,old config (cost_priority=0.15)
-8m,SafeDreamers,collision,0,2,crashed,https://wandb.ai/raz-shmueli-corsound-ai/private-mamba/runs/safedreamer_collision_starcraft_lag1e-05_0.0_8m_s2_date04-14-hr14-56-02_16983658_feat-lag-real-episode-cost,16983658,,,,100000,old config (cost_priority=0.15)
-8m,SafeDreamers,collision,0,3,crashed,https://wandb.ai/raz-shmueli-corsound-ai/private-mamba/runs/safedreamer_collision_starcraft_lag1e-05_0.0_8m_s3_date04-14-hr14-56-02_16983659_feat-lag-real-episode-cost,16983659,,,,100000,old config (cost_priority=0.15)
+8m,SafeDreamers,collision,0,1,running,https://wandb.ai/raz-shmueli-corsound-ai/private-mamba/runs/safedreamer_col_starcraft_lag1e-05_0.0_8m_s1_date05-02-hr06-27-52_17290280_feat-lag-real-episod,17290280,,,,100000,
+8m,SafeDreamers,collision,0,2,running,https://wandb.ai/raz-shmueli-corsound-ai/private-mamba/runs/safedreamer_col_starcraft_lag1e-05_0.0_8m_s2_date05-02-hr06-27-52_17290281_feat-lag-real-episod,17290281,,,,100000,
+8m,SafeDreamers,collision,0,3,running,https://wandb.ai/raz-shmueli-corsound-ai/private-mamba/runs/safedreamer_col_starcraft_lag1e-05_0.0_8m_s3_date05-02-hr06-27-57_17290282_feat-lag-real-episod,17290282,,,,100000,
+8m,MACPO,collision,0,1,running,https://wandb.ai/raz-shmueli-corsound-ai/private-mamba/runs/safepo_macpo_collision_cost_limit=0.0_8m_1_time_20260502_062800,17290283,,,,100000,
+8m,MACPO,collision,0,2,running,https://wandb.ai/raz-shmueli-corsound-ai/private-mamba/runs/safepo_macpo_collision_cost_limit=0.0_8m_2_time_20260502_062800,17290284,,,,100000,
+8m,MACPO,collision,0,3,running,https://wandb.ai/raz-shmueli-corsound-ai/private-mamba/runs/safepo_macpo_collision_cost_limit=0.0_8m_3_time_20260502_062800,17290285,,,,100000,
 MMM,SafeDreamers,collision,0,1,running,https://wandb.ai/raz-shmueli-corsound-ai/private-mamba/runs/safedreamer_col_starcraft_lag1e-05_0.0_MMM_s1_date05-01-hr17-35-15_17289244_feat-lag-real-episod,17289244,,2.5,0.52,100000,
 MMM,SafeDreamers,collision,0,2,running,https://wandb.ai/raz-shmueli-corsound-ai/private-mamba/runs/safedreamer_col_starcraft_lag1e-05_0.0_MMM_s2_date05-01-hr17-35-15_17289245_feat-lag-real-episod,17289245,,2.0,0.43,100000,
 MMM,SafeDreamers,collision,0,3,running,https://wandb.ai/raz-shmueli-corsound-ai/private-mamba/runs/safedreamer_col_starcraft_lag1e-05_0.0_MMM_s3_date05-01-hr17-35-18_17289246_feat-lag-real-episod,17289246,,1.1,0.4,100000,
