@@ -112,3 +112,16 @@ Submitted 2026-05-01.
 | bane_vs_bane | 1 | 17289259 |
 | bane_vs_bane | 2 | 17289260 |
 | bane_vs_bane | 3 | 17289261 |
+
+## MACPO resubmissions — collision, cost_limit=0.0, CPU partition
+
+Submitted 2026-05-03. Switched to CPU partition (MACPO runs on CPU, no GPU needed).
+
+| Map | Seed | Slurm ID |
+|-----|------|----------|
+| 8m | 2 | 17308451 |
+| 3s5z_vs_3s6z | 2 | 17308452 |
+| 3s5z_vs_3s6z | 3 | 17308453 |
+| bane_vs_bane | 1 | 17308454 |
+| bane_vs_bane | 2 | 17308455 |
+| bane_vs_bane | 3 | 17308456 |

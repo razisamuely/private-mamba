@@ -1,0 +1,76 @@
+\documentclass{article}
+\usepackage{booktabs,xcolor,geometry,longtable}
+\geometry{margin=0.8cm,landscape}
+\begin{document}
+\begin{longtable}{lclcccccc}
+\caption{100k wrong (\_step) vs.\ 150k correct (env steps), all cost limits.} \\
+\toprule
+\textbf{Map} & \textbf{CL} & \textbf{Algo} & \textbf{WR (100k wrong)} & \textbf{WR (150k correct)} & \textbf{$\Delta$WR} & \textbf{Cost (100k wrong)} & \textbf{Cost (150k correct)} & \textbf{$\Delta$Cost} \\
+\midrule\endfirsthead
+\toprule
+\textbf{Map} & \textbf{CL} & \textbf{Algo} & \textbf{WR (100k wrong)} & \textbf{WR (150k correct)} & \textbf{$\Delta$WR} & \textbf{Cost (100k wrong)} & \textbf{Cost (150k correct)} & \textbf{$\Delta$Cost} \\
+\midrule\endhead
+1c3s5z & 0 & SafeDreamers & 0.86$\pm$0.08 & 0.83$\pm$0.03 & \textcolor{red!40!black}{-0.03 (-3.6\%)} & 3.40$\pm$0.88 & 3.79$\pm$0.39 & \textcolor{red!55!black}{+0.39 (+11.6\%)} \\
+1c3s5z & 0 & SafePO & 0.00$\pm$0.00 & 0.00$\pm$0.00 & \textcolor{red!40!black}{0.00 (0.0\%)} & 9.00$\pm$0.00 & 9.00$\pm$0.00 & \textcolor{green!40!black}{0.00 (0.0\%)} \\
+1c3s5z & 4 & SafeDreamers & 0.79$\pm$0.03 & 0.81$\pm$0.08 & \textcolor{green!40!black}{+0.02 (+2.7\%)} & 4.94$\pm$0.40 & 4.54$\pm$0.66 & \textcolor{green!55!black}{-0.41 (-8.2\%)} \\
+1c3s5z & 4 & SafePO & 0.00$\pm$0.00 & 0.00$\pm$0.00 & \textcolor{red!40!black}{0.00 (0.0\%)} & 9.00$\pm$0.00 & 9.00$\pm$0.00 & \textcolor{green!40!black}{0.00 (0.0\%)} \\
+\midrule
+2m\_vs\_1z & 0 & SafeDreamers & 0.90$\pm$0.02 & 0.96$\pm$0.01 & \textcolor{green!55!black}{+0.06 (+7.2\%)} & 0.27$\pm$0.03 & 0.15$\pm$0.03 & \textcolor{green!85!black}{-0.12 (-43.2\%)} \\
+2m\_vs\_1z & 0 & SafePO & 0.00$\pm$0.00 & 0.00$\pm$0.00 & \textcolor{red!40!black}{0.00 (0.0\%)} & 2.00$\pm$0.00 & 2.00$\pm$0.00 & \textcolor{green!40!black}{0.00 (0.0\%)} \\
+2m\_vs\_1z & 1 & SafeDreamers & 0.98$\pm$0.01 & 0.95$\pm$0.02 & \textcolor{red!40!black}{-0.03 (-3.1\%)} & 0.14$\pm$0.00 & 0.16$\pm$0.09 & \textcolor{red!55!black}{+0.02 (+14.2\%)} \\
+2m\_vs\_1z & 1 & SafePO & 0.00$\pm$0.00 & 0.00$\pm$0.00 & \textcolor{red!40!black}{0.00 (0.0\%)} & 2.00$\pm$0.00 & 2.00$\pm$0.00 & \textcolor{green!40!black}{0.00 (0.0\%)} \\
+\midrule
+2s3z & 0 & SafeDreamers & 0.71$\pm$0.08 & 0.80$\pm$0.05 & \textcolor{green!55!black}{+0.08 (+11.6\%)} & 2.46$\pm$0.24 & 2.08$\pm$0.37 & \textcolor{green!70!black}{-0.39 (-15.7\%)} \\
+2s3z & 0 & SafePO & 0.00$\pm$0.00 & 0.00$\pm$0.00 & \textcolor{red!40!black}{0.00 (0.0\%)} & 5.00$\pm$0.00 & 5.00$\pm$0.00 & \textcolor{green!40!black}{0.00 (0.0\%)} \\
+2s3z & 4 & SafeDreamers & 0.69$\pm$0.09 & 0.67$\pm$0.10 & \textcolor{red!40!black}{-0.02 (-2.8\%)} & 2.89$\pm$0.14 & 2.97$\pm$0.33 & \textcolor{red!40!black}{+0.08 (+2.7\%)} \\
+2s3z & 4 & SafePO & 0.00$\pm$0.00 & 0.00$\pm$0.00 & \textcolor{red!40!black}{0.00 (0.0\%)} & 5.00$\pm$0.00 & 5.00$\pm$0.00 & \textcolor{green!40!black}{0.00 (0.0\%)} \\
+\midrule
+2s\_vs\_1sc & 0 & SafeDreamers & 0.95$\pm$0.01 & 0.94$\pm$0.03 & \textcolor{red!40!black}{-0.01 (-0.6\%)} & 0.25$\pm$0.08 & 0.19$\pm$0.06 & \textcolor{green!70!black}{-0.06 (-24.7\%)} \\
+2s\_vs\_1sc & 0 & SafePO & 0.00$\pm$0.00 & 0.00$\pm$0.00 & \textcolor{red!40!black}{0.00 (0.0\%)} & 2.00$\pm$0.00 & 2.00$\pm$0.00 & \textcolor{green!40!black}{0.00 (0.0\%)} \\
+2s\_vs\_1sc & 1 & SafeDreamers & 0.97$\pm$0.01 & 0.93$\pm$0.03 & \textcolor{red!40!black}{-0.03 (-3.4\%)} & 0.32$\pm$0.12 & 0.33$\pm$0.13 & \textcolor{red!40!black}{+0.01 (+2.9\%)} \\
+2s\_vs\_1sc & 1 & SafePO & 0.00$\pm$0.00 & 0.00$\pm$0.00 & \textcolor{red!40!black}{0.00 (0.0\%)} & 2.00$\pm$0.00 & 2.00$\pm$0.00 & \textcolor{green!40!black}{0.00 (0.0\%)} \\
+\midrule
+3m & 0 & SafeDreamers & 0.94$\pm$0.02 & 0.97$\pm$0.01 & \textcolor{green!40!black}{+0.03 (+3.0\%)} & 0.77$\pm$0.08 & 0.34$\pm$0.07 & \textcolor{green!100!black}{-0.43 (-56.2\%)} \\
+3m & 0 & SafePO & 0.00$\pm$0.00 & 0.00$\pm$0.00 & \textcolor{red!40!black}{0.00 (0.0\%)} & 3.00$\pm$0.00 & 3.00$\pm$0.00 & \textcolor{green!40!black}{0.00 (0.0\%)} \\
+3m & 1 & SafeDreamers & 0.93$\pm$0.03 & 0.93$\pm$0.01 & \textcolor{green!40!black}{+0.00 (+0.0\%)} & 0.81$\pm$0.12 & 0.58$\pm$0.13 & \textcolor{green!70!black}{-0.23 (-28.5\%)} \\
+3m & 1 & SafePO & 0.00$\pm$0.00 & 0.00$\pm$0.00 & \textcolor{red!40!black}{0.00 (0.0\%)} & 3.00$\pm$0.00 & 3.00$\pm$0.00 & \textcolor{green!40!black}{0.00 (0.0\%)} \\
+\midrule
+3s5z\_vs\_3s6z & 0 & SafeDreamers & 0.06$\pm$0.07 & 0.01$\pm$0.01 & \textcolor{red!100!black}{-0.05 (-85.6\%)} & 7.81$\pm$0.20 & 7.98$\pm$0.03 & \textcolor{red!40!black}{+0.18 (+2.3\%)} \\
+3s5z\_vs\_3s6z & 0 & SafePO & 0.00$\pm$0.00 & 0.00$\pm$0.00 & \textcolor{red!40!black}{0.00 (0.0\%)} & 8.00$\pm$0.00 & 8.00$\pm$0.00 & \textcolor{green!40!black}{0.00 (0.0\%)} \\
+3s5z\_vs\_3s6z & 4 & SafeDreamers & 0.00$\pm$0.00 & 0.00$\pm$0.00 & \textcolor{red!40!black}{0.00 (0.0\%)} & 7.99$\pm$0.02 & 8.00$\pm$0.00 & \textcolor{red!40!black}{+0.01 (+0.2\%)} \\
+3s5z\_vs\_3s6z & 4 & SafePO & 0.00$\pm$0.00 & 0.00$\pm$0.00 & \textcolor{red!40!black}{0.00 (0.0\%)} & 8.00$\pm$0.00 & 8.00$\pm$0.00 & \textcolor{green!40!black}{0.00 (0.0\%)} \\
+\midrule
+3s\_vs\_3z & 0 & SafeDreamers & 0.95$\pm$0.02 & 0.93$\pm$0.07 & \textcolor{red!40!black}{-0.03 (-2.7\%)} & 0.89$\pm$0.18 & 1.02$\pm$0.45 & \textcolor{red!70!black}{+0.14 (+15.4\%)} \\
+3s\_vs\_3z & 0 & SafePO & 0.00$\pm$0.00 & 0.00$\pm$0.00 & \textcolor{red!40!black}{0.00 (0.0\%)} & 3.00$\pm$0.00 & 3.00$\pm$0.00 & \textcolor{green!40!black}{0.00 (0.0\%)} \\
+3s\_vs\_3z & 1 & SafeDreamers & 0.92$\pm$0.01 & 0.91$\pm$0.04 & \textcolor{red!40!black}{-0.01 (-0.9\%)} & 1.16$\pm$0.26 & 1.10$\pm$0.38 & \textcolor{green!40!black}{-0.05 (-4.7\%)} \\
+3s\_vs\_3z & 1 & SafePO & 0.00$\pm$0.00 & 0.00$\pm$0.00 & \textcolor{red!40!black}{0.00 (0.0\%)} & 3.00$\pm$0.00 & 3.00$\pm$0.00 & \textcolor{green!40!black}{0.00 (0.0\%)} \\
+3s\_vs\_3z & 4 & SafeDreamers & 0.87$\pm$0.15 & 0.84$\pm$0.17 & \textcolor{red!40!black}{-0.03 (-3.3\%)} & 1.05$\pm$0.52 & 1.19$\pm$0.54 & \textcolor{red!55!black}{+0.14 (+13.4\%)} \\
+\midrule
+3s\_vs\_4z & 0 & SafeDreamers & 0.83$\pm$0.09 & 0.45$\pm$0.26 & \textcolor{red!85!black}{-0.38 (-46.1\%)} & 1.68$\pm$0.32 & 2.23$\pm$0.58 & \textcolor{red!85!black}{+0.56 (+33.2\%)} \\
+3s\_vs\_4z & 0 & SafePO & 0.00$\pm$0.00 & 0.00$\pm$0.00 & \textcolor{red!40!black}{0.00 (0.0\%)} & 3.00$\pm$0.00 & 3.00$\pm$0.00 & \textcolor{green!40!black}{0.00 (0.0\%)} \\
+3s\_vs\_4z & 1 & SafeDreamers & 0.67$\pm$0.17 & 0.41$\pm$0.16 & \textcolor{red!85!black}{-0.25 (-37.6\%)} & 2.01$\pm$0.31 & 2.42$\pm$0.29 & \textcolor{red!70!black}{+0.41 (+20.6\%)} \\
+3s\_vs\_4z & 1 & SafePO & 0.00$\pm$0.00 & 0.00$\pm$0.00 & \textcolor{red!40!black}{0.00 (0.0\%)} & 3.00$\pm$0.00 & 3.00$\pm$0.00 & \textcolor{green!40!black}{0.00 (0.0\%)} \\
+\midrule
+3s\_vs\_5z & 0 & SafeDreamers & 0.44$\pm$0.23 & 0.06$\pm$0.04 & \textcolor{red!100!black}{-0.38 (-86.5\%)} & 2.34$\pm$0.41 & 2.94$\pm$0.04 & \textcolor{red!70!black}{+0.60 (+25.8\%)} \\
+3s\_vs\_5z & 0 & SafePO & 0.00$\pm$0.00 & 0.00$\pm$0.00 & \textcolor{red!40!black}{0.00 (0.0\%)} & 3.00$\pm$0.00 & 3.00$\pm$0.00 & \textcolor{green!40!black}{0.00 (0.0\%)} \\
+3s\_vs\_5z & 1 & SafeDreamers & 0.19$\pm$0.08 & 0.08$\pm$0.09 & \textcolor{red!100!black}{-0.11 (-57.9\%)} & 2.74$\pm$0.12 & 2.83$\pm$0.20 & \textcolor{red!40!black}{+0.09 (+3.4\%)} \\
+3s\_vs\_5z & 1 & SafePO & 0.00$\pm$0.00 & 0.00$\pm$0.00 & \textcolor{red!40!black}{0.00 (0.0\%)} & 3.00$\pm$0.00 & 3.00$\pm$0.00 & \textcolor{green!40!black}{0.00 (0.0\%)} \\
+\midrule
+8m & 0 & SafeDreamers & 0.88$\pm$0.08 & 0.94$\pm$0.02 & \textcolor{green!55!black}{+0.06 (+6.8\%)} & 3.25$\pm$0.93 & 2.39$\pm$0.12 & \textcolor{green!70!black}{-0.86 (-26.3\%)} \\
+8m & 0 & SafePO & 0.00$\pm$0.00 & 0.00$\pm$0.00 & \textcolor{red!40!black}{0.00 (0.0\%)} & 8.00$\pm$0.00 & 8.00$\pm$0.00 & \textcolor{green!40!black}{0.00 (0.0\%)} \\
+8m & 4 & SafeDreamers & 0.64$\pm$0.11 & 0.80$\pm$0.06 & \textcolor{green!70!black}{+0.16 (+25.5\%)} & 5.25$\pm$0.78 & 4.32$\pm$0.45 & \textcolor{green!70!black}{-0.93 (-17.6\%)} \\
+8m & 4 & SafePO & 0.00$\pm$0.00 & 0.00$\pm$0.00 & \textcolor{red!40!black}{0.00 (0.0\%)} & 8.00$\pm$0.00 & 8.00$\pm$0.00 & \textcolor{green!40!black}{0.00 (0.0\%)} \\
+\midrule
+MMM & 0 & SafeDreamers & 0.58$\pm$0.05 & 0.62$\pm$0.13 & \textcolor{green!55!black}{+0.04 (+6.2\%)} & 7.32$\pm$0.52 & 7.40$\pm$0.93 & \textcolor{red!40!black}{+0.08 (+1.1\%)} \\
+MMM & 0 & SafePO & 0.00$\pm$0.00 & 0.00$\pm$0.00 & \textcolor{red!40!black}{0.00 (0.0\%)} & 10.00$\pm$0.00 & 10.00$\pm$0.00 & \textcolor{green!40!black}{0.00 (0.0\%)} \\
+MMM & 4 & SafeDreamers & 0.41$\pm$0.10 & 0.38$\pm$0.18 & \textcolor{red!55!black}{-0.03 (-7.2\%)} & 7.96$\pm$0.76 & 8.38$\pm$0.71 & \textcolor{red!55!black}{+0.42 (+5.3\%)} \\
+MMM & 4 & SafePO & 0.00$\pm$0.00 & 0.00$\pm$0.00 & \textcolor{red!40!black}{0.00 (0.0\%)} & 10.00$\pm$0.00 & 10.00$\pm$0.00 & \textcolor{green!40!black}{0.00 (0.0\%)} \\
+\midrule
+bane\_vs\_bane & 0 & SafeDreamers & 0.80$\pm$0.26 & 0.90$\pm$0.14 & \textcolor{green!55!black}{+0.10 (+11.9\%)} & 11.33$\pm$7.84 & 6.87$\pm$3.04 & \textcolor{green!85!black}{-4.46 (-39.4\%)} \\
+bane\_vs\_bane & 0 & SafePO & 0.79$\pm$0.01 & 0.79$\pm$0.02 & \textcolor{red!40!black}{0.00 (0.0\%)} & 22.55$\pm$0.02 & 22.35$\pm$0.05 & \textcolor{green!40!black}{-0.19 (-0.9\%)} \\
+bane\_vs\_bane & 4 & SafeDreamers & 0.94$\pm$0.08 & 0.99$\pm$0.01 & \textcolor{green!55!black}{+0.05 (+5.9\%)} & 10.88$\pm$5.38 & 6.00$\pm$1.16 & \textcolor{green!85!black}{-4.89 (-44.9\%)} \\
+bane\_vs\_bane & 4 & SafePO & 0.80$\pm$0.02 & 0.80$\pm$0.03 & \textcolor{red!40!black}{-0.00 (-0.2\%)} & 22.40$\pm$0.06 & 22.29$\pm$0.08 & \textcolor{green!40!black}{-0.12 (-0.5\%)} \\
+\midrule
+\bottomrule
+\end{longtable}
+\end{document}
