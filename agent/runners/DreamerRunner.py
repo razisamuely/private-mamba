@@ -40,7 +40,7 @@ class DreamerRunner:
 
         while True:
             rollout, info = self.server.run()
-            self.learner.step(rollout)
+            self.learner.step(rollout, info["cost"])
             cur_steps += info["steps_done"]
             cur_episode += 1
             wandb.log({"main/winrate": info["reward"], "steps": cur_steps})

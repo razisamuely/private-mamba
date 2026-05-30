@@ -26,7 +26,6 @@ def main():
     )
     parser.add_argument("--cost_type", type=str, default="dead_allies_incremental", help="Cost function type")
     parser.add_argument("--laglr", type=float, default=0.00001, help="Lagrangian learning rate")
-    parser.add_argument("--cost_priority", type=float, default=0.0, help="Cost prioritized sampling ratio")
     parser.add_argument("--n_workers", type=int, default=4, help="Number of workers per job")
     parser.add_argument("--algo_name", type=str, default="safedreamer", help="Algorithm name (e.g. safedreamer)")
     parser.add_argument("--dry_run", action="store_true", help="Just generate files, don't submit")
@@ -63,7 +62,7 @@ def main():
             for seed in args.seeds:
                 # Structured Run Name (Used for file and logging)
                 # safedreamer_{costtype}_{env}_{costlim}_{map}_{seed}_{time}
-                run_identifier = f"{args.algo_name}_{args.cost_type}_{args.env_type}_lag{args.laglr}_cp{args.cost_priority}_{cost_limit}_{env_name}_s{seed}_{timestamp_str}"
+                run_identifier = f"{args.algo_name}_{args.cost_type}_{args.env_type}_lag{args.laglr}_{cost_limit}_{env_name}_s{seed}_{timestamp_str}"
                 sbatch_filename = f"sbatch_scripts/generated/{run_identifier}.sbatch"
 
                 params = {
@@ -76,7 +75,6 @@ def main():
                     "N_WORKERS": args.n_workers,
                     "ALGO": args.algo_name,
                     "LAGRANGIAN_LR": args.laglr,
-                    "COST_PRIORITY": args.cost_priority,
                     "BRANCH_NAME": current_branch,
                 }
 

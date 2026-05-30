@@ -1,0 +1,50 @@
+\documentclass{article}
+\usepackage{booktabs,geometry,longtable}
+\geometry{margin=1.5cm}
+\begin{document}
+\begin{longtable}{lcccccc}
+\caption{Collision cost, cost\_limit=0: SafeDreamer (100k steps) vs MACPO (2000k steps).}\\
+\toprule
+\textbf{Algorithm} & \textbf{Scenario} & \textbf{Score} $\uparrow$ & \textbf{Cost} $\downarrow$ & \textbf{Winrate} $\uparrow$ & \textbf{Steps} & \textbf{Cost Limit} \\
+\midrule
+\endfirsthead
+\multicolumn{7}{c}{{\bfseries \tablename\ \thetable{} -- continued}} \\
+\toprule
+\textbf{Algorithm} & \textbf{Scenario} & \textbf{Score} $\uparrow$ & \textbf{Cost} $\downarrow$ & \textbf{Winrate} $\uparrow$ & \textbf{Steps} & \textbf{Cost Limit} \\
+\midrule
+\endhead
+\midrule \multicolumn{7}{r}{{Continued on next page}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+MACPO & 2s\_vs\_1sc & 18.07 $\pm$ 0.68 & 0.00 $\pm$ 0.00 & 0.72 $\pm$ 0.10 & 2000k & 0 \\
+Safe Dreamers & 2s\_vs\_1sc & \textbf{19.86 $\pm$ 0.22} & 0.00 $\pm$ 0.00 & \textbf{0.95 $\pm$ 0.03} & 100k & 0 \\
+\midrule
+MACPO & 3m & 18.77 $\pm$ 0.40 & 0.01 $\pm$ 0.00 & 0.91 $\pm$ 0.04 & 2000k & 0 \\
+Safe Dreamers & 3m & \textbf{19.03 $\pm$ 0.91} & 0.02 $\pm$ 0.02 & \textbf{0.92 $\pm$ 0.07} & 100k & 0 \\
+\midrule
+MACPO & 2s3z & 11.44 $\pm$ 0.21 & 0.03 $\pm$ 0.03 & 0.01 $\pm$ 0.00 & 2000k & 0 \\
+Safe Dreamers & 2s3z & \textbf{18.72 $\pm$ 0.44} & 0.16 $\pm$ 0.11 & \textbf{0.79 $\pm$ 0.07} & 100k & 0 \\
+\midrule
+MACPO & 3s\_vs\_3z & 9.97 $\pm$ 0.54 & 0.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 2000k & 0 \\
+Safe Dreamers & 3s\_vs\_3z & \textbf{19.89 $\pm$ 0.05} & 0.02 $\pm$ 0.03 & \textbf{0.97 $\pm$ 0.01} & 100k & 0 \\
+\midrule
+MACPO & 3s\_vs\_4z & 6.42 $\pm$ 0.26 & 0.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 2000k & 0 \\
+Safe Dreamers & 3s\_vs\_4z & \textbf{15.49 $\pm$ 3.71} & 0.26 $\pm$ 0.23 & \textbf{0.06 $\pm$ 0.09} & 100k & 0 \\
+\midrule
+MACPO & 3s\_vs\_5z & 5.61 $\pm$ 0.11 & 0.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 2000k & 0 \\
+Safe Dreamers & 3s\_vs\_5z & \textbf{13.72 $\pm$ 2.97} & 0.08 $\pm$ 0.07 & \textbf{0.01 $\pm$ 0.03} & 100k & 0 \\
+\midrule
+MACPO & 8m & 10.51 $\pm$ 0.68 & 0.47 $\pm$ 0.04 & 0.05 $\pm$ 0.04 & 2000k & 0 \\
+Safe Dreamers & 8m & \textbf{17.49 $\pm$ 0.43} & 0.58 $\pm$ 0.06 & \textbf{0.71 $\pm$ 0.05} & 100k & 0 \\
+\midrule
+MACPO & MMM & 8.65 $\pm$ 0.29 & 1.11 $\pm$ 0.20 & 0.00 $\pm$ 0.00 & 2000k & 0 \\
+Safe Dreamers & MMM & \textbf{15.12 $\pm$ 0.17} & 1.20 $\pm$ 0.52 & \textbf{0.39 $\pm$ 0.03} & 100k & 0 \\
+\midrule
+MACPO & 3s5z\_vs\_3s6z & 7.89 $\pm$ 0.15 & 0.03 $\pm$ 0.03 & 0.00 $\pm$ 0.00 & 2000k & 0 \\
+Safe Dreamers & 3s5z\_vs\_3s6z & \textbf{10.65 $\pm$ 0.82} & 0.86 $\pm$ 0.08 & \textbf{0.01 $\pm$ 0.01} & 100k & 0 \\
+\midrule
+MACPO & bane\_vs\_bane & 19.95 $\pm$ 0.01 & 0.36 $\pm$ 0.08 & 0.97 $\pm$ 0.01 & 2000k & 0 \\
+Safe Dreamers & bane\_vs\_bane & 18.20 $\pm$ 0.59 & \textbf{0.15 $\pm$ 0.13} & 0.57 $\pm$ 0.10 & 100k & 0 \\
+\end{longtable}
+\end{document}

@@ -1,0 +1,27 @@
+\documentclass{article}
+\usepackage{booktabs,xcolor,geometry}
+\geometry{margin=1cm,landscape}
+\begin{document}
+\begin{table}[h]
+\centering
+\caption{SafeDreamer: lag-real-cost-fix (100k correct) vs.\ lag-real-episode-cost (100k correct), cost\_limit=0.}
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Map} & \textbf{Old Cost} & \textbf{New Cost} & \textbf{$\Delta$Cost (\%)} & \textbf{Old WR} & \textbf{New WR} & \textbf{$\Delta$WR (\%)} \\
+\midrule
+1c3s5z & 4.77$\pm$0.76 & 4.23$\pm$0.22 & \textcolor{green!55!black}{-0.54 (-11.3\%)} & 0.77$\pm$0.09 & 0.82$\pm$0.02 & \textcolor{green!55!black}{+0.05 (+6.8\%)} \\
+2m\_vs\_1z & 0.17$\pm$0.01 & 0.14$\pm$0.07 & \textcolor{green!70!black}{-0.03 (-17.9\%)} & 0.94$\pm$0.01 & 0.95$\pm$0.03 & \textcolor{green!40!black}{+0.01 (+0.9\%)} \\
+2s3z & 2.97$\pm$0.21 & 2.28$\pm$0.31 & \textcolor{green!70!black}{-0.69 (-23.2\%)} & 0.64$\pm$0.02 & 0.77$\pm$0.03 & \textcolor{green!70!black}{+0.13 (+20.6\%)} \\
+2s\_vs\_1sc & 0.24$\pm$0.14 & 0.23$\pm$0.09 & \textcolor{green!55!black}{-0.01 (-6.1\%)} & 0.95$\pm$0.05 & 0.96$\pm$0.02 & \textcolor{green!40!black}{+0.02 (+1.6\%)} \\
+3m & 0.57$\pm$0.13 & 0.35$\pm$0.11 & \textcolor{green!85!black}{-0.22 (-38.2\%)} & 0.96$\pm$0.02 & 0.97$\pm$0.02 & \textcolor{green!40!black}{+0.01 (+0.6\%)} \\
+3s5z\_vs\_3s6z & 8.00$\pm$0.00 & 8.00$\pm$0.00 & \textcolor{green!40!black}{0.00 (0.0\%)} & 0.00$\pm$0.00 & 0.00$\pm$0.00 & \textcolor{red!40!black}{0.00 (0.0\%)} \\
+3s\_vs\_3z & 0.98$\pm$0.43 & 0.95$\pm$0.15 & \textcolor{green!40!black}{-0.03 (-3.4\%)} & 0.92$\pm$0.06 & 0.96$\pm$0.02 & \textcolor{green!40!black}{+0.03 (+3.7\%)} \\
+3s\_vs\_4z & 2.87$\pm$0.08 & 2.64$\pm$0.28 & \textcolor{green!55!black}{-0.23 (-8.0\%)} & 0.07$\pm$0.06 & 0.23$\pm$0.13 & \textcolor{green!100!black}{+0.16 (+225.7\%)} \\
+3s\_vs\_5z & 2.99$\pm$0.02 & 2.67$\pm$0.32 & \textcolor{green!55!black}{-0.32 (-10.7\%)} & 0.01$\pm$0.02 & 0.15$\pm$0.15 & \textcolor{green!100!black}{+0.14 (+1069.2\%)} \\
+8m & 3.42$\pm$0.40 & 2.81$\pm$1.56 & \textcolor{green!70!black}{-0.62 (-18.1\%)} & 0.86$\pm$0.05 & 0.86$\pm$0.17 & \textcolor{red!40!black}{-0.00 (-0.1\%)} \\
+MMM & 7.79$\pm$0.38 & 6.77$\pm$1.47 & \textcolor{green!55!black}{-1.01 (-13.0\%)} & 0.53$\pm$0.04 & 0.59$\pm$0.21 & \textcolor{green!55!black}{+0.06 (+12.1\%)} \\
+bane\_vs\_bane & 9.12$\pm$6.18 & 16.61$\pm$5.36 & \textcolor{red!100!black}{+7.48 (+82.1\%)} & 0.85$\pm$0.22 & 0.44$\pm$0.24 & \textcolor{red!85!black}{-0.41 (-48.4\%)} \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{document}

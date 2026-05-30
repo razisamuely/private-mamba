@@ -1,0 +1,93 @@
+\documentclass{article}
+\usepackage{booktabs,geometry,longtable}
+\geometry{margin=1.5cm}
+\begin{document}
+\begin{longtable}{lcccccc}
+\caption{Complete performance comparison at 100k steps vs SafePO at 5M steps.}
+\label{tab:complete_performance_comparison_100k} \\
+\toprule
+\textbf{Algorithm} & \textbf{Scenario} & \textbf{Score} $\uparrow$ & \textbf{Cost} $\downarrow$ & \textbf{Winrate} $\uparrow$ & \textbf{Steps} & \textbf{Cost Limit} \\
+\midrule
+\endfirsthead
+\multicolumn{7}{c}{{\bfseries \tablename\ \thetable{} -- continued}} \\
+\toprule
+\textbf{Algorithm} & \textbf{Scenario} & \textbf{Score} $\uparrow$ & \textbf{Cost} $\downarrow$ & \textbf{Winrate} $\uparrow$ & \textbf{Steps} & \textbf{Cost Limit} \\
+\midrule
+\endhead
+\midrule \multicolumn{7}{r}{{Continued on next page}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+SafePO & 1c3s5z & 7.64 $\pm$ 0.16 & 9.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 5M & 0 \\
+Safe Dreamers & 1c3s5z & \textbf{19.29 $\pm$ 0.14} & \textbf{4.23 $\pm$ 0.27} & \textbf{0.82 $\pm$ 0.02} & 100k & 0 \\
+\midrule
+SafePO & 1c3s5z & 7.79 $\pm$ 0.05 & 9.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 5M & 4 \\
+Safe Dreamers & 1c3s5z & \textbf{19.15 $\pm$ 0.53} & \textbf{4.83 $\pm$ 0.94} & \textbf{0.79 $\pm$ 0.12} & 100k & 4 \\
+\midrule
+SafePO & 2m\_vs\_1z & 2.71 $\pm$ 0.18 & 2.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 5M & 0 \\
+Safe Dreamers & 2m\_vs\_1z & \textbf{19.30 $\pm$ 0.49} & \textbf{0.14 $\pm$ 0.08} & \textbf{0.95 $\pm$ 0.04} & 100k & 0 \\
+\midrule
+SafePO & 2m\_vs\_1z & 3.13 $\pm$ 0.01 & 2.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 5M & 1 \\
+Safe Dreamers & 2m\_vs\_1z & \textbf{19.34 $\pm$ 0.38} & \textbf{0.14 $\pm$ 0.09} & \textbf{0.95 $\pm$ 0.03} & 100k & 1 \\
+\midrule
+SafePO & 2s3z & 3.69 $\pm$ 0.02 & 5.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 5M & 0 \\
+Safe Dreamers & 2s3z & \textbf{18.44 $\pm$ 0.25} & \textbf{2.28 $\pm$ 0.38} & \textbf{0.77 $\pm$ 0.04} & 100k & 0 \\
+\midrule
+SafePO & 2s3z & 4.86 $\pm$ 0.04 & 5.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 5M & 4 \\
+Safe Dreamers & 2s3z & \textbf{17.37 $\pm$ 1.38} & \textbf{2.98 $\pm$ 0.64} & \textbf{0.63 $\pm$ 0.15} & 100k & 4 \\
+\midrule
+SafePO & 2s\_vs\_1sc & 2.44 $\pm$ 0.10 & 2.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 5M & 0 \\
+Safe Dreamers & 2s\_vs\_1sc & \textbf{19.95 $\pm$ 0.21} & \textbf{0.23 $\pm$ 0.11} & \textbf{0.96 $\pm$ 0.03} & 100k & 0 \\
+\midrule
+SafePO & 2s\_vs\_1sc & 4.21 $\pm$ 0.21 & 2.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 5M & 1 \\
+Safe Dreamers & 2s\_vs\_1sc & \textbf{19.57 $\pm$ 0.49} & \textbf{0.31 $\pm$ 0.10} & \textbf{0.92 $\pm$ 0.06} & 100k & 1 \\
+\midrule
+SafePO & 3m & 2.06 $\pm$ 0.10 & 3.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 5M & 0 \\
+Safe Dreamers & 3m & \textbf{19.57 $\pm$ 0.25} & \textbf{0.35 $\pm$ 0.14} & \textbf{0.97 $\pm$ 0.02} & 100k & 0 \\
+\midrule
+SafePO & 3m & 2.55 $\pm$ 0.04 & 3.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 5M & 1 \\
+Safe Dreamers & 3m & \textbf{19.46 $\pm$ 0.42} & \textbf{0.60 $\pm$ 0.17} & \textbf{0.96 $\pm$ 0.03} & 100k & 1 \\
+\midrule
+SafePO & 3s5z\_vs\_3s6z & 3.47 $\pm$ 0.02 & 8.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 5M & 0 \\
+Safe Dreamers & 3s5z\_vs\_3s6z & \textbf{9.60 $\pm$ 0.84} & 8.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 100k & 0 \\
+\midrule
+SafePO & 3s5z\_vs\_3s6z & 3.86 $\pm$ 0.04 & 8.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 5M & 4 \\
+Safe Dreamers & 3s5z\_vs\_3s6z & \textbf{13.28 $\pm$ 1.10} & \textbf{7.54 $\pm$ 0.40} & \textbf{0.11 $\pm$ 0.06} & 100k & 4 \\
+\midrule
+SafePO & 3s\_vs\_3z & 6.04 $\pm$ 0.04 & 3.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 5M & 0 \\
+Safe Dreamers & 3s\_vs\_3z & \textbf{19.83 $\pm$ 0.20} & \textbf{0.95 $\pm$ 0.18} & \textbf{0.96 $\pm$ 0.02} & 100k & 0 \\
+\midrule
+SafePO & 3s\_vs\_3z & 6.28 $\pm$ 0.10 & 3.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 5M & 1 \\
+Safe Dreamers & 3s\_vs\_3z & \textbf{19.93 $\pm$ 0.20} & \textbf{0.79 $\pm$ 0.48} & \textbf{0.96 $\pm$ 0.04} & 100k & 1 \\
+\midrule
+SafePO & 3s\_vs\_4z & 4.39 $\pm$ 0.03 & 3.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 5M & 0 \\
+Safe Dreamers & 3s\_vs\_4z & \textbf{18.19 $\pm$ 1.57} & \textbf{2.64 $\pm$ 0.34} & \textbf{0.23 $\pm$ 0.16} & 100k & 0 \\
+\midrule
+SafePO & 3s\_vs\_4z & 4.55 $\pm$ 0.01 & 3.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 5M & 1 \\
+Safe Dreamers & 3s\_vs\_4z & \textbf{16.96 $\pm$ 0.74} & \textbf{2.47 $\pm$ 0.35} & \textbf{0.31 $\pm$ 0.11} & 100k & 1 \\
+\midrule
+SafePO & 3s\_vs\_5z & 3.44 $\pm$ 0.03 & 3.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 5M & 0 \\
+Safe Dreamers & 3s\_vs\_5z & \textbf{16.88 $\pm$ 1.58} & \textbf{2.67 $\pm$ 0.40} & \textbf{0.15 $\pm$ 0.19} & 100k & 0 \\
+\midrule
+SafePO & 3s\_vs\_5z & 3.52 $\pm$ 0.02 & 3.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 5M & 1 \\
+Safe Dreamers & 3s\_vs\_5z & \textbf{17.44 $\pm$ 1.49} & \textbf{2.67 $\pm$ 0.43} & \textbf{0.17 $\pm$ 0.22} & 100k & 1 \\
+\midrule
+SafePO & 8m & 1.43 $\pm$ 0.01 & 8.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 5M & 0 \\
+Safe Dreamers & 8m & \textbf{18.64 $\pm$ 2.02} & \textbf{2.81 $\pm$ 1.91} & \textbf{0.86 $\pm$ 0.21} & 100k & 0 \\
+\midrule
+SafePO & 8m & 1.63 $\pm$ 0.01 & 8.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 5M & 4 \\
+Safe Dreamers & 8m & \textbf{17.26 $\pm$ 1.04} & \textbf{5.03 $\pm$ 0.42} & \textbf{0.69 $\pm$ 0.10} & 100k & 4 \\
+\midrule
+SafePO & MMM & 1.87 $\pm$ 0.01 & 10.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 5M & 0 \\
+Safe Dreamers & MMM & \textbf{17.05 $\pm$ 2.36} & \textbf{6.77 $\pm$ 1.79} & \textbf{0.59 $\pm$ 0.25} & 100k & 0 \\
+\midrule
+SafePO & MMM & 1.89 $\pm$ 0.04 & 10.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 5M & 4 \\
+Safe Dreamers & MMM & \textbf{17.02 $\pm$ 1.32} & \textbf{7.88 $\pm$ 0.16} & \textbf{0.55 $\pm$ 0.07} & 100k & 4 \\
+\midrule
+SafePO & bane\_vs\_bane & 19.26 $\pm$ 0.01 & 22.55 $\pm$ 0.02 & 0.79 $\pm$ 0.01 & 5M & 0 \\
+Safe Dreamers & bane\_vs\_bane & 17.75 $\pm$ 2.82 & \textbf{13.91 $\pm$ 7.11} & 0.62 $\pm$ 0.39 & 100k & 0 \\
+\midrule
+SafePO & bane\_vs\_bane & 19.37 $\pm$ 0.09 & 22.40 $\pm$ 0.06 & 0.80 $\pm$ 0.02 & 5M & 4 \\
+Safe Dreamers & bane\_vs\_bane & \textbf{19.91 $\pm$ 0.11} & \textbf{6.37 $\pm$ 1.20} & \textbf{0.98 $\pm$ 0.02} & 100k & 4 \\
+\end{longtable}
+\end{document}

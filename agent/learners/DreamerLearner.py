@@ -103,7 +103,7 @@ class DreamerLearner:
             "critic": {k: v.cpu() for k, v in self.critic.state_dict().items()},
         }
 
-    def step(self, rollout):
+    def step(self, rollout, episode_cost):
         if self.n_agents != rollout["action"].shape[-2]:
             self.n_agents = rollout["action"].shape[-2]
 
@@ -130,16 +130,12 @@ class DreamerLearner:
         sys.stdout.flush()
 
         for i in range(self.config.MODEL_EPOCHS):
-            samples = self.replay_buffer.sample(
-                self.config.MODEL_BATCH_SIZE, cost_priority_ratio=self.config.COST_PRIORITY_RATIO
-            )
+            samples = self.replay_buffer.sample(self.config.MODEL_BATCH_SIZE)
             self.train_model(samples)
 
         for i in range(self.config.EPOCHS):
-            samples = self.replay_buffer.sample(
-                self.config.BATCH_SIZE, cost_priority_ratio=self.config.COST_PRIORITY_RATIO
-            )
-            self.train_agent(samples)
+            samples = self.replay_buffer.sample(self.config.BATCH_SIZE)
+            self.train_agent(samples, episode_cost)
 
     def train_model(self, samples):
         self.model.train()
@@ -158,7 +154,7 @@ class DreamerLearner:
         self.apply_optimizer(self.model_optimizer, self.model, loss, self.config.GRAD_CLIP)
         self.model.eval()
 
-    def train_agent(self, samples):
+    def train_agent(self, samples, episode_cost):
         actions, av_actions, old_policy, imag_feat, returns, cost_returns, trajectory_costs = actor_rollout(
             samples["observation"],
             samples["action"],
@@ -212,7 +208,7 @@ class DreamerLearner:
                 if self.config.ENV_TYPE == Env.FLATLAND and self.cur_update % self.config.TARGET_UPDATE == 0:
                     self.old_critic = deepcopy(self.critic)
 
-        mean_cost = cost_returns.mean()
+        mean_cost = torch.tensor(episode_cost, dtype=torch.float32)
         self.lagrangian.update(mean_cost)
         wandb.log(
             {

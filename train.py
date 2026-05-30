@@ -82,7 +82,6 @@ def parse_args():
     parser.add_argument("--seed", type=int, default=23, help="Random seed")
     parser.add_argument("--algo_name", type=str, default="safedreamer", help="Algorithm name")
     parser.add_argument("--laglr", type=float, default=0.00001, help="Lagrangian learning rate")
-    parser.add_argument("--cost_priority", type=float, default=0.0, help="Cost prioritized sampling ratio")
     parser.add_argument("--slurm_id", type=str, default="none", help="Slurm Job ID")
     parser.add_argument("--branch", type=str, default="unknown", help="Git branch name")
     return parser.parse_args()
@@ -115,8 +114,6 @@ def prepare_starcraft_configs(args):
     for config in agent_configs:
         if hasattr(config, "LAGRANGIAN_LR"):
             config.LAGRANGIAN_LR = args.laglr
-        if hasattr(config, "COST_PRIORITY_RATIO"):
-            config.COST_PRIORITY_RATIO = args.cost_priority
     env_config = StarCraft(args.env_name, args.cost_type)
     get_env_info(agent_configs, env_config.create_env())
     return {
@@ -205,9 +202,10 @@ if __name__ == "__main__":
 
     # Standardized Naming Convention
     # {algo}_{costtype}_{env}_{laglr}_{costlim}_{map}_{seed}_{time}_{slurm_id}_{branch}
-    sanitized_branch = args.branch.replace("/", "-")
+    sanitized_branch = args.branch.replace("/", "-")[:20]
+    cost_type_short = args.cost_type.replace("dead_allies_incremental", "dai").replace("collision", "col")
     run_name = (
-        f"{args.algo_name}_{args.cost_type}_{args.env}_"
+        f"{args.algo_name}_{cost_type_short}_{args.env}_"
         f"lag{args.laglr}_{args.cost_limit}_{args.env_name}_"
         f"s{args.seed}_{current_run_time}_{args.slurm_id}_{sanitized_branch}"
     )
@@ -246,4 +244,4 @@ if __name__ == "__main__":
         learner_config=configs["learner_config"],
     )
 
-    train_dreamer(exp, n_workers=args.n_workers, debug=False)
+    train_dreamer(exp, n_workers=args.n_workers, debug=args.n_workers == 0)

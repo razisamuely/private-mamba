@@ -8,7 +8,8 @@ build/
 out/
 *.err
 *.out
-
+*.sbatch
+*.log
 # Environment and configuration
 .env
 .env.local

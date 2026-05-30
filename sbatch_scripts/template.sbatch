@@ -9,7 +9,7 @@
 #SBATCH --mail-user=razshmue@post.bgu.ac.il
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --partition=rtx3090
-#SBATCH --qos=normal
+#SBATCH --qos=razshmue
 #SBATCH --gpus=1
 
 ### Print job info ###
@@ -37,7 +37,6 @@ python train.py \
     --n_workers {{N_WORKERS}} \
     --algo_name {{ALGO}} \
     --laglr {{LAGRANGIAN_LR}} \
-    --cost_priority {{COST_PRIORITY}} \
     --slurm_id $SLURM_JOB_ID \
     --branch {{BRANCH_NAME}}
 
