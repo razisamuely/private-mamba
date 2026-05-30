@@ -1,76 +1,72 @@
-# MAMBA
-This code accompanies the paper "[Scalable Multi-Agent Model-Based Reinforcement Learning](https://arxiv.org/abs/2205.15023)".
+# Safe Dreamers
 
-The repository contains MAMBA implementation as well as fine-tuned hyperparameters in ```configs/dreamer/optimal``` folder.
+Anonymous submission. Code for the paper *"Safe Dreamers: Safe Multi-Agent Reinforcement Learning via World Models"*.
+
+## License
+
+MIT
+
+## Requirements
+
+- Python 3.7
+- StarCraft II (see installation below)
 
 ## Installation
 
-`python3.7` is required
-
-```
+```bash
 pip install wheel
-pip install flatland-2.2.2/
-pip install -r requirements.txt 
+pip install -r requirements.txt
 ```
 
-Installing Starcraft:
+**Install StarCraft II and SMAC:**
 
-https://github.com/oxwhirl/smac#installing-starcraft-ii
+Follow the instructions at https://github.com/oxwhirl/smac#installing-starcraft-ii
 
+## Training
 
-## Usage
-
+```bash
+python train.py \
+  --env starcraft \
+  --env_name 3m \
+  --cost_type dead_allies_incremental \
+  --cost_limit 0 \
+  --n_workers 4 \
+  --seed 1
 ```
-python3 train.py --n_workers 2 --env flatland --env_type 5_agents
+
+**Key arguments:**
+
+| Argument | Description | Example |
+|---|---|---|
+| `--env` | Environment | `starcraft` |
+| `--env_name` | SMAC map | `3m`, `8m`, `2s3z`, `1c3s5z`, ... |
+| `--cost_type` | Safety cost function | `dead_allies_incremental`, `collision` |
+| `--cost_limit` | Safety constraint threshold | `0`, `1`, `4` |
+| `--n_workers` | Parallel workers | `4` |
+| `--seed` | Random seed | `1` |
+
+## Optimal Hyperparameters
+
+Copy configs from `configs/dreamer/optimal/starcraft/` to override defaults:
+
+```bash
+cp configs/dreamer/optimal/starcraft/AgentConfig.py configs/dreamer/DreamerAgentConfig.py
+cp configs/dreamer/optimal/starcraft/LearnerConfig.py configs/dreamer/DreamerLearnerConfig.py
 ```
-
-Two environments are supported for env flag: flatland and starcraft.
-
-### Optimal parameters
-To train agents with optimal parameters from the paper they should be copied from `configs/dreamer/optimal/` folder to [DreamerAgentConfig.py](https://github.com/jbr-ai-labs/mamba/blob/main/configs/dreamer/DreamerAgentConfig.py) and [DreamerLearnerConfig.py](https://github.com/jbr-ai-labs/mamba/blob/main/configs/dreamer/DreamerLearnerConfig.py)
-
-## SMAC
-
-<img height="300" alt="starcraft" src="https://user-images.githubusercontent.com/22059171/152656435-1634c15b-ca6d-4b23-9383-72fe3759b9e3.png">
-
-The code for the environment can be found at 
-[https://github.com/oxwhirl/smac](https://github.com/oxwhirl/smac)
-
-## Flatland
-
-<img height="300" alt="flatland" src="https://user-images.githubusercontent.com/22059171/152656405-b4ab7e6c-d691-4300-a419-a3d4288513e8.png">
-
-The original code for the environment can be found at 
-[https://github.com/jbr-ai-labs/NeurIPS2020-Flatland-Competition-Solution](https://github.com/jbr-ai-labs/NeurIPS2020-Flatland-Competition-Solution)
 
 ## Code Structure
 
-- ```agent``` contains implementation of MAMBA 
-  - ```controllers``` contains logic for inference
-  - ```learners``` contains logic for learning the agent
-  - ```memory``` contains buffer implementation
-  - ```models``` contains architecture of MAMBA
-  - ```optim``` contains logic for optimizing loss functions
-  - ```runners``` contains logic for running multiple workers
-  - ```utils``` contains helper functions
-  - ```workers``` contains logic for interacting with environment
-- ```env``` contains environment logic
-- ```networks``` contains neural network architectures
-
-
-## Citation
-
-    @inproceedings{10.5555/3535850.3535894,
-          author = {Egorov, Vladimir and Shpilman, Alexei},
-          title = {Scalable Multi-Agent Model-Based Reinforcement Learning},
-          year = {2022},
-          isbn = {9781450392136},
-          publisher = {International Foundation for Autonomous Agents and Multiagent Systems},
-          address = {Richland, SC},
-          booktitle = {Proceedings of the 21st International Conference on Autonomous Agents and Multiagent Systems},
-          pages = {381–390},
-          numpages = {10},
-          keywords = {communication, multi-agent reinforcement learning, model-based reinforcement learning},
-          location = {Virtual Event, New Zealand},
-          series = {AAMAS '22}
-    }
+```
+agent/
+  controllers/   inference logic
+  learners/      learning logic
+  memory/        replay buffer
+  models/        world model architecture
+  optim/         loss optimization
+  runners/       multi-worker orchestration
+  workers/       environment interaction
+configs/         hyperparameter configs
+env/             environment wrappers
+networks/        neural network architectures
+train.py         entry point
+```

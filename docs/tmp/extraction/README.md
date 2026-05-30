@@ -1,63 +1,96 @@
-# Step Axis Investigation
+# Extraction
 
-## CEO View
-Old paper results were inflated by a measurement bug. We fixed it and re-measured at 100k/150k/200k env steps. Hard maps dropped significantly; easy maps are stable. Corrected tables are ready.
+## Overview
+Extracts metrics from WandB runs at target env steps, aggregates across seeds, and renders LaTeX/PDF tables.
 
-## High-Level View
-The old CSV used WandB's internal log counter (`_step`) as x-axis. At `_step=100k`, the agent had already seen ~300k real env steps — so results were from a much later training point. We re-extracted using actual env steps.
+Two pipelines exist:
+- **`collision_pipeline.py`** — SafeDreamer vs MACPO, collision cost
+- **`dead_allies_pipeline.py`** — SafeDreamer vs SafePO, dead_allies_incremental cost (appendix table)
 
-## Technical View
+Both call `extract_metrics.py` internally.
 
-### SafeDreamer vs MACPO — key difference
+---
+
+## Technical Notes
+
+### SafeDreamer vs MACPO — step axis difference
 | | SafeDreamer | MACPO |
 |--|-------------|-------|
 | History storage | Parquet artifact (`wandb-history` type) | Regular `run.history()` |
-| Step column | `steps` (env steps) ✓ | `_step` (internal counter) |
-| Correctable? | Yes — reads `steps` from parquet | No — `_step` only, no correction possible |
+| Step column | `steps` (env steps) ✓ | `_step` = env steps for MACPO ✓ |
+| Target | Configurable per algorithm in `map_steps_config.json` | Same |
 
-### Extraction logic
+### Extraction logic (`extract_metrics.py`)
 1. Try parquet artifact → use `steps` column (SafeDreamer)
-2. Fallback to `run.history()` → use `_step` (MACPO)
-3. Window: `[target - 5000, target]` env steps; fallback to last 3 rows
+2. Fallback to `run.history()` with target-aware window (MACPO)
+3. Window: `[target - 5000, target]` env steps; fallback to last 3 rows if empty
 
-### Key params (in `extraction_config.py`)
+### Key params (`extraction_config.py`)
 | Param | Value | Meaning |
 |-------|-------|---------|
 | `WINDOW_SIZE` | 5000 | Steps before target to average over |
-| `HISTORY_SAMPLES` | 2,000,000 | Max rows fetched from wandb |
 | `DEFAULT_TARGET_STEP` | 500,000 | Fallback if map not in config |
 | `METRIC_KEYS` | score, cost, winrate | Metrics extracted |
-| `STEP_COL` | `steps` | Env step column (SafeDreamer) |
-| `FALLBACK_STEP_COL` | `_step` | WandB internal step (MACPO) |
+| `STEP_COL` | `steps` | Env step column (SafeDreamer parquet) |
+| `FALLBACK_STEP_COL` | `_step` | WandB internal step (MACPO fallback) |
 
-### Paths (in `paths_config.py`)
-| Constant | Path |
-|----------|------|
-| `DEFAULT_INPUT_CSV` | `new_experiments_tracking_100k.csv` (local copy, read-only) |
-| `DEFAULT_CONFIG_JSON` | `map_steps_config.json` |
-| `DEFAULT_OUTPUT_CSV` | `extracted_metrics.csv` |
+### `map_steps_config.json` format
+Per-algorithm targets per map:
+```json
+{ "3m": { "SafeDreamers": 100000, "MACPO": 5000000 } }
+```
+Pipelines patch this file temporarily before calling `extract_metrics.py`.
 
-### WandB (in `wandb_config.py`)
-| Constant | Value |
-|----------|-------|
-| `WANDB_PROJECT` | `raz-shmueli-corsound-ai/private-mamba` |
-| `WANDB_TIMEOUT` | 60s |
+---
 
 ## How to Run
 
+### Collision pipeline
 ```bash
-cd /home/corsound/workspace/private-mamba/docs/tmp/extraction/scripts
+cd scripts
+# SafeDreamer 100k vs MACPO 5M (default)
+python collision_pipeline.py
 
-# 1. Set target step (edit map_steps_config.json)
+# Custom targets
+python collision_pipeline.py --sd-target 200000 --macpo-target 5000000
+python collision_pipeline.py --macpo-target 100000
 
-# 2. Extract metrics
-/home/corsound/workspace/overleaf/thesis/venv/bin/python3 extract_metrics.py \
-    --config map_steps_config.json \
-    2>/dev/null | tee extracted_Xk.txt
-
-# 3. Parse output → aggregated CSV (adapt inline script from previous runs)
-# 4. Render PDF (adapt render script from previous runs)
+# Test with fake data (no WandB)
+python collision_pipeline.py --test
 ```
+Output: `../tables/collision_comparison/collision_safedreamer_{sd}k_vs_macpo_{mp}.pdf`
+
+### Dead allies pipeline (appendix table)
+```bash
+cd scripts
+python dead_allies_pipeline.py
+
+# Test with fake data
+python dead_allies_pipeline.py --test
+```
+Output:
+- `../tables/appendix_full_comparison/appendix_table_corrected.pdf` (standalone)
+- `../tables/appendix_full_comparison/appendix_table_corrected_thesis.tex` (for Overleaf `\input`)
+
+### Push to Overleaf thesis
+```bash
+cp ../tables/appendix_full_comparison/appendix_table_corrected_thesis.tex \
+   /home/corsound/workspace/overleaf/thesis/generated_appendix_complete_100k_reordered.tex
+cd /home/corsound/workspace/overleaf/thesis
+git add generated_appendix_complete_100k_reordered.tex
+git commit -m "fix(appendix): update corrected table"
+git push
+```
+
+### Raw extraction (no pipeline)
+```bash
+cd scripts
+/home/corsound/workspace/overleaf/thesis/venv/bin/python3 extract_metrics.py \
+    --output ../inputs/safe_dreamers_runs_adapted.csv \
+    2>/dev/null | tee extracted_output.txt
+```
+
+---
 
 ## Files
 
@@ -65,26 +98,83 @@ cd /home/corsound/workspace/private-mamba/docs/tmp/extraction/scripts
 | File | Description |
 |------|-------------|
 | `new_experiments_tracking_100k.csv` | Original tracking CSV — **never modify** |
-| `safe_dreamers_runs_adapted.csv` | SafeDreamers dead_allies_incremental runs (with wandb links) |
-| `collision_runs_adapted.csv` | SafeDreamers + MACPO collision runs (with wandb links) |
+| `safe_dreamers_runs_adapted.csv` | SafeDreamer dead_allies runs, all 72 (cost_limit 0/1/4, 12 maps, 3 seeds) |
+| `collision_runs_adapted.csv` | SafeDreamer + MACPO collision runs, 60 runs |
 
 ### aggregated/
 | File | Description |
 |------|-------------|
-| `all_agg_corrected.csv` | Aggregated at 100k env steps (SafeDreamer + MACPO) |
-| `all_agg_150k.csv` | Aggregated at 150k |
-| `all_agg_200k.csv` | Aggregated at 200k |
-| `new_agg.csv` | Latest SafeDreamers dead_allies_incremental aggregated |
+| `all_agg_corrected.csv` | SafeDreamer + SafePO dead_allies at 100k (corrected step axis) |
+| `all_agg_150k.csv` | SafeDreamer + SafePO at 150k |
+| `all_agg_200k.csv` | SafeDreamer + SafePO at 200k |
+| `collision_agg.csv` | Latest collision pipeline output |
+| `dead_allies_agg.csv` | Latest dead_allies pipeline output |
+| `new_agg.csv` | Old SafeDreamer-only aggregation (superseded) |
 
-### ../tables/bug_fix_step_axis/
+### scripts/
 | File | Description |
 |------|-------------|
-| `bug_impact_100k.pdf` | Old (wrong _step=100k) vs corrected 100k env steps |
-| `bug_impact_150k.pdf` | Old vs corrected 150k |
-| `bug_impact_200k.pdf` | Old vs corrected 200k |
+| `extract_metrics.py` | Core: fetches metrics from WandB at target env step |
+| `collision_pipeline.py` | End-to-end collision: extract → aggregate → PDF |
+| `dead_allies_pipeline.py` | End-to-end dead_allies: extract → merge SafePO → PDF |
+| `extraction_config.py` | Constants: window size, metric keys, column names, map orders |
+| `paths_config.py` | File path constants |
+| `wandb_config.py` | WandB project + timeout |
+| `map_steps_config.json` | Per-map, per-algorithm target env steps |
 
-### ../tables/lag_fix_comparison/
-| File | Description |
-|------|-------------|
-| `lag_cost_fix_vs_lag_episode_cost.pdf` | feat/lag-real-cost-fix vs feat/lag-real-episode-cost |
-| `collision_safedreamer_vs_macpo.pdf` | SafeDreamers vs MACPO on collision cost |
+---
+
+## Operational Cheatsheet
+
+### Check which runs reached target steps
+```python
+import wandb, pandas as pd
+api = wandb.Api()
+df = pd.read_csv('inputs/safe_dreamers_runs_adapted.csv')
+df['run_id'] = df['wandb_link'].str.split('/runs/').str[-1]
+for _, row in df.dropna(subset=['wandb_link']).iterrows():
+    run = api.run(f"raz-shmueli-corsound-ai/private-mamba/{row['run_id']}")
+    steps = run.summary.get('steps', 0)
+    print('✓' if steps >= 100_000 else '✗', row['map'], row['cost_limit'], row['seed'], steps)
+```
+
+### Verify all WandB links exist
+```python
+import wandb, pandas as pd
+api = wandb.Api()
+df = pd.read_csv('inputs/safe_dreamers_runs_adapted.csv')
+df['run_id'] = df['wandb_link'].str.split('/runs/').str[-1]
+for _, row in df.dropna(subset=['wandb_link']).iterrows():
+    try:
+        api.run(f"raz-shmueli-corsound-ai/private-mamba/{row['run_id']}")
+    except:
+        print(f"MISSING: {row['map']} cl={row['cost_limit']} s{row['seed']}")
+```
+
+### Check Slurm queue
+```bash
+ssh slurm.bgu.ac.il "squeue -u razshmue --format='%.10i %.35j %.8T %.10M'"
+```
+
+### Cancel jobs
+```bash
+ssh slurm.bgu.ac.il "scancel 17336238 17336240 ..."
+```
+
+### WandB run ID truncation
+WandB truncates run IDs in URLs. If a link returns "not found", the actual run ID may use `dai` instead of `dead_allies_incremental` in the name. Match by slurm job ID embedded in the run name (e.g. `_17336255_`).
+
+---
+
+## Current Status (2026-05-06)
+
+### Dead allies (appendix table)
+- cost_limit=0: all 36 runs ✓ done
+- cost_limit=1: 17/18 done (3m s1 still running ~74k)
+- cost_limit=4: 13/18 done (8m ×3, bane_vs_bane ×3, MMM s3 still running ~85k)
+- Table pushed to Overleaf with 8 `—` entries; re-run pipeline when remaining jobs finish
+
+### Collision
+- SafeDreamer: all 30 runs ✓ done (100k+)
+- MACPO: 23/30 at 5M; remaining: bane_vs_bane ×3, 3s5z_vs_3s6z s3 still running
+- Tables generated at 100k, 1M, 2M, 3M, 5M MACPO checkpoints

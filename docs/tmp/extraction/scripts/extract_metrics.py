@@ -163,7 +163,7 @@ def load_map_step_targets(config_path: Path) -> dict:
 # ── History fetching ──────────────────────────────────────────────────────────
 
 
-def fetch_run_history_as_dataframe(run) -> pd.DataFrame:
+def fetch_run_history_as_dataframe(run, target_step: int = 100_000) -> pd.DataFrame:
     """Fetch full metric history for a run as a DataFrame with env STEP_COL column.
 
     Strategy (in order):
@@ -180,7 +180,7 @@ def fetch_run_history_as_dataframe(run) -> pd.DataFrame:
 
     # Fallback: scan_history without keys filter, then aggregate by env steps.
     # SafeDreamer logs steps/winrate/cost in separate rows at the same env step.
-    _FALLBACK_TARGET = 100_000  # conservative default env step target for fallback
+    _FALLBACK_TARGET = target_step
     try:
         min_s, max_s = estimate_internal_step_range_for_env_steps(run, _FALLBACK_TARGET)
         rows = list(run.scan_history(min_step=min_s, max_step=max_s, page_size=10_000))
@@ -314,11 +314,9 @@ def main() -> None:
             print(f"\n⚠ Skipped {exp['run_id']}: not found")
             continue
         try:
-            df = fetch_run_history_as_dataframe(run)
-            if df.empty:
-                print(f"\n⚠ Skipped {exp['run_id']}: no history")
-                continue
-            target_step = map_step_targets.get(exp["map"], DEFAULT_TARGET_STEP)
+            map_cfg = map_step_targets.get(exp["map"], DEFAULT_TARGET_STEP)
+            target_step = map_cfg.get(exp["algorithm"], DEFAULT_TARGET_STEP) if isinstance(map_cfg, dict) else map_cfg
+            df = fetch_run_history_as_dataframe(run, target_step)
             result = average_metrics_in_env_step_window(df, target_step, WINDOW_SIZE)
             print_experiment_result(exp, target_step, result)
         except RuntimeError as e:

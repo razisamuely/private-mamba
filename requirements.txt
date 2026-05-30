@@ -4,12 +4,4 @@ ray
 git+https://github.com/oxwhirl/smac.git
 wandb
 argparse
-pre-commit
 imageio
-vmas[gymnasium,render]
-safety-gymnasium
-gymnasium
-pygame 
-numpy
-
-flatland-rl
