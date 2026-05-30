@@ -19,7 +19,7 @@ from configs.flatland.RewardConfigs import FinishRewardConfig
 from configs.flatland.TimetableConfigs import AllAgentLauncherConfig
 from env.flatland.params import LotsOfAgents, PackOfAgents, SeveralAgents
 from env.mpe.vmas_simple_spread import VmasSpread
-from env.safetygym.SafetyGymWrapper import SafetyGymWrapper
+from env.safety_gym.SwimmerWrapper import SwimmerWrapper as SafetyGymWrapper
 
 # from env.starcraft.StarCraft import StarCraft
 from env.starcraft.StarCraft_safe import StarCraft
