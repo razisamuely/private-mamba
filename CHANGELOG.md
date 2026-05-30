@@ -24,8 +24,22 @@
 - Deleted `paper_text.txt`.
 
 ### Not Included
-- Swimmer/continuous env support (on `feat/swimmer-action-fix`)
 - MAX_STEPS cost scaling (superseded by real episode cost approach)
+
+---
+
+## Swimmer cherry-pick from feat/swimmer-action-fix (2026-05-30)
+**Pre-cherry-pick main**: `1a9cbe5` — revert with `git reset --hard 1a9cbe5`
+
+### Added
+- `env/safety_gym/SwimmerWrapper.py` — Discretized continuous Swimmer env (9 discrete actions mapped to continuous torques).
+- `agent/workers/DreamerWorker.py` — reward signal for `SAFETY_GYM` env type.
+- `docs/generalization/` — integration plan and status docs for Swimmer port.
+
+### Skipped (from feat/swimmer-action-fix)
+- `DreamerLearner.py` MAX_STEPS scaling — redundant with real episode cost.
+- `DreamerLearnerConfig.py` MAX_STEPS config — same reason.
+- `train.py` import changes — would break SMAC.
 
 ---
 
