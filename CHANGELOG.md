@@ -1,6 +1,7 @@
 # Changelog
 
-## feat/lag-real-episode-cost (2026-05-03)
+## feat/lag-real-episode-cost → main (2026-05-30)
+**Pre-merge main**: `f1b2541` — revert with `git reset --hard f1b2541`
 
 ### Core Changes
 - **Lagrangian uses real episode cost**: Switched from `cost_returns.mean()` (imagined discounted) to `trajectory_costs.mean()` (real env cost). Aligns the Lagrangian signal with MACPO's approach.
