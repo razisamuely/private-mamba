@@ -154,10 +154,9 @@ def prepare_vmas_balance_configs(env_name, cost_limit=180.0):
 def prepare_safety_gym_configs(env_name, cost_limit=180.0):
     agent_configs = [DreamerControllerConfig(), DreamerLearnerConfig(cost_limit=cost_limit)]
     env_config = SafetyGymWrapper(env_name)
-    # get_env_info(agent_configs, env_config.create_env())
-    for config in agent_configs:
-        config.IN_DIM = 152  # From your output
-        config.ACTION_SIZE = 9
+    real_env = env_config.create_env()
+    real_env._initialize_env()
+    get_env_info(agent_configs, real_env)
     return {
         "env_config": (env_config, 100),
         "controller_config": agent_configs[0],
