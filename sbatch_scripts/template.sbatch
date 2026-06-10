@@ -9,7 +9,6 @@
 #SBATCH --mail-user=razshmue@post.bgu.ac.il
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --partition=rtx3090
-#SBATCH --qos=razshmue
 #SBATCH --gpus=1
 
 ### Print job info ###
