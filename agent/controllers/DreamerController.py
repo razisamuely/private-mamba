@@ -38,7 +38,12 @@ class DreamerController:
         self.prev_actions = None
 
     def dispatch_buffer(self):
-        total_buffer = {k: np.asarray(v, dtype=np.float32) for k, v in self.buffer.items()}
+        total_buffer = {}
+        for k, v in self.buffer.items():
+            if k == "avail_action" and (len(v) == 0 or v[0] is None):
+                total_buffer[k] = None
+            else:
+                total_buffer[k] = np.asarray(v, dtype=np.float32)
         last = np.zeros_like(total_buffer["done"])
         last[-1] = 1.0
         total_buffer["last"] = last
