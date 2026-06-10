@@ -28,6 +28,7 @@ cd /home/razshmue/workspace/private-mamba/
 
 # Run training
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+export PYTHONPATH=$PYTHONPATH:/home/razshmue/workspace/private-mamba/safety-gymnasium-main
 python train.py \
     --env {{ENV}} \
     --env_name {{ENV_NAME}} \
