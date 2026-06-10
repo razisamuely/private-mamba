@@ -38,7 +38,7 @@ class DreamerMemory:
         for i in range(len(obs)):
             self.observations[self.next_idx] = obs[i]
             self.actions[self.next_idx] = action[i]
-            if av_action is not None:
+            if av_action is not None and self.av_actions is not None:
                 self.av_actions[self.next_idx] = av_action[i]
             self.rewards[self.next_idx] = reward[i]
             self.costs[self.next_idx] = cost[i]
