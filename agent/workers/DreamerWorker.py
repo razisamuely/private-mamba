@@ -124,7 +124,7 @@ class DreamerWorker:
                     "done": self.augment(done),
                     "fake": fakes,
                     "avail_action": av_actions,
-                    "cost": self.augment(cost) if self.controller_config.USE_AVAILABLE_ACTIONS else None,
+                    "cost": self.augment(cost),
                 }
             )
 
