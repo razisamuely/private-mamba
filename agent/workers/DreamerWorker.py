@@ -17,6 +17,7 @@ class DreamerWorker:
         self.env = env_config.create_env()
         self.controller = controller_config.create_controller()
         self.in_dim = controller_config.IN_DIM
+        self.action_type = getattr(controller_config, "ACTION_TYPE", "discrete")
         self.env_type = env_config.ENV_TYPE
         self.controller_config = copy.deepcopy(controller_config)
 
@@ -101,7 +102,10 @@ class DreamerWorker:
         while True:
             steps_done += 1
             actions, obs, fakes, av_actions = self._select_actions(state)
-            next_state, reward, done, info = self.env.step([action.argmax() for i, action in enumerate(actions)])
+            if self.action_type == "continuous":
+                next_state, reward, done, info = self.env.step([action.detach().cpu().numpy() for action in actions])
+            else:
+                next_state, reward, done, info = self.env.step([action.argmax() for i, action in enumerate(actions)])
             step_reward = sum(reward.values()) / self.env.n_agents
             total_episode_reward += step_reward
             total_episode_cost += sum(info.get("cost").values()) / self.env.n_agents
@@ -129,8 +133,9 @@ class DreamerWorker:
                 if self._check_termination(info, steps_done):
                     obs = torch.cat([self.get_absorbing_state() for i in range(self.env.n_agents)]).unsqueeze(0)
                     actions = torch.zeros(1, self.env.n_agents, actions.shape[-1])
-                    index = torch.randint(0, actions.shape[-1], actions.shape[:-1], device=actions.device)
-                    actions.scatter_(2, index.unsqueeze(-1), 1.0)
+                    if self.action_type == "discrete":
+                        index = torch.randint(0, actions.shape[-1], actions.shape[:-1], device=actions.device)
+                        actions.scatter_(2, index.unsqueeze(-1), 1.0)
                     items = {
                         "observation": obs,
                         "action": actions,

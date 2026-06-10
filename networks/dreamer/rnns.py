@@ -15,8 +15,9 @@ def cat_states(rssm_states: list, dim):
 
 
 def reduce_states(rssm_states: list, dim, func):
-    return RSSMState(*[func([getattr(state, key) for state in rssm_states], dim=dim)
-                       for key in rssm_states[0].__dict__.keys()])
+    return RSSMState(
+        *[func([getattr(state, key) for state in rssm_states], dim=dim) for key in rssm_states[0].__dict__.keys()]
+    )
 
 
 class DiscreteLatentDist(nn.Module):
@@ -24,9 +25,9 @@ class DiscreteLatentDist(nn.Module):
         super().__init__()
         self.n_categoricals = n_categoricals
         self.n_classes = n_classes
-        self.dists = nn.Sequential(nn.Linear(in_dim, hidden_size),
-                                   nn.ReLU(),
-                                   nn.Linear(hidden_size, n_classes * n_categoricals))
+        self.dists = nn.Sequential(
+            nn.Linear(in_dim, hidden_size), nn.ReLU(), nn.Linear(hidden_size, n_classes * n_categoricals)
+        )
 
     def forward(self, x):
         logits = self.dists(x).view(x.shape[:-1] + (self.n_categoricals, self.n_classes))
@@ -46,8 +47,9 @@ class RSSMTransition(nn.Module):
         self._cell = nn.GRU(hidden_size, self._deter_size)
         self._attention_stack = AttentionEncoder(3, hidden_size, hidden_size, dropout=0.1)
         self._rnn_input_model = self._build_rnn_input_model(config.ACTION_SIZE + self._stoch_size)
-        self._stochastic_prior_model = DiscreteLatentDist(self._deter_size, config.N_CATEGORICALS, config.N_CLASSES,
-                                                          self._hidden_size)
+        self._stochastic_prior_model = DiscreteLatentDist(
+            self._deter_size, config.N_CATEGORICALS, config.N_CLASSES, self._hidden_size
+        )
 
     def _build_rnn_input_model(self, in_dim):
         rnn_input_model = [nn.Linear(in_dim, self._hidden_size)]
@@ -59,8 +61,9 @@ class RSSMTransition(nn.Module):
         n_agents = prev_actions.shape[1]
         stoch_input = self._rnn_input_model(torch.cat([prev_actions, prev_states.stoch], dim=-1))
         attn = self._attention_stack(stoch_input, mask=mask)
-        deter_state = self._cell(attn.reshape(1, batch_size * n_agents, -1),
-                                 prev_states.deter.reshape(1, batch_size * n_agents, -1))[0].reshape(batch_size, n_agents, -1)
+        deter_state = self._cell(
+            attn.reshape(1, batch_size * n_agents, -1), prev_states.deter.reshape(1, batch_size * n_agents, -1)
+        )[0].reshape(batch_size, n_agents, -1)
         logits, stoch_state = self._stochastic_prior_model(deter_state)
         return RSSMState(logits=logits, stoch=stoch_state, deter=deter_state)
 
@@ -71,13 +74,16 @@ class RSSMRepresentation(nn.Module):
         self._transition_model = transition_model
         self._stoch_size = config.STOCHASTIC
         self._deter_size = config.DETERMINISTIC
-        self._stochastic_posterior_model = DiscreteLatentDist(self._deter_size + config.EMBED, config.N_CATEGORICALS,
-                                                              config.N_CLASSES, config.HIDDEN)
+        self._stochastic_posterior_model = DiscreteLatentDist(
+            self._deter_size + config.EMBED, config.N_CATEGORICALS, config.N_CLASSES, config.HIDDEN
+        )
 
     def initial_state(self, batch_size, n_agents, **kwargs):
-        return RSSMState(stoch=torch.zeros(batch_size, n_agents, self._stoch_size, **kwargs),
-                         logits=torch.zeros(batch_size, n_agents, self._stoch_size, **kwargs),
-                         deter=torch.zeros(batch_size, n_agents, self._deter_size, **kwargs))
+        return RSSMState(
+            stoch=torch.zeros(batch_size, n_agents, self._stoch_size, **kwargs),
+            logits=torch.zeros(batch_size, n_agents, self._stoch_size, **kwargs),
+            deter=torch.zeros(batch_size, n_agents, self._deter_size, **kwargs),
+        )
 
     def forward(self, obs_embed, prev_actions, prev_states, mask=None):
         """
@@ -95,13 +101,13 @@ class RSSMRepresentation(nn.Module):
 
 def rollout_representation(representation_model, steps, obs_embed, action, prev_states, done):
     """
-        Roll out the model with actions and observations from data.
-        :param steps: number of steps to roll out
-        :param obs_embed: size(time_steps, batch_size, n_agents, embedding_size)
-        :param action: size(time_steps, batch_size, n_agents, action_size)
-        :param prev_states: RSSM state, size(batch_size, n_agents, state_size)
-        :return: prior, posterior states. size(time_steps, batch_size, n_agents, state_size)
-        """
+    Roll out the model with actions and observations from data.
+    :param steps: number of steps to roll out
+    :param obs_embed: size(time_steps, batch_size, n_agents, embedding_size)
+    :param action: size(time_steps, batch_size, n_agents, action_size)
+    :param prev_states: RSSM state, size(batch_size, n_agents, state_size)
+    :return: prior, posterior states. size(time_steps, batch_size, n_agents, state_size)
+    """
     priors = []
     posteriors = []
     for t in range(steps):
@@ -117,13 +123,14 @@ def rollout_representation(representation_model, steps, obs_embed, action, prev_
 
 def rollout_policy(transition_model, av_action, steps, policy, prev_state):
     """
-        Roll out the model with a policy function.
-        :param steps: number of steps to roll out
-        :param policy: RSSMState -> action
-        :param prev_state: RSSM state, size(batch_size, state_size)
-        :return: next states size(time_steps, batch_size, state_size),
-                 actions size(time_steps, batch_size, action_size)
-        """
+    Roll out the model with a policy function.
+    :param steps: number of steps to roll out
+    :param policy: RSSMState -> action
+    :param prev_state: RSSM state, size(batch_size, state_size)
+    :return: next states size(time_steps, batch_size, state_size),
+             actions size(time_steps, batch_size, action_size)
+    """
+    action_type = getattr(policy, "action_type", "discrete")
     state = prev_state
     next_states = []
     actions = []
@@ -132,7 +139,7 @@ def rollout_policy(transition_model, av_action, steps, policy, prev_state):
     for t in range(steps):
         feat = state.get_features().detach()
         action, pi = policy(feat)
-        if av_action is not None:
+        if action_type == "discrete" and av_action is not None:
             avail_actions = av_action(feat).sample()
             pi[avail_actions == 0] = -1e10
             action_dist = OneHotCategorical(logits=pi)
@@ -142,7 +149,9 @@ def rollout_policy(transition_model, av_action, steps, policy, prev_state):
         policies.append(pi)
         actions.append(action)
         state = transition_model(action, state)
-    return {"imag_states": stack_states(next_states, dim=0),
-            "actions": torch.stack(actions, dim=0),
-            "av_actions": torch.stack(av_actions, dim=0) if len(av_actions) > 0 else None,
-            "old_policy": torch.stack(policies, dim=0)}
+    return {
+        "imag_states": stack_states(next_states, dim=0),
+        "actions": torch.stack(actions, dim=0),
+        "av_actions": torch.stack(av_actions, dim=0) if len(av_actions) > 0 else None,
+        "old_policy": torch.stack(policies, dim=0),
+    }

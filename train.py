@@ -19,7 +19,6 @@ from configs.flatland.RewardConfigs import FinishRewardConfig
 from configs.flatland.TimetableConfigs import AllAgentLauncherConfig
 from env.flatland.params import LotsOfAgents, PackOfAgents, SeveralAgents
 from env.mpe.vmas_simple_spread import VmasSpread
-from env.safetygym.SafetyGymWrapper import SafetyGymWrapper
 
 # from env.starcraft.StarCraft import StarCraft
 from env.starcraft.StarCraft_safe import StarCraft
@@ -45,7 +44,7 @@ def run_one_process_one_env_debug(exp):
 
         rollout, info = dreamer_single_worker.run(learner.params())
 
-        learner.step(rollout)
+        learner.step(rollout, info["cost"])
 
         cur_steps += info["steps_done"]
         cur_episode += 1
@@ -84,6 +83,14 @@ def parse_args():
     parser.add_argument("--laglr", type=float, default=0.00001, help="Lagrangian learning rate")
     parser.add_argument("--slurm_id", type=str, default="none", help="Slurm Job ID")
     parser.add_argument("--branch", type=str, default="unknown", help="Git branch name")
+    # Continuous action config overrides
+    parser.add_argument("--actor_lr", type=float, default=None, help="Actor learning rate override")
+    parser.add_argument("--model_lr", type=float, default=None, help="Model learning rate override")
+    parser.add_argument("--value_lr", type=float, default=None, help="Value learning rate override")
+    parser.add_argument("--grad_clip", type=float, default=None, help="Model grad clip override")
+    parser.add_argument("--grad_clip_policy", type=float, default=None, help="Policy grad clip override")
+    parser.add_argument("--ppo_epochs", type=int, default=None, help="PPO epochs override")
+    parser.add_argument("--epochs", type=int, default=None, help="Agent training epochs override")
     return parser.parse_args()
 
 
@@ -151,13 +158,37 @@ def prepare_vmas_balance_configs(env_name, cost_limit=180.0):
     }
 
 
-def prepare_safety_gym_configs(env_name, cost_limit=180.0):
-    agent_configs = [DreamerControllerConfig(), DreamerLearnerConfig(cost_limit=cost_limit)]
-    env_config = SafetyGymWrapper(env_name)
-    # get_env_info(agent_configs, env_config.create_env())
+def prepare_safety_gym_configs(args):
+    from env.safety_gym.SwimmerWrapper import SwimmerWrapper
+
+    agent_configs = [DreamerControllerConfig(), DreamerLearnerConfig(cost_limit=args.cost_limit)]
+    env_config = SwimmerWrapper(args.env_name, action_type="continuous")
+    probe = env_config.create_env()
+    obs = probe.reset()
     for config in agent_configs:
-        config.IN_DIM = 152  # From your output
-        config.ACTION_SIZE = 9
+        config.IN_DIM = obs[0].shape[0]
+        config.ACTION_SIZE = probe.n_actions
+        config.ACTION_TYPE = "continuous"
+        config.USE_AVAILABLE_ACTIONS = False
+        if hasattr(config, "LAGRANGIAN_LR"):
+            config.LAGRANGIAN_LR = args.laglr
+    probe.close()
+    # Apply overrides
+    lc = agent_configs[1]
+    if args.actor_lr is not None:
+        lc.ACTOR_LR = args.actor_lr
+    if args.model_lr is not None:
+        lc.MODEL_LR = args.model_lr
+    if args.value_lr is not None:
+        lc.VALUE_LR = args.value_lr
+    if args.grad_clip is not None:
+        lc.GRAD_CLIP = args.grad_clip
+    if args.grad_clip_policy is not None:
+        lc.GRAD_CLIP_POLICY = args.grad_clip_policy
+    if args.ppo_epochs is not None:
+        lc.PPO_EPOCHS = args.ppo_epochs
+    if args.epochs is not None:
+        lc.EPOCHS = args.epochs
     return {
         "env_config": (env_config, 100),
         "controller_config": agent_configs[0],
@@ -223,7 +254,7 @@ if __name__ == "__main__":
     elif args.env == Env.VMAS_BALANCE:
         configs = prepare_vmas_balance_configs(args.env_name, args.cost_limit)
     elif args.env == Env.SAFETY_GYM:
-        configs = prepare_safety_gym_configs(args.env_name, args.cost_limit)
+        configs = prepare_safety_gym_configs(args)
     else:
         raise Exception("Unknown environment")
     configs["env_config"][0].ENV_TYPE = Env(args.env)
@@ -234,7 +265,7 @@ if __name__ == "__main__":
         steps=10**10,
         episodes=50000,
         random_seed=RANDOM_SEED,
-        env_config=EnvCurriculumConfig(
+        env_config=EnvCurriculumConfig(  # type: ignore[call-arg,misc]
             *zip(configs["env_config"]),
             Env(args.env),
             obs_builder_config=configs["obs_builder_config"],

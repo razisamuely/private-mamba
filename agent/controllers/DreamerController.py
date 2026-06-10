@@ -13,8 +13,11 @@ from networks.dreamer.critic import AugmentedCritic
 class DreamerController:
 
     def __init__(self, config):
+        self.action_type = getattr(config, "ACTION_TYPE", "discrete")
         self.model = DreamerModel(config).eval()
-        self.actor = Actor(config.FEAT, config.ACTION_SIZE, config.ACTION_HIDDEN, config.ACTION_LAYERS)
+        self.actor = Actor(
+            config.FEAT, config.ACTION_SIZE, config.ACTION_HIDDEN, config.ACTION_LAYERS, action_type=self.action_type
+        )
         self.critic = AugmentedCritic(config.FEAT, config.HIDDEN)
         self.expl_decay = config.EXPL_DECAY
         self.expl_noise = config.EXPL_NOISE
@@ -60,7 +63,7 @@ class DreamerController:
         state = self.model(observations, self.prev_actions, self.prev_rnn_state, nn_mask)
         feats = state.get_features()
         action, pi = self.actor(feats)
-        if avail_actions is not None:
+        if self.action_type == "discrete" and avail_actions is not None:
             pi[avail_actions == 0] = -1e10
             action_dist = OneHotCategorical(logits=pi)
             action = action_dist.sample()
@@ -77,12 +80,16 @@ class DreamerController:
         :param action: action to take, shape (1,)
         :return: action of the same shape passed in, augmented with some noise
         """
-        for i in range(action.shape[0]):
-            if np.random.uniform(0, 1) < self.expl_noise:
-                index = torch.randint(0, action.shape[-1], (1,), device=action.device)
-                transformed = torch.zeros(action.shape[-1])
-                transformed[index] = 1.0
-                action[i] = transformed
+        if self.action_type == "continuous":
+            noise = torch.randn_like(action) * self.expl_noise
+            action = torch.clamp(action + noise, -1.0, 1.0)
+        else:
+            for i in range(action.shape[0]):
+                if np.random.uniform(0, 1) < self.expl_noise:
+                    index = torch.randint(0, action.shape[-1], (1,), device=action.device)
+                    transformed = torch.zeros(action.shape[-1])
+                    transformed[index] = 1.0
+                    action[i] = transformed
         self.expl_noise *= self.expl_decay
         self.expl_noise = max(self.expl_noise, self.expl_min)
         return action
@@ -103,7 +110,7 @@ class DreamerController:
         SafeDreamer-style planning with safe trajectory filtering
         """
         best_action = None
-        best_score = float("-inf")  # Changed from best_cost
+        _ = float("-inf")  # best_score unused for now
         trajectories = []
         for iteration in range(num_iterations):
 
@@ -121,7 +128,7 @@ class DreamerController:
 
                     action, pi = self.actor(feats)
 
-                    if avail_actions is not None:
+                    if self.action_type == "discrete" and avail_actions is not None:
                         pi[avail_actions == 0] = -1e10
                         action_dist = OneHotCategorical(logits=pi)
                         action = action_dist.sample()
@@ -154,7 +161,7 @@ class DreamerController:
             # safe_trajectories = [t for t in trajectories if t["cost"] < cost_threshold]
             # get trajectory with minimal cost
         best_traj = min(trajectories, key=lambda t: t["cost"])
-        worst_traj = max(trajectories, key=lambda t: t["cost"])
+        _ = max(trajectories, key=lambda t: t["cost"])
 
         # if len(safe_trajectories) >= min_safe_trajectories:
         #     best_traj = max(safe_trajectories, key=lambda t: t["reward"])
@@ -199,8 +206,8 @@ class DreamerController:
             # Actor chooses action based on current state
             action, pi = self.actor(feats)
 
-            # Apply available actions mask if provided
-            if avail_actions is not None:
+            # Apply available actions mask if provided (discrete only)
+            if self.action_type == "discrete" and avail_actions is not None:
                 pi[avail_actions == 0] = -1e10
                 action_dist = OneHotCategorical(logits=pi)
                 action = action_dist.sample()

@@ -61,6 +61,8 @@ def compute_return(reward, value, discount, bootstrap, lmbda, gamma):
 
 
 def info_loss(feat, model, actions, fake):
+    if getattr(model, "_action_type", "discrete") == "continuous":
+        return torch.tensor(0.0, device=feat.device)
     q_feat = F.relu(model.q_features(feat))
     action_logits = model.q_action(q_feat)
     return (fake * action_information_loss(action_logits, actions)).mean()

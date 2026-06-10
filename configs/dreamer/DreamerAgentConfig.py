@@ -26,6 +26,7 @@ class DreamerConfig(Config):
         self.PCONT_LAYERS = 2
         self.PCONT_HIDDEN = 256
         self.ACTION_SIZE = 9
+        self.ACTION_TYPE = "discrete"  # "discrete" | "continuous"
         self.ACTION_LAYERS = 2
         self.ACTION_HIDDEN = 256
         self.REWARD_LAYERS = 2
@@ -36,6 +37,7 @@ class DreamerConfig(Config):
         self.IN_DIM = 30
         self.LOG_FOLDER = "wandb/"
         self.USE_AVAILABLE_ACTIONS = True
+        self.ENV_TYPE = None
 
 
 @dataclass

@@ -179,7 +179,52 @@ def calculate_next_cost(model, actions, states):
     return calculate_cost(model, imag_cost_feat)
 
 
+def _continuous_actor_loss(imag_states, actions, old_policy, advantage, actor, ent_weight):
+    """PPO loss for continuous (Gaussian) actions with tanh squash."""
+    from torch.distributions import Normal
+
+    _, new_pi = actor(imag_states)
+    new_mean, new_log_std = new_pi.chunk(2, dim=-1)
+    new_mean = torch.nan_to_num(new_mean, nan=0.0)
+    new_log_std = torch.nan_to_num(new_log_std, nan=0.0)
+    new_log_std = torch.clamp(new_log_std, -5.0, 2.0)
+    new_mean = torch.clamp(new_mean, -10.0, 10.0)
+    new_std = F.softplus(new_log_std) + 1e-5
+    old_mean, old_log_std = old_policy.chunk(2, dim=-1)
+    old_mean = torch.nan_to_num(old_mean, nan=0.0)
+    old_log_std = torch.nan_to_num(old_log_std, nan=0.0)
+    old_log_std = torch.clamp(old_log_std, -5.0, 2.0)
+    old_mean = torch.clamp(old_mean, -10.0, 10.0)
+    old_std = F.softplus(old_log_std) + 1e-5
+
+    new_dist = Normal(new_mean, new_std)
+    old_dist = Normal(old_mean, old_std)
+
+    new_lp = new_dist.log_prob(actions).sum(-1, keepdim=True)
+    old_lp = old_dist.log_prob(actions).sum(-1, keepdim=True)
+    rho = (new_lp - old_lp).exp()
+
+    from agent.optim.utils import ppo_loss
+
+    polLoss = ppo_loss(advantage, rho)
+    ent_loss = -new_dist.entropy().sum(-1)
+
+    if np.random.randint(10) == 9:
+        wandb.log(
+            {
+                "Policy/Entropy": ent_loss.mean(),
+                "Policy/ppo_loss": polLoss.mean(),
+                "Policy/Mean action": actions.float().mean(),
+            }
+        )
+
+    return (polLoss + ent_loss.unsqueeze(-1) * ent_weight).mean()
+
+
 def actor_loss(imag_states, actions, av_actions, old_policy, advantage, actor, ent_weight):
+    if getattr(actor, "action_type", "discrete") == "continuous":
+        return _continuous_actor_loss(imag_states, actions, old_policy, advantage, actor, ent_weight)
+
     _, new_policy = actor(imag_states)
     if av_actions is not None:
         new_policy[av_actions == 0] = -1e10

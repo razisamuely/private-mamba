@@ -38,7 +38,8 @@ python train.py \
     --algo_name {{ALGO}} \
     --laglr {{LAGRANGIAN_LR}} \
     --slurm_id $SLURM_JOB_ID \
-    --branch {{BRANCH_NAME}}
+    --branch {{BRANCH_NAME}} \
+    {{EXTRA_ARGS}}
 
 # Deactivate environment
 deactivate

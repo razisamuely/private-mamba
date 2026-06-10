@@ -60,9 +60,10 @@ class DreamerLearner:
         )
         # ---- < Lagrangian
         self.model = DreamerModel(config).to(config.DEVICE).eval()
-        self.actor = Actor(config.FEAT, config.ACTION_SIZE, config.ACTION_HIDDEN, config.ACTION_LAYERS).to(
-            config.DEVICE
-        )
+        self.action_type = getattr(config, "ACTION_TYPE", "discrete")
+        self.actor = Actor(
+            config.FEAT, config.ACTION_SIZE, config.ACTION_HIDDEN, config.ACTION_LAYERS, action_type=self.action_type
+        ).to(config.DEVICE)
         self.critic = AugmentedCritic(config.FEAT, config.HIDDEN).to(config.DEVICE)
         initialize_weights(self.model, mode="xavier")
         initialize_weights(self.actor)

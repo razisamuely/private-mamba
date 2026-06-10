@@ -29,6 +29,14 @@ def main():
     parser.add_argument("--n_workers", type=int, default=4, help="Number of workers per job")
     parser.add_argument("--algo_name", type=str, default="safedreamer", help="Algorithm name (e.g. safedreamer)")
     parser.add_argument("--dry_run", action="store_true", help="Just generate files, don't submit")
+    # Continuous action overrides (passed as EXTRA_ARGS to train.py)
+    parser.add_argument("--actor_lr", type=float, default=None)
+    parser.add_argument("--model_lr", type=float, default=None)
+    parser.add_argument("--value_lr", type=float, default=None)
+    parser.add_argument("--grad_clip", type=float, default=None)
+    parser.add_argument("--grad_clip_policy", type=float, default=None)
+    parser.add_argument("--ppo_epochs", type=int, default=None)
+    parser.add_argument("--epochs", type=int, default=None)
 
     args = parser.parse_args()
 
@@ -57,6 +65,24 @@ def main():
     except Exception:
         current_branch = "unknown"
 
+    # Build extra CLI args for train.py
+    extra_parts = []
+    if args.actor_lr is not None:
+        extra_parts.append(f"--actor_lr {args.actor_lr}")
+    if args.model_lr is not None:
+        extra_parts.append(f"--model_lr {args.model_lr}")
+    if args.value_lr is not None:
+        extra_parts.append(f"--value_lr {args.value_lr}")
+    if args.grad_clip is not None:
+        extra_parts.append(f"--grad_clip {args.grad_clip}")
+    if args.grad_clip_policy is not None:
+        extra_parts.append(f"--grad_clip_policy {args.grad_clip_policy}")
+    if args.ppo_epochs is not None:
+        extra_parts.append(f"--ppo_epochs {args.ppo_epochs}")
+    if args.epochs is not None:
+        extra_parts.append(f"--epochs {args.epochs}")
+    extra_args = " \\\n    ".join(extra_parts) if extra_parts else ""
+
     for env_name in args.envs:
         for cost_limit in args.cost_limits:
             for seed in args.seeds:
@@ -76,6 +102,7 @@ def main():
                     "ALGO": args.algo_name,
                     "LAGRANGIAN_LR": args.laglr,
                     "BRANCH_NAME": current_branch,
+                    "EXTRA_ARGS": extra_args,
                 }
 
                 create_sbatch_file(template_path, sbatch_filename, params)

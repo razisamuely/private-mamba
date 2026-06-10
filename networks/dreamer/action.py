@@ -1,28 +1,54 @@
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.distributions import Normal, OneHotCategorical
 
-from torch.distributions import OneHotCategorical
-from networks.transformer.layers import AttentionEncoder
 from networks.dreamer.utils import build_model
+from networks.transformer.layers import AttentionEncoder
+
+
+def _sample_continuous(x):
+    mean, log_std = x.chunk(2, dim=-1)
+    # Replace any NaN with zero to prevent crash
+    if torch.isnan(mean).any():
+        mean = torch.nan_to_num(mean, nan=0.0)
+    if torch.isnan(log_std).any():
+        log_std = torch.nan_to_num(log_std, nan=0.0)
+    log_std = torch.clamp(log_std, -5.0, 2.0)
+    std = F.softplus(log_std) + 1e-5
+    mean = torch.clamp(mean, -10.0, 10.0)
+    dist = Normal(mean, std)
+    raw = dist.rsample()
+    action = torch.tanh(raw)
+    return action, x
+
+
+def _sample_discrete(x):
+    action_dist = OneHotCategorical(logits=x)
+    action = action_dist.sample()
+    return action, x
 
 
 class Actor(nn.Module):
-    def __init__(self, in_dim, out_dim, hidden_size, layers, activation=nn.ReLU):
+    def __init__(self, in_dim, out_dim, hidden_size, layers, activation=nn.ReLU, action_type="discrete"):
         super().__init__()
-
-        self.feedforward_model = build_model(in_dim, out_dim, layers, hidden_size, activation)
+        self.action_type = action_type
+        net_out_dim = out_dim * 2 if action_type == "continuous" else out_dim
+        self.feedforward_model = build_model(in_dim, net_out_dim, layers, hidden_size, activation)
 
     def forward(self, state_features):
         x = self.feedforward_model(state_features)
-        action_dist = OneHotCategorical(logits=x)
-        action = action_dist.sample()
-        return action, x
+        if self.action_type == "continuous":
+            return _sample_continuous(x)
+        return _sample_discrete(x)
 
 
 class AttentionActor(nn.Module):
-    def __init__(self, in_dim, out_dim, hidden_size, layers, activation=nn.ReLU):
+    def __init__(self, in_dim, out_dim, hidden_size, layers, activation=nn.ReLU, action_type="discrete"):
         super().__init__()
-        self.feedforward_model = build_model(hidden_size, out_dim, 1, hidden_size, activation)
+        self.action_type = action_type
+        net_out_dim = out_dim * 2 if action_type == "continuous" else out_dim
+        self.feedforward_model = build_model(hidden_size, net_out_dim, 1, hidden_size, activation)
         self._attention_stack = AttentionEncoder(1, hidden_size, hidden_size)
         self.embed = nn.Linear(in_dim, hidden_size)
 
@@ -33,6 +59,6 @@ class AttentionActor(nn.Module):
         embeds = embeds.view(-1, n_agents, embeds.shape[-1])
         attn_embeds = F.relu(self._attention_stack(embeds).view(*batch_size, n_agents, embeds.shape[-1]))
         x = self.feedforward_model(attn_embeds)
-        action_dist = OneHotCategorical(logits=x)
-        action = action_dist.sample()
-        return action, x
+        if self.action_type == "continuous":
+            return _sample_continuous(x)
+        return _sample_discrete(x)

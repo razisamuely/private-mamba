@@ -11,6 +11,7 @@ class DreamerModel(nn.Module):
         super().__init__()
 
         self.action_size = config.ACTION_SIZE
+        self._action_type = getattr(config, "ACTION_TYPE", "discrete")
 
         self.observation_encoder = Encoder(in_dim=config.IN_DIM, hidden=config.HIDDEN, embed=config.EMBED)
         self.observation_decoder = Decoder(embed=config.FEAT, hidden=config.HIDDEN, out_dim=config.IN_DIM)
