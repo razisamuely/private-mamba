@@ -1,7 +1,7 @@
 # Continuous Action Support for SafeDreamer
 
 **Branch**: `feat/continuous-action-support`
-**Status**: Implemented, local pilot passed, cluster sweep pending
+**Status**: Implemented, local pilot passed, cluster sweep running (7 jobs)
 
 ## Problem
 
@@ -71,6 +71,18 @@ Local pilot v1/v2 crashed at ~15-18 episodes with NaN in actor output. Fix:
 ## Cluster Experiment Plan
 
 See `runs.md` for job tracking.
+
+## Ray Worker Fixes (Cluster Only)
+
+Three plumbing fixes needed for the ray worker path (not hit locally in single-process mode):
+
+1. **`DreamerController.dispatch_buffer`**: `avail_action` buffer was a numpy array of `None`s
+   instead of `None` when `USE_AVAILABLE_ACTIONS=False`. Fixed to return `None` directly.
+2. **`DreamerMemory.append`**: `self.av_actions` is `None` when `use_available_actions=False`,
+   but the guard only checked `av_action` (the input), not `self.av_actions` (the storage).
+   Added `self.av_actions is not None` guard.
+3. **`DreamerWorker.run`**: `cost` was gated on `USE_AVAILABLE_ACTIONS` — set to `None` for
+   continuous envs, causing IndexError in memory. Cost should always be stored.
 
 ## Open Issues
 

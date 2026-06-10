@@ -8,13 +8,16 @@
 
 | # | Config | Seed | Slurm ID | WandB Run | Status |
 |---|--------|------|----------|-----------|--------|
-| 1 | Baseline | 1 | | | |
-| 2 | Baseline | 2 | | | |
-| 3 | ppo_epochs=2 | 1 | | | |
-| 4 | ppo_epochs=2, epochs=2 | 1 | | | |
-| 5 | ppo_epochs=3 | 1 | | | |
-| 6 | grad_clip_policy=1.0 | 1 | | | |
-| 7 | actor_lr=1e-4 | 1 | | | |
+| 1 | Baseline | 1 | 18077498 | | RUNNING |
+| 2 | Baseline | 2 | 18077499 | | RUNNING |
+| 3 | ppo_epochs=2 | 1 | 18077500 | | RUNNING |
+| 4 | ppo_epochs=2, epochs=2 | 1 | 18077501 | | RUNNING |
+| 5 | ppo_epochs=3 | 1 | 18077506 | | RUNNING |
+| 6 | grad_clip_policy=1.0 | 1 | 18077510 | | RUNNING |
+| 7 | actor_lr=1e-4 | 1 | 18077511 | | RUNNING |
+
+Note: Earlier submissions (18077320-327, 18077351-363, 18077412-419) failed due to
+plumbing bugs in the ray worker path (see draft.md "Ray Worker Fixes").
 
 ## Shared Config
 
@@ -32,7 +35,7 @@
 | COST_LIMIT | 25.0 |
 | LAGRANGIAN_LR | 1e-5 |
 | USE_AVAILABLE_ACTIONS | False |
-| partition | rtx3090 (GPU) |
+| partition | gpu (auto-assigned, no QOS) |
 
 ## Key Question
 
