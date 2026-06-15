@@ -86,6 +86,9 @@ Three plumbing fixes needed for the ray worker path (not hit locally in single-p
 
 ## Open Issues
 
-1. **Policy collapse**: PPO too aggressive — sweep ppo_epochs in cluster runs
+1. ~~**Policy collapse**: PPO too aggressive~~ — **RESOLVED**: Root cause was evaluating
+   `Normal.log_prob(tanh(u))` instead of `Normal.log_prob(u)` in `_continuous_actor_loss`.
+   Fix in branch `fix/tanh-logprob-correction` (commit `da52869`). Local HalfCheetah
+   climbs to ~1170 reward, no collapse. Cluster validation running (8 jobs).
 2. **Horizon/Lagrangian scaling**: Not addressed here (separate from action type)
-3. **Wrapper naming**: `SwimmerWrapper` handles all envs — consider rename
+3. ~~**Wrapper naming**: `SwimmerWrapper` handles all envs~~ — **RESOLVED**: Renamed to `MAMuJoCoWrapper`.

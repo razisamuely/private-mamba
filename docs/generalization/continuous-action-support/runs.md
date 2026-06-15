@@ -37,6 +37,38 @@ plumbing bugs in the ray worker path (see draft.md "Ray Worker Fixes").
 | USE_AVAILABLE_ACTIONS | False |
 | partition | gpu (auto-assigned, no QOS) |
 
-## Key Question
+## Key Question (original)
 
 Does reducing PPO aggressiveness prevent the policy collapse seen at ~55 episodes locally?
+
+---
+
+## Fix Branch: `fix/tanh-logprob-correction`
+
+**Root cause found**: PPO loss evaluated `Normal.log_prob(tanh(u))` instead of `Normal.log_prob(u)`.
+This broke the PPO ratio, making clip bounds meaningless, causing policy collapse.
+See commit `da52869` for the fix.
+
+**Additional fixes in this branch**:
+- Obs normalization: per-feature running mean/std (Welford) instead of cross-feature per-timestep
+- Rename SwimmerWrapper -> MAMuJoCoWrapper
+
+**Local validation**: HalfCheetah reward climbs to ~1170 after 50 episodes, no collapse.
+
+### Fix Jobs (same configs as above, direct comparison)
+
+| # | Config | Seed | Slurm ID | WandB Run | Status |
+|---|--------|------|----------|-----------|--------|
+| 1 | Baseline | 1 | 18174008 | | RUNNING |
+| 2 | Baseline | 2 | 18174009 | | RUNNING |
+| 3 | Baseline | 3 | 18174010 | | RUNNING |
+| 4 | ppo_epochs=2 | 1 | 18174011 | | PENDING |
+| 5 | ppo_epochs=2, epochs=2 | 1 | 18174012 | | PENDING |
+| 6 | ppo_epochs=3 | 1 | 18174013 | | PENDING |
+| 7 | grad_clip_policy=1.0 | 1 | 18174014 | | PENDING |
+| 8 | actor_lr=1e-4 | 1 | 18174015 | | PENDING |
+
+### Expected outcome
+
+If the log-prob fix is correct, the baseline config (jobs 1-3) should converge without collapse.
+The grid search variants should also work but are no longer necessary as workarounds.
