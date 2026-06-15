@@ -98,6 +98,7 @@ def actor_rollout(obs, action, last, model, actor, critic, config):
 
     output = [
         items["actions"][:-1].detach(),
+        items["raw_actions"][:-1].detach() if items["raw_actions"] is not None else None,
         items["av_actions"][:-1].detach() if items["av_actions"] is not None else None,
         items["old_policy"][:-1].detach(),
         imag_feat[:-1].detach(),
@@ -179,11 +180,11 @@ def calculate_next_cost(model, actions, states):
     return calculate_cost(model, imag_cost_feat)
 
 
-def _continuous_actor_loss(imag_states, actions, old_policy, advantage, actor, ent_weight):
+def _continuous_actor_loss(imag_states, actions, raw_actions, old_policy, advantage, actor, ent_weight):
     """PPO loss for continuous (Gaussian) actions with tanh squash."""
     from torch.distributions import Normal
 
-    _, new_pi = actor(imag_states)
+    _, new_pi, _ = actor(imag_states)
     new_mean, new_log_std = new_pi.chunk(2, dim=-1)
     new_mean = torch.nan_to_num(new_mean, nan=0.0)
     new_log_std = torch.nan_to_num(new_log_std, nan=0.0)
@@ -200,8 +201,9 @@ def _continuous_actor_loss(imag_states, actions, old_policy, advantage, actor, e
     new_dist = Normal(new_mean, new_std)
     old_dist = Normal(old_mean, old_std)
 
-    new_lp = new_dist.log_prob(actions).sum(-1, keepdim=True)
-    old_lp = old_dist.log_prob(actions).sum(-1, keepdim=True)
+    # Evaluate at pre-tanh sample (raw), not tanh-squashed action
+    new_lp = new_dist.log_prob(raw_actions).sum(-1, keepdim=True)
+    old_lp = old_dist.log_prob(raw_actions).sum(-1, keepdim=True)
     rho = (new_lp - old_lp).exp()
 
     from agent.optim.utils import ppo_loss
@@ -221,11 +223,11 @@ def _continuous_actor_loss(imag_states, actions, old_policy, advantage, actor, e
     return (polLoss + ent_loss.unsqueeze(-1) * ent_weight).mean()
 
 
-def actor_loss(imag_states, actions, av_actions, old_policy, advantage, actor, ent_weight):
+def actor_loss(imag_states, actions, raw_actions, av_actions, old_policy, advantage, actor, ent_weight):
     if getattr(actor, "action_type", "discrete") == "continuous":
-        return _continuous_actor_loss(imag_states, actions, old_policy, advantage, actor, ent_weight)
+        return _continuous_actor_loss(imag_states, actions, raw_actions, old_policy, advantage, actor, ent_weight)
 
-    _, new_policy = actor(imag_states)
+    _, new_policy, _ = actor(imag_states)
     if av_actions is not None:
         new_policy[av_actions == 0] = -1e10
     actions = actions.argmax(-1, keepdim=True)

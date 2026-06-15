@@ -156,14 +156,16 @@ class DreamerLearner:
         self.model.eval()
 
     def train_agent(self, samples, episode_cost):
-        actions, av_actions, old_policy, imag_feat, returns, cost_returns, trajectory_costs = actor_rollout(
-            samples["observation"],
-            samples["action"],
-            samples["last"],
-            self.model,
-            self.actor,
-            self.critic_old if self.config.ROLLOUT_WITH_TARGET_CRITIC else self.critic,
-            self.config,
+        actions, raw_actions, av_actions, old_policy, imag_feat, returns, cost_returns, trajectory_costs = (
+            actor_rollout(
+                samples["observation"],
+                samples["action"],
+                samples["last"],
+                self.model,
+                self.actor,
+                self.critic_old if self.config.ROLLOUT_WITH_TARGET_CRITIC else self.critic,
+                self.config,
+            )
         )
 
         # Calculate Lagrangian penalty
@@ -192,10 +194,10 @@ class DreamerLearner:
                 loss = actor_loss(
                     imag_feat[idx],
                     actions[idx],
+                    raw_actions[idx] if raw_actions is not None else None,
                     av_actions[idx] if av_actions is not None else None,
                     old_policy[idx],
                     lagrangian_adv[idx],
-                    # adv[idx],
                     self.actor,
                     self.entropy,
                 )

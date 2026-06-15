@@ -20,7 +20,7 @@ ENV_REGISTRY = {
 }
 
 
-class SwimmerWrapper:
+class MAMuJoCoWrapper:
     """
     Wrapper for MAMuJoCo (Safety-Gymnasium) environments.
     Supports both discrete (legacy) and continuous action modes.
@@ -40,6 +40,9 @@ class SwimmerWrapper:
         self.n_agents = 2
         self.n_obs = 10
         self.agents = [i for i in range(self.n_agents)]
+        self._obs_mean = None
+        self._obs_var = None
+        self._obs_count = 0
 
         # Discrete legacy mapping (only used when action_type="discrete")
         self.n_actions_discrete = 9
@@ -73,6 +76,24 @@ class SwimmerWrapper:
             8: (-0.5, -0.5),
         }
 
+    def _update_obs_stats(self, obs):
+        """Welford's online algorithm for per-feature running mean/var."""
+        if self._obs_mean is None:
+            self._obs_mean = np.zeros_like(obs, dtype=np.float64)
+            self._obs_var = np.ones_like(obs, dtype=np.float64)
+            self._obs_count = 0
+        self._obs_count += 1
+        delta = obs - self._obs_mean
+        self._obs_mean += delta / self._obs_count
+        delta2 = obs - self._obs_mean
+        self._obs_var += (delta * delta2 - self._obs_var) / self._obs_count
+
+    def _normalize_obs(self, obs):
+        if self._obs_count < 2:
+            return obs
+        std = np.sqrt(np.maximum(self._obs_var, 1e-6))
+        return ((obs - self._obs_mean) / std).astype(np.float32)
+
     def _get_obs_dict(self):
         state = self.env.state()
         obs_dict = {}
@@ -80,8 +101,8 @@ class SwimmerWrapper:
             agent_id_feats = np.zeros(self.n_agents, dtype=np.float32)
             agent_id_feats[a] = 1.0
             obs_i = np.concatenate([state, agent_id_feats])
-            obs_i = (obs_i - np.mean(obs_i)) / (np.std(obs_i) + 1e-8)
-            obs_dict[a] = obs_i
+            self._update_obs_stats(obs_i)
+            obs_dict[a] = self._normalize_obs(obs_i)
         return obs_dict
 
     def reset(self):
@@ -134,4 +155,4 @@ class SwimmerWrapper:
             self.env.close()
 
     def create_env(self):
-        return SwimmerWrapper(self.env_name, action_type=self.action_type)
+        return MAMuJoCoWrapper(self.env_name, action_type=self.action_type)

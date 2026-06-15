@@ -159,10 +159,10 @@ def prepare_vmas_balance_configs(env_name, cost_limit=180.0):
 
 
 def prepare_safety_gym_configs(args):
-    from env.safety_gym.SwimmerWrapper import SwimmerWrapper
+    from env.safety_gym.MAMuJoCoWrapper import MAMuJoCoWrapper
 
     agent_configs = [DreamerControllerConfig(), DreamerLearnerConfig(cost_limit=args.cost_limit)]
-    env_config = SwimmerWrapper(args.env_name, action_type="continuous")
+    env_config = MAMuJoCoWrapper(args.env_name, action_type="continuous")
     probe = env_config.create_env()
     obs = probe.reset()
     for config in agent_configs:

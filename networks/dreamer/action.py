@@ -20,7 +20,7 @@ def _sample_continuous(x):
     dist = Normal(mean, std)
     raw = dist.rsample()
     action = torch.tanh(raw)
-    return action, x
+    return action, x, raw
 
 
 def _sample_discrete(x):
@@ -39,8 +39,10 @@ class Actor(nn.Module):
     def forward(self, state_features):
         x = self.feedforward_model(state_features)
         if self.action_type == "continuous":
-            return _sample_continuous(x)
-        return _sample_discrete(x)
+            action, pi, raw = _sample_continuous(x)
+            return action, pi, raw
+        action, pi = _sample_discrete(x)
+        return action, pi, None
 
 
 class AttentionActor(nn.Module):
@@ -60,5 +62,7 @@ class AttentionActor(nn.Module):
         attn_embeds = F.relu(self._attention_stack(embeds).view(*batch_size, n_agents, embeds.shape[-1]))
         x = self.feedforward_model(attn_embeds)
         if self.action_type == "continuous":
-            return _sample_continuous(x)
-        return _sample_discrete(x)
+            action, pi, raw = _sample_continuous(x)
+            return action, pi, raw
+        action, pi = _sample_discrete(x)
+        return action, pi, None

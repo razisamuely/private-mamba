@@ -134,11 +134,12 @@ def rollout_policy(transition_model, av_action, steps, policy, prev_state):
     state = prev_state
     next_states = []
     actions = []
+    raw_actions = []
     av_actions = []
     policies = []
     for t in range(steps):
         feat = state.get_features().detach()
-        action, pi = policy(feat)
+        action, pi, raw = policy(feat)
         if action_type == "discrete" and av_action is not None:
             avail_actions = av_action(feat).sample()
             pi[avail_actions == 0] = -1e10
@@ -148,10 +149,13 @@ def rollout_policy(transition_model, av_action, steps, policy, prev_state):
         next_states.append(state)
         policies.append(pi)
         actions.append(action)
+        if raw is not None:
+            raw_actions.append(raw)
         state = transition_model(action, state)
     return {
         "imag_states": stack_states(next_states, dim=0),
         "actions": torch.stack(actions, dim=0),
+        "raw_actions": torch.stack(raw_actions, dim=0) if len(raw_actions) > 0 else None,
         "av_actions": torch.stack(av_actions, dim=0) if len(av_actions) > 0 else None,
         "old_policy": torch.stack(policies, dim=0),
     }

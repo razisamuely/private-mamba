@@ -67,7 +67,7 @@ class DreamerController:
         """
         state = self.model(observations, self.prev_actions, self.prev_rnn_state, nn_mask)
         feats = state.get_features()
-        action, pi = self.actor(feats)
+        action, pi, _ = self.actor(feats)
         if self.action_type == "discrete" and avail_actions is not None:
             pi[avail_actions == 0] = -1e10
             action_dist = OneHotCategorical(logits=pi)
@@ -131,7 +131,7 @@ class DreamerController:
                 for step in range(rollout_steps):
                     feats = current_state.get_features()
 
-                    action, pi = self.actor(feats)
+                    action, pi, _ = self.actor(feats)
 
                     if self.action_type == "discrete" and avail_actions is not None:
                         pi[avail_actions == 0] = -1e10
@@ -183,7 +183,7 @@ class DreamerController:
         if best_action is None:
             initial_state = self.model(observations, self.prev_actions, self.prev_rnn_state, nn_mask)
             feats = initial_state.get_features()
-            best_action, _ = self.actor(feats)
+            best_action, _, _ = self.actor(feats)
 
         initial_state = self.model(observations, self.prev_actions, self.prev_rnn_state, nn_mask)
         self.advance_rnns(initial_state)
@@ -209,7 +209,7 @@ class DreamerController:
             feats = current_state.get_features()
 
             # Actor chooses action based on current state
-            action, pi = self.actor(feats)
+            action, pi, _ = self.actor(feats)
 
             # Apply available actions mask if provided (discrete only)
             if self.action_type == "discrete" and avail_actions is not None:
