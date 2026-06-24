@@ -37,10 +37,11 @@ def main():
     parser.add_argument("--grad_clip_policy", type=float, default=None)
     parser.add_argument("--ppo_epochs", type=int, default=None)
     parser.add_argument("--epochs", type=int, default=None)
+    parser.add_argument("--template", type=str, default=None, help="Custom sbatch template path")
 
     args = parser.parse_args()
 
-    template_path = "sbatch_scripts/template.sbatch"
+    template_path = args.template if args.template else "sbatch_scripts/template.sbatch"
     log_dir = "sbatch_scripts/logs"
     history_file = os.path.join(log_dir, "experiments_history.csv")
 
