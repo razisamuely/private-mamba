@@ -17,6 +17,7 @@ ENV_REGISTRY = {
     "Safety2x1SwimmerVelocity-v0": ("Swimmer", "2x1"),
     "Safety2x3HalfCheetahVelocity-v0": ("HalfCheetah", "2x3"),
     "Safety2x4AntVelocity-v0": ("Ant", "2x4"),
+    "Safety4x2AntVelocity-v0": ("Ant", "4x2"),
 }
 
 
