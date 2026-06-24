@@ -41,20 +41,20 @@ Valid Ant configs: 2x4 (2 agents, 4 actions) and 4x2 (4 agents, 2 actions).
 
 | # | Env | Config | Seed | Slurm ID | WandB Run | Status |
 |---|-----|--------|------|----------|-----------|--------|
-| 9 | Ant 2x4 | Baseline | 1 | | | TODO |
-| 10 | Ant 2x4 | Baseline | 2 | | | TODO |
-| 11 | Ant 2x4 | Baseline | 3 | | | TODO |
-| 12 | Ant 4x2 | Baseline | 1 | | | TODO |
-| 13 | Ant 4x2 | Baseline | 2 | | | TODO |
-| 14 | Ant 4x2 | Baseline | 3 | | | TODO |
+| 9 | Ant 2x4 | Baseline | 1 | 18362835 | | SUBMITTED |
+| 10 | Ant 2x4 | Baseline | 2 | 18362836 | | SUBMITTED |
+| 11 | Ant 2x4 | Baseline | 3 | 18362838 | | SUBMITTED |
+| 12 | Ant 4x2 | Baseline | 1 | 18362839 | | SUBMITTED |
+| 13 | Ant 4x2 | Baseline | 2 | 18362840 | | SUBMITTED |
+| 14 | Ant 4x2 | Baseline | 3 | 18362841 | | SUBMITTED |
 
 ### CPU runs
 
 | # | Env | Config | Seed | Slurm ID | WandB Run | Status |
 |---|-----|--------|------|----------|-----------|--------|
-| 15 | Ant 2x4 | Baseline | 1 | | | TODO |
-| 16 | Ant 2x4 | Baseline | 2 | | | TODO |
-| 17 | Ant 2x4 | Baseline | 3 | | | TODO |
-| 18 | Ant 4x2 | Baseline | 1 | | | TODO |
-| 19 | Ant 4x2 | Baseline | 2 | | | TODO |
-| 20 | Ant 4x2 | Baseline | 3 | | | TODO |
+| 15 | Ant 2x4 | Baseline | 1 | 18362844 | | SUBMITTED |
+| 16 | Ant 2x4 | Baseline | 2 | 18362845 | | SUBMITTED |
+| 17 | Ant 2x4 | Baseline | 3 | 18362846 | | SUBMITTED |
+| 18 | Ant 4x2 | Baseline | 1 | 18362847 | | SUBMITTED |
+| 19 | Ant 4x2 | Baseline | 2 | 18362850 | | SUBMITTED |
+| 20 | Ant 4x2 | Baseline | 3 | 18362852 | | SUBMITTED |

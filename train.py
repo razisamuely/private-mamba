@@ -91,6 +91,7 @@ def parse_args():
     parser.add_argument("--grad_clip_policy", type=float, default=None, help="Policy grad clip override")
     parser.add_argument("--ppo_epochs", type=int, default=None, help="PPO epochs override")
     parser.add_argument("--epochs", type=int, default=None, help="Agent training epochs override")
+    parser.add_argument("--device", type=str, default=None, help="Device override (cpu/cuda)")
     return parser.parse_args()
 
 
@@ -189,6 +190,8 @@ def prepare_safety_gym_configs(args):
         lc.PPO_EPOCHS = args.ppo_epochs
     if args.epochs is not None:
         lc.EPOCHS = args.epochs
+    if args.device is not None:
+        lc.DEVICE = args.device
     return {
         "env_config": (env_config, 100),
         "controller_config": agent_configs[0],
