@@ -1,0 +1,68 @@
+\begin{longtable}{l r l r r r}
+\caption{Experiment 8: SafeDreamer vs MACPO on MAMuJoCo (continuous actions).}
+\label{tab:mamujoco_experiment8} \\
+\toprule
+\textbf{Env} & \textbf{CL} & \textbf{Source} & \textbf{Steps} & \multicolumn{1}{r}{\textbf{Reward} $\uparrow$} & \multicolumn{1}{r}{\textbf{Cost} $\downarrow$} \\
+\midrule
+\endfirsthead
+\multicolumn{6}{c}{{\bfseries \tablename\ \thetable{} -- continued}} \\
+\toprule
+\textbf{Env} & \textbf{CL} & \textbf{Source} & \textbf{Steps} & \multicolumn{1}{r}{\textbf{Reward} $\uparrow$} & \multicolumn{1}{r}{\textbf{Cost} $\downarrow$} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+2x3HalfCheetah & 5.0 & MACPO Paper ~ & 10M & \textbf{2250.0} & 40.0 \\
+2x3HalfCheetah & 5.0 & MACPO Run & 10M & 1316.8 $\pm$ 115.7 & \textbf{5.0 $\pm$ 1.7} \\
+2x3HalfCheetah & 5.0 & SafeDreamer (lr=1e-5) & 100k & 8.5 & 0.0 \\
+2x3HalfCheetah & 5.0 & SafeDreamer (lr=1e-5) & 500k & 1410.6 & 0.0 \\
+2x3HalfCheetah & 5.0 & SafeDreamer (lr=1e-5) & 700k & 1455.9 & 15.0 \\
+2x3HalfCheetah & 5.0 & SafeDreamer (lr=1e-5) & 800k & 1450.3 & 22.2 \\
+2x3HalfCheetah & 5.0 & SafeDreamer (lr=1e-5) & 900k & 1685.9 & 37.8 \\
+2x3HalfCheetah & 5.0 & SafeDreamer (lr=1e-5) & 1M & 1519.2 & 35.8 \\
+\midrule
+2x3HalfCheetah & 25.0 & SafePO Paper & 10M & 1637.3 & 52.1 \\
+2x3HalfCheetah & 25.0 & MACPO Run & 10M & 1374.3 $\pm$ 85.7 & 22.0 $\pm$ 4.2 \\
+2x3HalfCheetah & 25.0 & SafeDreamer (lr=1e-5) & 100k & 1136.2 $\pm$ 564.6 & 30.1 $\pm$ 30.2 \\
+2x3HalfCheetah & 25.0 & SafeDreamer (lr=1e-5) & 500k & 2000.5 $\pm$ 120.6 & 5.4 $\pm$ 6.9 \\
+2x3HalfCheetah & 25.0 & SafeDreamer (lr=1e-5) & 700k & \textbf{2587.8 $\pm$ 181.4} & 22.3 $\pm$ 22.2 \\
+2x3HalfCheetah & 25.0 & SafeDreamer (lr=1e-5) & 800k & 2545.2 $\pm$ 212.5 & 37.6 $\pm$ 9.4 \\
+2x3HalfCheetah & 25.0 & SafeDreamer (lr=1e-5) & 900k & 2528.5 $\pm$ 162.9 & \textbf{3.9 $\pm$ 3.7} \\
+2x3HalfCheetah & 25.0 & SafeDreamer (lr=1e-5) & 1M & 2527.2 $\pm$ 228.6 & 16.6 $\pm$ 2.0 \\
+\midrule
+2x4Ant & 0.2 & MACPO Paper ~ & 10M & 900.0 & 15.0 \\
+2x4Ant & 0.2 & MACPO Run & 10M & 859.2 $\pm$ 32.7 & \textbf{1.2 $\pm$ 0.7} \\
+2x4Ant & 0.2 & SafeDreamer (lr=1e-5) & 100k & 894.0 $\pm$ 51.4 & 0.0 \\
+2x4Ant & 0.2 & SafeDreamer (lr=1e-5) & 500k & 1410.2 $\pm$ 394.7 & 2.0 $\pm$ 1.8 \\
+2x4Ant & 0.2 & SafeDreamer (lr=1e-5) & 700k & 1566.0 $\pm$ 857.2 & 18.0 $\pm$ 11.8 \\
+2x4Ant & 0.2 & SafeDreamer (lr=1e-5) & 800k & 1626.6 $\pm$ 158.9 & 43.5 $\pm$ 8.2 \\
+2x4Ant & 0.2 & SafeDreamer (lr=1e-5) & 900k & 1902.4 $\pm$ 359.2 & 43.9 $\pm$ 29.7 \\
+2x4Ant & 0.2 & SafeDreamer (lr=1e-5) & 1M & \textbf{2267.8 $\pm$ 134.1} & 24.3 $\pm$ 5.6 \\
+\midrule
+2x4Ant & 25.0 & SafePO Paper & 10M & 1099.2 & \textbf{3.4} \\
+2x4Ant & 25.0 & MACPO Run & 10M & 798.1 $\pm$ 109.4 & 10.5 $\pm$ 1.7 \\
+2x4Ant & 25.0 & SafeDreamer (lr=1e-5) & 100k & 836.2 $\pm$ 93.2 & 0.0 \\
+2x4Ant & 25.0 & SafeDreamer (lr=1e-5) & 500k & 1086.0 $\pm$ 412.1 & 6.8 $\pm$ 11.5 \\
+2x4Ant & 25.0 & SafeDreamer (lr=1e-5) & 700k & 1613.5 $\pm$ 553.1 & 53.1 $\pm$ 47.1 \\
+2x4Ant & 25.0 & SafeDreamer (lr=1e-5) & 800k & 1794.4 $\pm$ 672.1 & 82.9 $\pm$ 72.0 \\
+2x4Ant & 25.0 & SafeDreamer (lr=1e-5) & 900k & \textbf{1838.3 $\pm$ 583.0} & 32.7 $\pm$ 33.7 \\
+2x4Ant & 25.0 & SafeDreamer (lr=1e-5) & 1M & 1835.8 $\pm$ 678.3 & 17.4 $\pm$ 15.1 \\
+\midrule
+4x2Ant & 1.0 & MACPO Paper ~ & 10M & 650.0 & 15.0 \\
+4x2Ant & 1.0 & MACPO Run & 10M & 1097.6 $\pm$ 97.4 & 3.4 $\pm$ 1.0 \\
+4x2Ant & 1.0 & SafeDreamer (lr=1e-5) & 100k & 916.3 $\pm$ 15.3 & 0.0 \\
+4x2Ant & 1.0 & SafeDreamer (lr=1e-5) & 500k & 965.2 $\pm$ 34.3 & 0.3 $\pm$ 0.6 \\
+4x2Ant & 1.0 & SafeDreamer (lr=1e-5) & 700k & 886.0 $\pm$ 110.8 & 0.0 \\
+4x2Ant & 1.0 & SafeDreamer (lr=1e-5) & 800k & 1134.0 $\pm$ 170.2 & \textbf{0.1 $\pm$ 0.1} \\
+4x2Ant & 1.0 & SafeDreamer (lr=1e-5) & 900k & 1140.6 $\pm$ 33.1 & 0.5 $\pm$ 0.8 \\
+4x2Ant & 1.0 & SafeDreamer (lr=1e-5) & 1M & \textbf{1241.0 $\pm$ 565.5} & 2.5 $\pm$ 3.1 \\
+\midrule
+4x2Ant & 25.0 & SafePO Paper & 10M & 815.8 & 0.0 \\
+4x2Ant & 25.0 & MACPO Run & 10M & 1287.3 $\pm$ 148.3 & 23.6 $\pm$ 6.0 \\
+4x2Ant & 25.0 & SafeDreamer (lr=1e-5) & 100k & 902.4 $\pm$ 49.0 & 0.0 \\
+4x2Ant & 25.0 & SafeDreamer (lr=1e-5) & 500k & 997.3 $\pm$ 83.4 & 0.0 \\
+4x2Ant & 25.0 & SafeDreamer (lr=1e-5) & 700k & 1192.7 $\pm$ 86.6 & 0.0 \\
+4x2Ant & 25.0 & SafeDreamer (lr=1e-5) & 800k & 1265.9 $\pm$ 101.8 & 0.0 \\
+4x2Ant & 25.0 & SafeDreamer (lr=1e-5) & 900k & 1406.8 $\pm$ 172.4 & 0.0 \\
+4x2Ant & 25.0 & SafeDreamer (lr=1e-5) & 1M & \textbf{1574.5 $\pm$ 304.2} & \textbf{0.5 $\pm$ 0.8} \\
+\end{longtable}

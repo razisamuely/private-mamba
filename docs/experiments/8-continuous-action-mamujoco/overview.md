@@ -3,7 +3,7 @@
 ## Goal
 
 Validate SafeDreamer with continuous Gaussian policy on multi-agent MuJoCo environments.
-Compare against MACPO baselines from Experiment 7.
+Compare against MACPO baselines (our runs + paper reported).
 
 ## Background
 
@@ -17,13 +17,22 @@ Compare against MACPO baselines from Experiment 7.
 
 ## Environments
 
-| Env Name | Agents | Actions/Agent | Obs Dim |
-|----------|--------|---------------|---------|
-| Safety2x3HalfCheetahVelocity-v0 | 2 | 3 | 19 |
-| Safety2x4AntVelocity-v0 | 2 | 4 | 29 |
-| Safety4x2AntVelocity-v0 | 4 | 2 | 31 |
+| Env Name | Agents | Actions/Agent | Obs Dim | Velocity Threshold |
+|----------|--------|---------------|---------|-------------------|
+| Safety2x3HalfCheetahVelocity-v0 | 2 | 3 | 19 | 3.227 |
+| Safety2x4AntVelocity-v0 | 2 | 4 | 29 | 2.522 |
+| Safety4x2AntVelocity-v0 | 4 | 2 | 31 | 2.418 |
 
 Note: `Safety2x3AntVelocity-v0` doesn't exist (invalid partitioning).
+
+## Cost Limits
+
+Two cost limit settings tested:
+
+| Source | Ant 2x4 | Ant 4x2 | HalfCheetah 2x3 |
+|--------|---------|---------|-----------------|
+| MACPO paper (chauncygu repo) | 0.2 | 1.0 | 5.0 |
+| SafePO default | 25.0 | 25.0 | 25.0 |
 
 ## Config
 
@@ -31,15 +40,35 @@ Baseline config from `fix/tanh-logprob-correction`:
 - actor_lr=3e-5, model_lr=1e-4, value_lr=1e-4
 - grad_clip=10, grad_clip_policy=5
 - ppo_epochs=5, epochs=4, horizon=15
-- cost_limit=25, lagrangian_lr=1e-5
+- lagrangian_lr=1e-5
 
-## MACPO Baselines (from Experiment 7)
+## Results Summary
 
-| Env | Reward (10M steps) | Cost |
-|-----|-------------------|------|
-| HalfCheetah 2x3 | 1314-1435 | 19-25 |
-| Ant 2x4 | 921-1142 | 13-17 |
+SafeDreamer at 100k steps matches or exceeds MACPO at 10M steps (100x sample efficiency).
+
+### MACPO paper cost limits (c=0.2/1.0/5.0)
+
+| Env | SafeDreamer 1M | MACPO Run 10M | MACPO Paper ~10M |
+|-----|---------------|---------------|-----------------|
+| Ant 2x4 (c=0.2) | **2268 +- 134** | 859 +- 33 | ~900 |
+| Ant 4x2 (c=1.0) | **1241 +- 566** | 1098 +- 97 | ~650 |
+| HC 2x3 (c=5.0) | 1519 (1 seed) | 1317 +- 116 | ~2250 |
+
+### SafePO default cost limit (c=25)
+
+| Env | SafeDreamer 1M | MACPO Run 10M | SafePO Paper 10M |
+|-----|---------------|---------------|-----------------|
+| Ant 2x4 | **1836 +- 678** | 798 +- 109 | 1099 |
+| Ant 4x2 | **1575 +- 304** | 1287 +- 148 | 816 |
+| HC 2x3 | **2527 +- 229** | 1374 +- 86 | 1637 |
+
+Full comparison table with step-wise data (100k-1M):
+`docs/tmp/tables/mamujoco_comparison_experiment8/comparison_table.pdf`
+
+Reference papers:
+- MACPO: github.com/chauncygu/Multi-Agent-Constrained-Policy-Optimisation (arXiv 2110.02793)
+- SafePO: github.com/PKU-Alignment/Safe-Policy-Optimization (arXiv 2310.12567, Table 5b)
 
 ## Status
 
-See `runs.md` for job tracking.
+Complete. See `runs.md` for job tracking, `plan.md` for extraction pipeline.

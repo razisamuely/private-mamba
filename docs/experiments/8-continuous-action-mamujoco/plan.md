@@ -1,0 +1,189 @@
+# Experiment 8 — Extraction & Comparison Plan
+
+## Goal
+
+Build a comparison table: SafeDreamer vs MACPO on MAMuJoCo, showing sample efficiency and safety.
+
+## Data Sources
+
+| Source | Algo | Steps | How |
+|--------|------|-------|-----|
+| Our SafeDreamer | SafeDreamer | 100k, 500k, 1M | WandB parquet, 5k window avg |
+| Our MACPO | MACPO | 10M (final) | WandB run.history() |
+| Paper MACPO | MACPO | 10M | GitHub figures (visual estimate, marked ~) |
+| GitHub README | MACPO | 10M | README text (marked ~) |
+
+## Runs (36 total)
+
+### SafeDreamer GPU (18 runs)
+
+| Env | Cost Limit | Seeds | Slurm IDs |
+|-----|-----------|-------|-----------|
+| Ant 2x4 | 25 | 1,2,3 | 18362835-838 |
+| Ant 4x2 | 25 | 1,2,3 | 18362839-841 |
+| Ant 2x4 | 0.2 | 1,2,3 | 18367088-091 |
+| Ant 4x2 | 1.0 | 1,2,3 | 18367092-097 |
+| HC 2x3 | 5.0 | 1,2,3 | 18367101-104 |
+| HC 2x3 | 25 | 1,2,3 | 18174008-010 |
+
+### MACPO CPU (18 runs)
+
+| Env | Cost Limit | Seeds | Slurm IDs |
+|-----|-----------|-------|-----------|
+| Ant 2x4 | 25 | 1,2,3 | 18366191-193 |
+| Ant 4x2 | 25 | 1,2,3 | 18366194-196 |
+| Ant 2x4 | 0.2 | 1,2,3 | 18367114-116 |
+| Ant 4x2 | 1.0 | 1,2,3 | 18367117-137 |
+| HC 2x3 | 5.0 | 1,2,3 | 18367138-144 |
+
+### Paper/GitHub (hardcoded)
+
+| Env | Cost Limit | Reward | Cost | Source |
+|-----|-----------|--------|------|--------|
+| Ant 2x4 | 0.2 | ~800-1000 | ~10-20 | GitHub figures |
+| Ant 4x2 | 1.0 | ~500-800 | ~10-20 | GitHub figures |
+| HC 2x3 | 5.0 | ~2000-2500 | ~30-50 | GitHub figures |
+| Ant 2x4 | 0.2 | — | ~0 | GitHub README |
+| Ant 4x2 | 1.0 | — | ~0 | GitHub README |
+| HC 2x3 | 5.0 | — | ~0 | GitHub README |
+
+## Pipeline Files
+
+```
+docs/tmp/extraction/inputs/mamujoco_runs_experiment8.csv
+docs/tmp/extraction/scripts/mamujoco_pipeline_experiment8.py
+docs/tmp/tables/mamujoco_comparison_experiment8/
+    comparison_table.csv
+    comparison_table.tex
+    comparison_table.pdf
+```
+
+## Expected Output Table (paper cost limits)
+
+| Env | Cost Limit | Source | Steps | Reward (mean+-std) | Cost (mean+-std) |
+|-----|-----------|--------|-------|-------------------|-----------------|
+| Ant 2x4 | 0.2 | Paper MACPO ~ | 10M | ~900 | ~15 |
+| Ant 2x4 | 0.2 | GitHub reported ~ | 10M | — | ~0 |
+| Ant 2x4 | 0.2 | Our MACPO | 10M | 859 +- 32 | 1.2 +- 0.7 |
+| Ant 2x4 | 0.2 | Our SafeDreamer | 100k | ? +- ? | ? +- ? |
+| Ant 2x4 | 0.2 | Our SafeDreamer | 500k | 1370 +- ? | 0.0 +- 0.0 |
+| Ant 2x4 | 0.2 | Our SafeDreamer | 1M | 1667 +- ? | 0.0 +- 0.0 |
+| | | | | | |
+| Ant 4x2 | 1.0 | Paper MACPO ~ | 10M | ~650 | ~15 |
+| Ant 4x2 | 1.0 | GitHub reported ~ | 10M | — | ~0 |
+| Ant 4x2 | 1.0 | Our MACPO | 10M | 1097 +- 95 | 3.4 +- 0.9 |
+| Ant 4x2 | 1.0 | Our SafeDreamer | 100k | 999 +- ? | 0.0 +- 0.0 |
+| Ant 4x2 | 1.0 | Our SafeDreamer | 500k | ? +- ? | ? +- ? |
+| Ant 4x2 | 1.0 | Our SafeDreamer | 1M | 1734 +- ? | 0.0 +- 0.0 |
+| | | | | | |
+| HC 2x3 | 5.0 | Paper MACPO ~ | 10M | ~2250 | ~40 |
+| HC 2x3 | 5.0 | GitHub reported ~ | 10M | — | ~0 |
+| HC 2x3 | 5.0 | Our MACPO | 10M | 1317 +- 113 | 5.0 +- 1.6 |
+| HC 2x3 | 5.0 | Our SafeDreamer | 100k | ? +- ? | ? +- ? |
+| HC 2x3 | 5.0 | Our SafeDreamer | 500k | ? +- ? | ? +- ? |
+| HC 2x3 | 5.0 | Our SafeDreamer | 1M | ? +- ? | ? +- ? |
+
+## Expected Output Table (cost limit = 25)
+
+| Env | Cost Limit | Source | Steps | Reward (mean+-std) | Cost (mean+-std) |
+|-----|-----------|--------|-------|-------------------|-----------------|
+| Ant 2x4 | 25 | Our MACPO | 10M | 798 +- 107 | 10.5 +- 1.7 |
+| Ant 2x4 | 25 | Our SafeDreamer | 100k | ? +- ? | ? +- ? |
+| Ant 2x4 | 25 | Our SafeDreamer | 500k | ? +- ? | ? +- ? |
+| Ant 2x4 | 25 | Our SafeDreamer | 1M | ? +- ? | ? +- ? |
+| | | | | | |
+| Ant 4x2 | 25 | Our MACPO | 10M | 1287 +- 147 | 23.6 +- 6.1 |
+| Ant 4x2 | 25 | Our SafeDreamer | 100k | ? +- ? | ? +- ? |
+| Ant 4x2 | 25 | Our SafeDreamer | 500k | ? +- ? | ? +- ? |
+| Ant 4x2 | 25 | Our SafeDreamer | 1M | ? +- ? | ? +- ? |
+| | | | | | |
+| HC 2x3 | 25 | Our MACPO (Exp7) | 10M | 1374 +- 60 | 22 +- 3 |
+| HC 2x3 | 25 | Our SafeDreamer | 100k | ? +- ? | ? +- ? |
+| HC 2x3 | 25 | Our SafeDreamer | 500k | ? +- ? | ? +- ? |
+| HC 2x3 | 25 | Our SafeDreamer | 1M | ? +- ? | ? +- ? |
+
+Note: `?` values will be filled by the pipeline. `~` values are visual estimates from figures, not exact.
+
+## Steps
+
+### Step 1: Create input CSV -- DONE
+Created `docs/tmp/extraction/inputs/mamujoco_runs_experiment8.csv` (34 rows).
+Missing: 2 HC c=5 seeds (pending GPU), 3 MACPO HC c=25 (Exp7, URL encoding issue).
+
+### Step 2: Collect paper/GitHub reference values -- DONE
+Hardcoded in pipeline: Paper MACPO (~900/~650/~2250) + GitHub README (~0 cost).
+
+### Step 3: Build pipeline script -- DONE
+Created `docs/tmp/extraction/scripts/mamujoco_pipeline_experiment8.py`.
+Reuses `extract_metrics.py`. Handles MACPO via `run.summary` (uses `main/score`).
+Supports `--test` mode, `--from-csv` re-rendering.
+
+### Step 4: Run pipeline -- DONE
+SafeDreamer extracted at 100k, 500k, 700k, 800k, 900k, 1M.
+MACPO extracted at 10M (final).
+Output: `docs/tmp/tables/mamujoco_comparison_experiment8/comparison_table.pdf`
+Backup: `comparison_table_real_20260628_144800.csv`
+
+### Step 5: Update experiment docs -- DONE
+- `overview.md` updated with results summary
+- `runs.md` updated with job statuses
+- `plan.md` steps marked complete
+
+### Remaining from Phase 1-3
+- 2 HC c=5 SafeDreamer seeds still pending (GPU queue)
+- MACPO HC c=25 seed 3 submitted (Slurm 18505362), waiting for completion
+
+---
+
+## Phase 4: Lagrangian LR sweep (laglr=1e-4)
+
+All Phase 1-3 SafeDreamer runs used `laglr=1e-5` (default). This is very slow for the
+Lagrangian multiplier to react. Phase 4 tests `laglr=1e-4` (10x faster) to see if
+SafeDreamer can better satisfy cost constraints while maintaining reward.
+
+MACPO baselines don't change — reuse Phase 2-3 MACPO results.
+
+### Step 6: Update docs with laglr column
+**Prerequisite**: Phase 1-3 complete
+**Action**:
+- Add `laglr` note to `runs.md` — all Phase 1-3 runs are `laglr=1e-5`
+- Add Phase 4 section to `runs.md` with empty job table
+
+**Output**: `runs.md` with Phase 4 section
+**Validate**: Clear separation between laglr=1e-5 and laglr=1e-4 runs
+
+### Step 7: Add laglr to comparison CSV and pipeline
+**Prerequisite**: Step 6 done
+**Action**:
+- Add `laglr` column to `mamujoco_runs_experiment8.csv` (1e-5 for existing, 1e-4 for new)
+- Update pipeline to group by (env, cost_limit, source, steps, laglr)
+- Update LaTeX table to show laglr in a column or as a row label suffix
+
+**Output**: Updated CSV + pipeline script
+**Validate**: `--test` mode shows laglr in output table
+
+### Step 8: Submit Phase 4 jobs
+**Prerequisite**: Step 7 done, cluster available
+**Action**:
+- Submit SafeDreamer GPU jobs with `--laglr 0.0001`:
+  - 3 seeds × Ant 2x4 c=0.2
+  - 3 seeds × Ant 4x2 c=1.0
+  - 3 seeds × HC 2x3 c=5.0
+  - 3 seeds × Ant 2x4 c=25
+  - 3 seeds × Ant 4x2 c=25
+  - 3 seeds × HC 2x3 c=25
+  = 18 jobs total
+- No new MACPO jobs needed
+
+**Output**: Slurm IDs in `runs.md`
+**Validate**: `squeue` shows 18 jobs RUNNING after 2 min
+
+### Step 9: Extract and compare
+**Prerequisite**: Phase 4 runs reach target steps (100k, 500k, 700k, 800k, 900k, 1M)
+**Action**:
+- Add Phase 4 WandB run IDs to CSV
+- Run pipeline with updated CSV
+- Generate new comparison table with laglr column
+
+**Output**: Updated `comparison_table.pdf` with laglr=1e-5 vs 1e-4 rows
+**Validate**: Table shows clear effect of laglr on cost constraint satisfaction
