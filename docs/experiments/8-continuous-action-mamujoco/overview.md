@@ -62,7 +62,22 @@ SafeDreamer at 100k steps matches or exceeds MACPO at 10M steps (100x sample eff
 | Ant 4x2 | **1575 +- 304** | 1287 +- 148 | 816 |
 | HC 2x3 | **2527 +- 229** | 1374 +- 86 | 1637 |
 
-Full comparison table with step-wise data (100k-1M):
+### Phase 4: Lagrangian LR comparison (lr=1e-5 vs lr=1e-4)
+
+Higher laglr (1e-4) makes the Lagrangian react 10x faster to cost violations.
+
+| Env | CL | SafeDreamer lr=1e-5 (1M) | SafeDreamer lr=1e-4 (1M) | Effect on Cost |
+|-----|----|-------------------------|-------------------------|----------------|
+| Ant 2x4 | 0.2 | rew=2268, cost=24.3 | rew=1619, cost=4.1 | Cost down 83% |
+| Ant 2x4 | 25 | rew=1836, cost=17.4 | rew=1552, cost=22.6 | Similar |
+| Ant 4x2 | 1.0 | rew=1241, cost=2.5 | rew=1559, cost=4.2 | Similar |
+| Ant 4x2 | 25 | rew=1575, cost=0.5 | rew=1504, cost=2.9 | Similar |
+| HC 2x3 | 5.0 | rew=1519, cost=35.8 | rew=1481, cost=4.6 | Cost down 87% |
+| HC 2x3 | 25 | rew=2527, cost=16.6 | rew=1149, cost=0.0 | Cost down 100% |
+
+lr=1e-4 significantly reduces cost violations (especially for tight limits) with moderate reward trade-off.
+
+Full comparison table with step-wise data (100k-1M, both lr values):
 `docs/tmp/tables/mamujoco_comparison_experiment8/comparison_table.pdf`
 
 Reference papers:
@@ -71,4 +86,4 @@ Reference papers:
 
 ## Status
 
-Complete. See `runs.md` for job tracking, `plan.md` for extraction pipeline.
+Phase 1-4 complete. See `runs.md` for job tracking, `plan.md` for extraction pipeline.

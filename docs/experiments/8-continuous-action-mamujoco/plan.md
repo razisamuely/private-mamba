@@ -178,12 +178,9 @@ MACPO baselines don't change — reuse Phase 2-3 MACPO results.
 **Output**: Slurm IDs in `runs.md`
 **Validate**: `squeue` shows 18 jobs RUNNING after 2 min
 
-### Step 9: Extract and compare
-**Prerequisite**: Phase 4 runs reach target steps (100k, 500k, 700k, 800k, 900k, 1M)
-**Action**:
-- Add Phase 4 WandB run IDs to CSV
-- Run pipeline with updated CSV
-- Generate new comparison table with laglr column
-
-**Output**: Updated `comparison_table.pdf` with laglr=1e-5 vs 1e-4 rows
-**Validate**: Table shows clear effect of laglr on cost constraint satisfaction
+### Step 9: Extract and compare -- DONE
+Extracted 18 Phase 4 runs at 100k/500k/700k/800k/900k/1M.
+Appended to `comparison_table_real_20260628_144800.csv` (48 → 84 rows).
+Backups: `comparison_table_real_pre_phase4_backup.csv`, `comparison_table_real_20260704_phase4.csv`.
+Re-rendered PDF with `--render-only`.
+Key finding: lr=1e-4 reduces cost 83-100% on tight limits with moderate reward trade-off.

@@ -108,29 +108,29 @@ Phase 4 tests laglr=1e-4 (10x faster). MACPO baselines unchanged — reuse Phase
 
 | # | Env | CL | Seed | Slurm ID | Status |
 |---|-----|----|------|----------|--------|
-| 42 | Ant 2x4 | 0.2 | 1 | 18505909 | PENDING |
-| 43 | Ant 2x4 | 0.2 | 2 | 18505912 | PENDING |
-| 44 | Ant 2x4 | 0.2 | 3 | 18505915 | PENDING |
-| 45 | Ant 4x2 | 1.0 | 1 | 18505918 | PENDING |
-| 46 | Ant 4x2 | 1.0 | 2 | 18505920 | PENDING |
-| 47 | Ant 4x2 | 1.0 | 3 | 18505923 | PENDING |
-| 48 | HC 2x3 | 5.0 | 1 | 18505924 | PENDING |
-| 49 | HC 2x3 | 5.0 | 2 | 18505925 | PENDING |
-| 50 | HC 2x3 | 5.0 | 3 | 18505926 | PENDING |
+| 42 | Ant 2x4 | 0.2 | 1 | 18505909 | DONE |
+| 43 | Ant 2x4 | 0.2 | 2 | 18505912 | DONE |
+| 44 | Ant 2x4 | 0.2 | 3 | 18505915 | DONE |
+| 45 | Ant 4x2 | 1.0 | 1 | 18505918 | DONE |
+| 46 | Ant 4x2 | 1.0 | 2 | 18505920 | DONE |
+| 47 | Ant 4x2 | 1.0 | 3 | 18505923 | DONE |
+| 48 | HC 2x3 | 5.0 | 1 | 18505924 | DONE |
+| 49 | HC 2x3 | 5.0 | 2 | 18505925 | DONE |
+| 50 | HC 2x3 | 5.0 | 3 | 18505926 | DONE |
 
 ### SafeDreamer GPU (cost_limit=25, laglr=1e-4)
 
 | # | Env | CL | Seed | Slurm ID | Status |
 |---|-----|----|------|----------|--------|
-| 51 | Ant 2x4 | 25 | 1 | 18505927 | PENDING |
-| 52 | Ant 2x4 | 25 | 2 | 18505928 | PENDING |
-| 53 | Ant 2x4 | 25 | 3 | 18505929 | PENDING |
-| 54 | Ant 4x2 | 25 | 1 | 18505930 | PENDING |
-| 55 | Ant 4x2 | 25 | 2 | 18505931 | PENDING |
-| 56 | Ant 4x2 | 25 | 3 | 18505932 | PENDING |
-| 57 | HC 2x3 | 25 | 1 | 18505933 | PENDING |
-| 58 | HC 2x3 | 25 | 2 | 18505934 | PENDING |
-| 59 | HC 2x3 | 25 | 3 | 18505935 | PENDING |
+| 51 | Ant 2x4 | 25 | 1 | 18505927 | DONE |
+| 52 | Ant 2x4 | 25 | 2 | 18505928 | DONE |
+| 53 | Ant 2x4 | 25 | 3 | 18505929 | DONE |
+| 54 | Ant 4x2 | 25 | 1 | 18505930 | DONE |
+| 55 | Ant 4x2 | 25 | 2 | 18505931 | DONE |
+| 56 | Ant 4x2 | 25 | 3 | 18505932 | DONE |
+| 57 | HC 2x3 | 25 | 1 | 18505933 | DONE |
+| 58 | HC 2x3 | 25 | 2 | 18505934 | DONE |
+| 59 | HC 2x3 | 25 | 3 | 18505935 | DONE |
 
 ## Extraction Pipeline
 
