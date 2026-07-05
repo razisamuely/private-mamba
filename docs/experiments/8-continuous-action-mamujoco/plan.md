@@ -184,3 +184,54 @@ Appended to `comparison_table_real_20260628_144800.csv` (48 → 84 rows).
 Backups: `comparison_table_real_pre_phase4_backup.csv`, `comparison_table_real_20260704_phase4.csv`.
 Re-rendered PDF with `--render-only`.
 Key finding: lr=1e-4 reduces cost 83-100% on tight limits with moderate reward trade-off.
+
+---
+
+## Phase 5: Communication ablation (no inter-agent attention)
+
+All Phase 1-4 runs used full communication (`nn_mask=None` — all agents attend to all).
+Phase 5 tests no communication (`nn_mask=eye` — each agent attends only to itself).
+This shows whether inter-agent communication helps or hurts reward/cost.
+
+### Step 10: Add `--comm_mode` CLI flag
+**Prerequisite**: None
+**Action**:
+- Add `--comm_mode` arg to `train.py` (values: `full` | `none`, default `full`)
+- Pass to `DreamerControllerConfig` and `DreamerWorkerConfig`
+- In `DreamerWorker._select_actions`: if `comm_mode == "none"`, set `nn_mask = torch.eye(n_agents).bool()`
+- Add `--comm_mode` to `submit_experiments.py` EXTRA_ARGS
+**Output**: Working `--comm_mode none` flag
+**Validate**: Run 3 episodes locally with `--comm_mode none`, verify no crash
+
+### Step 11: Add Phase 5 section to `runs.md`
+**Prerequisite**: Step 10 done
+**Action**:
+- Add Phase 5 section with empty job table
+- Use best laglr from Phase 4 (1e-4) for all Phase 5 runs
+**Output**: `runs.md` with Phase 5 section
+**Validate**: Clear separation from Phase 1-4
+
+### Step 12: Submit Phase 5 jobs
+**Prerequisite**: Step 10-11 done, cluster available
+**Action**:
+- Commit, push, pull on cluster
+- Submit SafeDreamer GPU jobs with `--comm_mode none --laglr 0.0001`:
+  - 3 seeds × Ant 2x4 c=0.2
+  - 3 seeds × Ant 4x2 c=1.0
+  - 3 seeds × HC 2x3 c=5.0
+  - 3 seeds × Ant 2x4 c=25
+  - 3 seeds × Ant 4x2 c=25
+  - 3 seeds × HC 2x3 c=25
+  = 18 jobs total
+**Output**: Slurm IDs in `runs.md`
+**Validate**: `squeue` shows jobs after 2 min
+
+### Step 13: Extract and compare
+**Prerequisite**: Phase 5 runs reach target steps
+**Action**:
+- Add `comm_mode` column to CSV and pipeline
+- Extract at 100k/500k/700k/800k/900k/1M
+- Append to comparison CSV
+- Re-render table with communication column
+**Output**: Updated table showing full vs no communication
+**Validate**: Clear effect of communication on reward/cost

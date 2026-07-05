@@ -37,6 +37,7 @@ def main():
     parser.add_argument("--grad_clip_policy", type=float, default=None)
     parser.add_argument("--ppo_epochs", type=int, default=None)
     parser.add_argument("--epochs", type=int, default=None)
+    parser.add_argument("--comm_mode", type=str, default=None, help="Communication mode (full/none)")
     parser.add_argument("--template", type=str, default=None, help="Custom sbatch template path")
 
     args = parser.parse_args()
@@ -82,6 +83,8 @@ def main():
         extra_parts.append(f"--ppo_epochs {args.ppo_epochs}")
     if args.epochs is not None:
         extra_parts.append(f"--epochs {args.epochs}")
+    if args.comm_mode is not None:
+        extra_parts.append(f"--comm_mode {args.comm_mode}")
     extra_args = " \\\n    ".join(extra_parts) if extra_parts else ""
 
     for env_name in args.envs:

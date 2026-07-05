@@ -18,6 +18,7 @@ class DreamerWorker:
         self.controller = controller_config.create_controller()
         self.in_dim = controller_config.IN_DIM
         self.action_type = getattr(controller_config, "ACTION_TYPE", "discrete")
+        self.comm_mode = getattr(controller_config, "COMM_MODE", "full")
         self.env_type = env_config.ENV_TYPE
         self.controller_config = copy.deepcopy(controller_config)
 
@@ -34,7 +35,9 @@ class DreamerWorker:
         avail_actions = []
         observations = []
         fakes = []
-        if self.env_type == Env.FLATLAND:
+        if self.comm_mode == "none":
+            nn_mask = torch.eye(self.env.n_agents).bool()
+        elif self.env_type == Env.FLATLAND:
             nn_mask = (1.0 - torch.eye(self.env.n_agents)).bool()
         else:
             nn_mask = None

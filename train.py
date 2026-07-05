@@ -92,6 +92,7 @@ def parse_args():
     parser.add_argument("--ppo_epochs", type=int, default=None, help="PPO epochs override")
     parser.add_argument("--epochs", type=int, default=None, help="Agent training epochs override")
     parser.add_argument("--device", type=str, default=None, help="Device override (cpu/cuda)")
+    parser.add_argument("--comm_mode", type=str, default="full", help="Communication mode (full/none)")
     return parser.parse_args()
 
 
@@ -192,6 +193,8 @@ def prepare_safety_gym_configs(args):
         lc.EPOCHS = args.epochs
     if args.device is not None:
         lc.DEVICE = args.device
+    for config in agent_configs:
+        config.COMM_MODE = args.comm_mode
     return {
         "env_config": (env_config, 100),
         "controller_config": agent_configs[0],
