@@ -21,6 +21,7 @@ class DreamerWorker:
         self.comm_mode = getattr(controller_config, "COMM_MODE", "full")
         self.env_type = env_config.ENV_TYPE
         self.controller_config = copy.deepcopy(controller_config)
+        print(f"DreamerWorker[{idx}]: comm_mode={self.comm_mode}, action_type={self.action_type}")
 
     def _check_handle(self, handle):
         if self.env_type != Env.FLATLAND:
@@ -36,7 +37,7 @@ class DreamerWorker:
         observations = []
         fakes = []
         if self.comm_mode == "none":
-            nn_mask = torch.eye(self.env.n_agents).bool()
+            nn_mask = ~torch.eye(self.env.n_agents).bool()  # True=blocked, block cross-agent
         elif self.env_type == Env.FLATLAND:
             nn_mask = (1.0 - torch.eye(self.env.n_agents)).bool()
         else:
