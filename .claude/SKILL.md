@@ -122,3 +122,4 @@ description: >
 - **Ray worker path differs from local** — test with `n_workers=0` locally, but cluster uses `n_workers=4`
 - **Generated sbatch files in .gitignore** — use `git add -f` if needed
 - **Pre-commit hooks** — use venv310 for mypy, not venv (Python 3.7)
+- **PyTorch attention mask** — True=blocked, not allowed. `eye()`=block self (wrong for no-comm), `~eye()`=block others (correct for no-comm)

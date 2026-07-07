@@ -193,29 +193,22 @@ All Phase 1-4 runs used full communication (`nn_mask=None` — all agents attend
 Phase 5 tests no communication (`nn_mask=eye` — each agent attends only to itself).
 This shows whether inter-agent communication helps or hurts reward/cost.
 
-### Step 10: Add `--comm_mode` CLI flag
-**Prerequisite**: None
-**Action**:
-- Add `--comm_mode` arg to `train.py` (values: `full` | `none`, default `full`)
-- Pass to `DreamerControllerConfig` and `DreamerWorkerConfig`
-- In `DreamerWorker._select_actions`: if `comm_mode == "none"`, set `nn_mask = torch.eye(n_agents).bool()`
-- Add `--comm_mode` to `submit_experiments.py` EXTRA_ARGS
-**Output**: Working `--comm_mode none` flag
-**Validate**: Run 3 episodes locally with `--comm_mode none`, verify no crash
+### Step 10: Add `--comm_mode` CLI flag -- DONE
+Added on branch `fix/tanh-logprob-correction`.
+**Bug found**: initial mask used `torch.eye().bool()` which blocks self-attention
+and allows cross-agent (opposite of intended). PyTorch attention: True=blocked.
+Fix: `~torch.eye().bool()` blocks cross-agent, allows self.
+Fix on branch `fix/comm-mask-inversion`.
 
-### Step 11: Add Phase 5 section to `runs.md`
-**Prerequisite**: Step 10 done
-**Action**:
-- Add Phase 5 section with empty job table
-- Use best laglr from Phase 4 (1e-4) for all Phase 5 runs
-**Output**: `runs.md` with Phase 5 section
-**Validate**: Clear separation from Phase 1-4
+### Step 11: Add Phase 5 section to `runs.md` -- DONE
 
-### Step 12: Submit Phase 5 jobs
-**Prerequisite**: Step 10-11 done, cluster available
+### Step 12: Submit Phase 5 jobs -- RESUBMITTED
+First submission (Slurm 19063225-243) used wrong mask — cancelled.
+Resubmitted on branch `fix/comm-mask-inversion` (Slurm 19122709-728).
+**Config**: `--comm_mode none --laglr 0.00001`, same grid.
 **Action**:
-- Commit, push, pull on cluster
-- Submit SafeDreamer GPU jobs with `--comm_mode none --laglr 0.0001`:
+- Committed, pushed, pulled on cluster
+- Submitted SafeDreamer GPU jobs with `--comm_mode none --laglr 0.00001`:
   - 3 seeds × Ant 2x4 c=0.2
   - 3 seeds × Ant 4x2 c=1.0
   - 3 seeds × HC 2x3 c=5.0

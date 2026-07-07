@@ -86,4 +86,5 @@ Reference papers:
 
 ## Status
 
-Phase 1-4 complete. See `runs.md` for job tracking, `plan.md` for extraction pipeline.
+Phase 1-4 complete. Phase 5 (communication ablation) running on branch `fix/comm-mask-inversion`.
+See `runs.md` for job tracking, `plan.md` for extraction pipeline.

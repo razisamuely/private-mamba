@@ -132,6 +132,46 @@ Phase 4 tests laglr=1e-4 (10x faster). MACPO baselines unchanged — reuse Phase
 | 58 | HC 2x3 | 25 | 2 | 18505934 | DONE |
 | 59 | HC 2x3 | 25 | 3 | 18505935 | DONE |
 
+## Phase 5: Communication ablation (comm_mode=none, laglr=1e-5)
+
+**Branch**: `fix/comm-mask-inversion`
+
+All Phase 1-4 runs used full communication (nn_mask=None, all agents attend to all).
+Phase 5 blocks all cross-agent attention (nn_mask=~eye, each agent attends only to itself).
+
+### INVALID runs (wrong mask: eye instead of ~eye, cancelled)
+
+Slurm 19063225-19063243 — used `torch.eye().bool()` which blocks self-attention
+and allows cross-agent (opposite of intended). Killed and resubmitted with fix.
+
+### SafeDreamer GPU (paper cost limits, no comm, laglr=1e-5)
+
+| # | Env | CL | Seed | Slurm ID | Status |
+|---|-----|----|------|----------|--------|
+| 60 | Ant 2x4 | 0.2 | 1 | 19122709 | RUNNING |
+| 61 | Ant 2x4 | 0.2 | 2 | 19122710 | RUNNING |
+| 62 | Ant 2x4 | 0.2 | 3 | 19122711 | RUNNING |
+| 63 | Ant 4x2 | 1.0 | 1 | 19122712 | RUNNING |
+| 64 | Ant 4x2 | 1.0 | 2 | 19122713 | RUNNING |
+| 65 | Ant 4x2 | 1.0 | 3 | 19122715 | RUNNING |
+| 66 | HC 2x3 | 5.0 | 1 | 19122716 | RUNNING |
+| 67 | HC 2x3 | 5.0 | 2 | 19122717 | RUNNING |
+| 68 | HC 2x3 | 5.0 | 3 | 19122718 | PENDING |
+
+### SafeDreamer GPU (cost_limit=25, no comm, laglr=1e-5)
+
+| # | Env | CL | Seed | Slurm ID | Status |
+|---|-----|----|------|----------|--------|
+| 69 | Ant 2x4 | 25 | 1 | 19122719 | PENDING |
+| 70 | Ant 2x4 | 25 | 2 | 19122720 | PENDING |
+| 71 | Ant 2x4 | 25 | 3 | 19122721 | PENDING |
+| 72 | Ant 4x2 | 25 | 1 | 19122722 | PENDING |
+| 73 | Ant 4x2 | 25 | 2 | 19122723 | PENDING |
+| 74 | Ant 4x2 | 25 | 3 | 19122724 | PENDING |
+| 75 | HC 2x3 | 25 | 1 | 19122725 | PENDING |
+| 76 | HC 2x3 | 25 | 2 | 19122726 | PENDING |
+| 77 | HC 2x3 | 25 | 3 | 19122728 | PENDING |
+
 ## Extraction Pipeline
 
 - Input CSV: `docs/tmp/extraction/inputs/mamujoco_runs_experiment8.csv`
