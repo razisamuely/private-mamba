@@ -239,14 +239,16 @@ if __name__ == "__main__":
 
     # Standardized Naming Convention
     # {algo}_{costtype}_{env}_{laglr}_{costlim}_{map}_{seed}_{time}_{slurm_id}_{branch}
-    sanitized_branch = args.branch.replace("/", "-")[:20]
+    sanitized_branch = args.branch.replace("/", "-")[:10]
     cost_type_short = args.cost_type.replace("dead_allies_incremental", "dai").replace("collision", "col")
     comm_suffix = "_nocomm" if args.comm_mode == "none" else ""
     run_name = (
         f"{args.algo_name}_{cost_type_short}_{args.env}_"
         f"lag{args.laglr}_{args.cost_limit}_{args.env_name}_"
         f"s{args.seed}{comm_suffix}_{current_run_time}_{args.slurm_id}_{sanitized_branch}"
-    )
+    )[
+        :128
+    ]  # WandB run name hard limit
 
     wandb.init(
         name=run_name,
