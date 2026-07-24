@@ -13,11 +13,15 @@
 
 ## No-comm jobs (branch fix/comm-mask-inversion, --comm_mode none, laglr=1e-5)
 
+Submitted 2026-07-25. Verified `comm_mode=none, action_type=discrete` in logs.
+Note: had to free cluster disk first (deleted 80 wandb run dirs >8 months old, ~61 GB;
+quota exceeded blocked git pull).
+
 | # | Map | CL | Seed | Slurm ID | Status |
 |---|-----|----|------|----------|--------|
-| 1 | 8m | 0.0 | 1 | — | NOT SUBMITTED |
-| 2 | 8m | 0.0 | 2 | — | NOT SUBMITTED |
-| 3 | 8m | 0.0 | 3 | — | NOT SUBMITTED |
-| 4 | MMM | 0.0 | 1 | — | NOT SUBMITTED |
-| 5 | MMM | 0.0 | 2 | — | NOT SUBMITTED |
-| 6 | MMM | 0.0 | 3 | — | NOT SUBMITTED |
+| 1 | 8m | 0.0 | 1 | 19539781 | RUNNING |
+| 2 | 8m | 0.0 | 2 | 19539783 | RUNNING |
+| 3 | 8m | 0.0 | 3 | 19539784 | RUNNING |
+| 4 | MMM | 0.0 | 1 | 19539785 | RUNNING |
+| 5 | MMM | 0.0 | 2 | 19539786 | RUNNING |
+| 6 | MMM | 0.0 | 3 | 19539787 | PENDING (QOS GPU limit) |
