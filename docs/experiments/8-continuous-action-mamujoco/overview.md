@@ -84,7 +84,23 @@ Reference papers:
 - MACPO: github.com/chauncygu/Multi-Agent-Constrained-Policy-Optimisation (arXiv 2110.02793)
 - SafePO: github.com/PKU-Alignment/Safe-Policy-Optimization (arXiv 2310.12567, Table 5b)
 
+### Phase 5: Communication ablation (complete)
+
+18 no-comm runs (`--comm_mode none`, laglr=1e-5), reward at 1M steps:
+
+| Env | CL | Full comm (1M) | No comm (1M) | Verdict |
+|-----|----|----------------|--------------|---------|
+| Ant 2x4 | 0.2 | 2267.8 +- 134.1 | 1191.6 +- 444.6 | Comm helps a lot |
+| Ant 4x2 | 25 | 1574.5 +- 304.2 | 1656.8 +- 161.8 | No benefit |
+| HC 2x3 | 5.0 | 1519 | 1166.0 +- 512.6 | Comm helps |
+| HC 2x3 | 25 | 2527 +- 229 | 981.5 +- 1303.1 | Comm helps a lot |
+
+Communication helps most with 2 agents each controlling large body parts
+(Ant 2x4, HC 2x3); with 4 small agents (Ant 4x2) it gives no benefit.
+No-comm also shows much higher variance and worse cost control on HC.
+
 ## Status
 
-Phase 1-4 complete. Phase 5 (communication ablation) running on branch `fix/comm-mask-inversion`.
-See `runs.md` for job tracking, `plan.md` for extraction pipeline.
+Phase 1-5 complete on branch `fix/comm-mask-inversion`. Final comparison table
+(120-row CSV, PDF): `docs/tmp/tables/mamujoco_comparison_experiment8/comparison_table.pdf`.
+See `runs.md` for job tracking, `plan.md` for pipeline.

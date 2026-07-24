@@ -148,29 +148,57 @@ and allows cross-agent (opposite of intended). Killed and resubmitted with fix.
 
 | # | Env | CL | Seed | Slurm ID | Status |
 |---|-----|----|------|----------|--------|
-| 60 | Ant 2x4 | 0.2 | 1 | 19122709 | RUNNING |
-| 61 | Ant 2x4 | 0.2 | 2 | 19122710 | RUNNING |
-| 62 | Ant 2x4 | 0.2 | 3 | 19122711 | RUNNING |
-| 63 | Ant 4x2 | 1.0 | 1 | 19122712 | RUNNING |
-| 64 | Ant 4x2 | 1.0 | 2 | 19122713 | RUNNING |
-| 65 | Ant 4x2 | 1.0 | 3 | 19122715 | RUNNING |
-| 66 | HC 2x3 | 5.0 | 1 | 19122716 | RUNNING |
-| 67 | HC 2x3 | 5.0 | 2 | 19122717 | RUNNING |
-| 68 | HC 2x3 | 5.0 | 3 | 19122718 | PENDING |
+| 60 | Ant 2x4 | 0.2 | 1 | 19122709 | DONE |
+| 61 | Ant 2x4 | 0.2 | 2 | 19122710 | DONE |
+| 62 | Ant 2x4 | 0.2 | 3 | 19122711 | DONE |
+| 63 | Ant 4x2 | 1.0 | 1 | 19122712 | DONE |
+| 64 | Ant 4x2 | 1.0 | 2 | 19122713 | DONE |
+| 65 | Ant 4x2 | 1.0 | 3 | 19122715 | DONE |
+| 66 | HC 2x3 | 5.0 | 1 | 19122716 | MISSING (never ran, resubmitted as 19442919) |
+| 67 | HC 2x3 | 5.0 | 2 | 19122717 | MISSING (never ran, resubmitted as 19442923) |
+| 68 | HC 2x3 | 5.0 | 3 | 19122718 | MISSING (never ran, resubmitted as 19442926) |
 
 ### SafeDreamer GPU (cost_limit=25, no comm, laglr=1e-5)
 
 | # | Env | CL | Seed | Slurm ID | Status |
 |---|-----|----|------|----------|--------|
-| 69 | Ant 2x4 | 25 | 1 | 19122719 | PENDING |
-| 70 | Ant 2x4 | 25 | 2 | 19122720 | PENDING |
-| 71 | Ant 2x4 | 25 | 3 | 19122721 | PENDING |
-| 72 | Ant 4x2 | 25 | 1 | 19122722 | PENDING |
-| 73 | Ant 4x2 | 25 | 2 | 19122723 | PENDING |
-| 74 | Ant 4x2 | 25 | 3 | 19122724 | PENDING |
-| 75 | HC 2x3 | 25 | 1 | 19122725 | PENDING |
-| 76 | HC 2x3 | 25 | 2 | 19122726 | PENDING |
-| 77 | HC 2x3 | 25 | 3 | 19122728 | PENDING |
+| 69 | Ant 2x4 | 25 | 1 | 19122719 | DONE |
+| 70 | Ant 2x4 | 25 | 2 | 19122720 | DONE |
+| 71 | Ant 2x4 | 25 | 3 | 19122721 | DONE |
+| 72 | Ant 4x2 | 25 | 1 | 19122722 | DONE (killed from WandB) |
+| 73 | Ant 4x2 | 25 | 2 | 19122723 | DONE (killed from WandB) |
+| 74 | Ant 4x2 | 25 | 3 | 19122724 | DONE (killed from WandB) |
+| 75 | HC 2x3 | 25 | 1 | 19122725 | MISSING (never ran, resubmitted as 19442927) |
+| 76 | HC 2x3 | 25 | 2 | 19122726 | MISSING (never ran, resubmitted as 19442928) |
+| 77 | HC 2x3 | 25 | 3 | 19122728 | MISSING (never ran, resubmitted as 19442929) |
+
+### Resubmitted HC Phase 5 jobs (1st attempt — FAILED)
+
+All 6 crashed at wandb.init in ~10s: run name >128 chars (HC env name + `_nocomm`
+suffix exceeded WandB's 128-char Name limit; Ant names were 124 chars, just under).
+Fix: commit `c00b426` — branch suffix truncated to 10 chars + hard `[:128]` cap.
+
+| # | Env | CL | Seed | Slurm ID | Status |
+|---|-----|----|------|----------|--------|
+| 78 | HC 2x3 | 5.0 | 1 | 19442919 | FAILED (name >128) |
+| 79 | HC 2x3 | 5.0 | 2 | 19442923 | FAILED (name >128) |
+| 80 | HC 2x3 | 5.0 | 3 | 19442926 | FAILED (name >128) |
+| 81 | HC 2x3 | 25 | 1 | 19442927 | FAILED (name >128) |
+| 82 | HC 2x3 | 25 | 2 | 19442928 | FAILED (name >128) |
+| 83 | HC 2x3 | 25 | 3 | 19442929 | FAILED (name >128) |
+
+### Resubmitted HC Phase 5 jobs (2nd attempt, post name-fix, 2026-07-19)
+
+Verified RUNNING past wandb.init with `comm_mode=none, action_type=continuous` in logs.
+
+| # | Env | CL | Seed | Slurm ID | Status |
+|---|-----|----|------|----------|--------|
+| 84 | HC 2x3 | 5.0 | 1 | 19449871 | DONE (extracted 2026-07-24) |
+| 85 | HC 2x3 | 5.0 | 2 | 19449873 | DONE (extracted 2026-07-24) |
+| 86 | HC 2x3 | 5.0 | 3 | 19449874 | DONE (extracted 2026-07-24) |
+| 87 | HC 2x3 | 25 | 1 | 19449876 | DONE (extracted 2026-07-24) |
+| 88 | HC 2x3 | 25 | 2 | 19449877 | DONE (extracted 2026-07-24) |
+| 89 | HC 2x3 | 25 | 3 | 19449878 | DONE (extracted 2026-07-24) |
 
 ## Extraction Pipeline
 

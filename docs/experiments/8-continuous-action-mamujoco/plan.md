@@ -219,12 +219,22 @@ Resubmitted on branch `fix/comm-mask-inversion` (Slurm 19122709-728).
 **Output**: Slurm IDs in `runs.md`
 **Validate**: `squeue` shows jobs after 2 min
 
-### Step 13: Extract and compare
-**Prerequisite**: Phase 5 runs reach target steps
-**Action**:
-- Add `comm_mode` column to CSV and pipeline
-- Extract at 100k/500k/700k/800k/900k/1M
-- Append to comparison CSV
-- Re-render table with communication column
-**Output**: Updated table showing full vs no communication
-**Validate**: Clear effect of communication on reward/cost
+### Step 13: Extract and compare -- DONE
+**Done (2026-07-18)**:
+- Extracted 12 Ant no-comm runs (Slurm 19122709-724) at 100k/500k/700k/800k/900k/1M
+- 72 seed rows → 24 agg rows labeled `SafeDreamer (lr=1e-5, nocomm)`
+- Appended to `comparison_table_real_20260628_144800.csv` (84 → 108 rows)
+- Backups: `comparison_table_real_pre_phase5_backup.csv`, `comparison_table_real_20260718_phase5_ant.csv`
+- PDF re-rendered via `--render-only`
+- Key finding @1M: comm helps on Ant 2x4 c=0.2 (full 2267.8±134.1 vs nocomm 1191.6±444.6);
+  no benefit on Ant 4x2 c=25 (nocomm 1656.8±161.8 vs full 1574.5±304.2)
+
+**Done (2026-07-24, HC)**:
+- 6 HC 2x3 no-comm runs completed (Slurm 19449871/873/874/876/877/878, ~3d21h each;
+  1st resubmission 19442919-29 had failed — wandb name >128 chars, fixed in `c00b426`)
+- Extracted 36 seed rows → 12 agg rows, appended (108 → 120 rows)
+- Added all 18 Phase 5 run URLs to input CSV `mamujoco_runs_experiment8.csv`
+- Backups: `comparison_table_real_pre_phase5_hc_backup.csv`, `comparison_table_real_20260724_phase5_full.csv`
+- PDF re-rendered
+- HC @1M: c=5 nocomm 1166.0±512.6 (full 1519); c=25 nocomm 981.5±1303.1 (full 2527±229)
+  → communication clearly helps on HC
