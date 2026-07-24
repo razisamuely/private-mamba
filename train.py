@@ -123,6 +123,7 @@ def prepare_starcraft_configs(args):
     for config in agent_configs:
         if hasattr(config, "LAGRANGIAN_LR"):
             config.LAGRANGIAN_LR = args.laglr
+        config.COMM_MODE = args.comm_mode
     env_config = StarCraft(args.env_name, args.cost_type)
     get_env_info(agent_configs, env_config.create_env())
     return {
