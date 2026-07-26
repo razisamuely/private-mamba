@@ -43,5 +43,9 @@ From `docs/experiments/6-lag-real-episode-cost/` (`wandb_runs.json` has run IDs)
 
 ## Status
 
-Setup done: COMM_MODE wired for SMAC, local smoke test passed (comm_mode=none,
-discrete actions, episodes ran). Jobs not yet submitted.
+6 no-comm jobs submitted 2026-07-25 (Slurm 19539781-787), 5 running + 1 pending.
+Local smoke test passed, logs confirmed `comm_mode=none, action_type=discrete`.
+Waiting for completion → extract → compare.
+
+Possible expansion (not yet submitted): 3s_vs_3z (3 agents, c=0.0 + c=0.5) and
+3s5z_vs_3s6z (8 agents, c=0.0) — 9 more jobs, baselines exist in Exp 6.
