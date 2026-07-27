@@ -69,3 +69,12 @@ https://wandb.ai/raz-shmueli-corsound-ai/private-mamba/runs/safedreamer_dai_safe
 https://wandb.ai/raz-shmueli-corsound-ai/private-mamba/runs/safedreamer_dai_safety_gym_lag1e-05_25.0_Safety4x2AntVelocity-v0_s1_nocomm_date07-12-hr21-11-37_19122722_fix-comm-mask-invers,Safety4x2AntVelocity-v0,SafeDreamer,1,25.0,19122722,1e-05
 https://wandb.ai/raz-shmueli-corsound-ai/private-mamba/runs/safedreamer_dai_safety_gym_lag1e-05_25.0_Safety4x2AntVelocity-v0_s2_nocomm_date07-12-hr21-11-37_19122723_fix-comm-mask-invers,Safety4x2AntVelocity-v0,SafeDreamer,2,25.0,19122723,1e-05
 https://wandb.ai/raz-shmueli-corsound-ai/private-mamba/runs/safedreamer_dai_safety_gym_lag1e-05_25.0_Safety4x2AntVelocity-v0_s3_nocomm_date07-12-hr21-11-39_19122724_fix-comm-mask-invers,Safety4x2AntVelocity-v0,SafeDreamer,3,25.0,19122724,1e-05
+https://wandb.ai/raz-shmueli-corsound-ai/private-mamba/runs/fof017ih,Safety2x4AntVelocity-v0,MAPPO-Lag,1,25.0,19583387,
+https://wandb.ai/raz-shmueli-corsound-ai/private-mamba/runs/s12hvl3q,Safety2x4AntVelocity-v0,MAPPO-Lag,2,25.0,19583388,
+https://wandb.ai/raz-shmueli-corsound-ai/private-mamba/runs/s3xv2cld,Safety2x4AntVelocity-v0,MAPPO-Lag,3,25.0,19583389,
+https://wandb.ai/raz-shmueli-corsound-ai/private-mamba/runs/c9orfl6l,Safety4x2AntVelocity-v0,MAPPO-Lag,1,25.0,19583390,
+https://wandb.ai/raz-shmueli-corsound-ai/private-mamba/runs/yi05r1q5,Safety4x2AntVelocity-v0,MAPPO-Lag,2,25.0,19583391,
+https://wandb.ai/raz-shmueli-corsound-ai/private-mamba/runs/mol6clv3,Safety4x2AntVelocity-v0,MAPPO-Lag,3,25.0,19583392,
+https://wandb.ai/raz-shmueli-corsound-ai/private-mamba/runs/3tu0dovl,Safety2x3HalfCheetahVelocity-v0,MAPPO-Lag,1,25.0,19583393,
+https://wandb.ai/raz-shmueli-corsound-ai/private-mamba/runs/6ihn215j,Safety2x3HalfCheetahVelocity-v0,MAPPO-Lag,2,25.0,19583396,
+https://wandb.ai/raz-shmueli-corsound-ai/private-mamba/runs/1cbtlt83,Safety2x3HalfCheetahVelocity-v0,MAPPO-Lag,3,25.0,19583397,

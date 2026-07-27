@@ -73,9 +73,9 @@ Source: MACPO repo (github.com/chauncygu/Multi-Agent-Constrained-Policy-Optimisa
 | 24 | Ant 4x2 | 1.0 | 1 | 18367092 | DONE |
 | 25 | Ant 4x2 | 1.0 | 2 | 18367096 | DONE |
 | 26 | Ant 4x2 | 1.0 | 3 | 18367097 | DONE |
-| 27 | HC 2x3 | 5.0 | 1 | 18367101 | DONE |
-| 28 | HC 2x3 | 5.0 | 2 | 18367102 | PENDING (GPU queue) |
-| 29 | HC 2x3 | 5.0 | 3 | 18367104 | PENDING (GPU queue) |
+| 27 | HC 2x3 | 5.0 | 1 | 18367101 | DONE (walltime-killed at 614k, 1 seed only in CSV) |
+| 28 | HC 2x3 | 5.0 | 2 | 18367102 | KILLED at ~93k, resubmitted as 19563313 |
+| 29 | HC 2x3 | 5.0 | 3 | 18367104 | KILLED at ~93k, resubmitted as 19563314 |
 
 ### MACPO CPU
 

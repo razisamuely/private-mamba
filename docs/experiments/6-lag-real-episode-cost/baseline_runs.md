@@ -125,3 +125,29 @@ Submitted 2026-05-03. Switched to CPU partition (MACPO runs on CPU, no GPU neede
 | bane_vs_bane | 1 | 17308454 |
 | bane_vs_bane | 2 | 17308455 |
 | bane_vs_bane | 3 | 17308456 |
+
+## MAPPO-Lag — dead_allies_incremental, CPU partition (reviewer upmo)
+
+Submitted 2026-07-27. Addresses reviewer concern: "add MAPPO-Lag baseline."
+Runs from SafePO repo (`mappolag.py` with wandb logging), 5M steps.
+
+| Map | Cost Limit | Seed | Slurm ID | Status |
+|-----|-----------|------|----------|--------|
+| 2m_vs_1z | 1.0 | 1 | 19597923 | RUNNING |
+| 2m_vs_1z | 1.0 | 2 | 19597924 | RUNNING |
+| 2m_vs_1z | 1.0 | 3 | 19597925 | RUNNING |
+| 8m | 4.0 | 1 | 19597926 | RUNNING |
+| 8m | 4.0 | 2 | 19597927 | RUNNING |
+| 8m | 4.0 | 3 | 19597928 | RUNNING |
+| bane_vs_bane | 0.0 | 1 | 19598021 | RUNNING |
+| bane_vs_bane | 0.0 | 2 | 19598023 | RUNNING |
+| bane_vs_bane | 0.0 | 3 | 19598024 | RUNNING |
+| 1c3s5z | 0.0 | 1 | 19598025 | RUNNING |
+| 1c3s5z | 0.0 | 2 | 19598026 | RUNNING |
+| 1c3s5z | 0.0 | 3 | 19598027 | RUNNING |
+| 2m_vs_1z | 0.0 | 1 | 19598039 | RUNNING |
+| 2m_vs_1z | 0.0 | 2 | 19598040 | RUNNING |
+| 2m_vs_1z | 0.0 | 3 | 19598041 | RUNNING |
+| 8m | 0.0 | 1 | 19598042 | RUNNING |
+| 8m | 0.0 | 2 | 19598043 | RUNNING |
+| 8m | 0.0 | 3 | 19598044 | RUNNING |

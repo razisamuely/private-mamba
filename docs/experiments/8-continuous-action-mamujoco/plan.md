@@ -238,3 +238,37 @@ Resubmitted on branch `fix/comm-mask-inversion` (Slurm 19122709-728).
 - PDF re-rendered
 - HC @1M: c=5 nocomm 1166.0±512.6 (full 1519); c=25 nocomm 981.5±1303.1 (full 2527±229)
   → communication clearly helps on HC
+
+---
+
+## Phase 6: MAPPO-Lag baseline (reviewer upmo)
+
+Reviewer upmo: "Add MAPPO-Lag to disentangle the Lagrangian effect from the world-model effect."
+MAPPO-Lag uses Lagrangian but no world model — if Safe Dreamers still wins, the world model is the key.
+
+### Step 14: Submit MAPPO-Lag on MAMuJoCo -- DONE (2026-07-26)
+Ran from SafePO repo (`Safe-Policy-Optimization-Modified` on cluster, conda env `safepo`).
+Template: `template_mappolag_mamujoco.sbatch` (CPU, 7d walltime, `mappolag.py`).
+Config: d=25, 10M steps, 5 parallel envs, seeds 1-3.
+
+| # | Env | CL | Seed | Slurm ID | Status |
+|---|-----|----|------|----------|--------|
+| 90 | Ant 2x4 | 25 | 1 | 19583387 | DONE (extracted) |
+| 91 | Ant 2x4 | 25 | 2 | 19583388 | DONE (crashed step 1351, data used) |
+| 92 | Ant 2x4 | 25 | 3 | 19583389 | DONE (extracted) |
+| 93 | Ant 4x2 | 25 | 1 | 19583390 | DONE (extracted) |
+| 94 | Ant 4x2 | 25 | 2 | 19583391 | DONE (extracted) |
+| 95 | Ant 4x2 | 25 | 3 | 19583392 | DONE (extracted) |
+| 96 | HC 2x3 | 25 | 1 | 19583393 | DONE (extracted) |
+| 97 | HC 2x3 | 25 | 2 | 19583396 | DONE (extracted) |
+| 98 | HC 2x3 | 25 | 3 | 19583397 | DONE (extracted) |
+
+### Step 15: Extract and compare -- DONE (2026-07-28)
+- Extracted 9 MAPPO-Lag runs via run.summary (same as MACPO)
+- 3 agg rows labeled `MAPPO-Lag Run`, appended to main CSV (120 → 123 rows)
+- Backup: `comparison_table_real_pre_phase6_backup.csv`
+- PDF re-rendered
+- Results @10M: Ant2x4 1580±185 cost=1.4; Ant4x2 1865±42 cost=0.1; HC 1141±36 cost=0.0
+- SD beats MAPPO-Lag on Ant2x4 (1836 vs 1580) and HC (2527 vs 1141)
+- MAPPO-Lag beats SD on Ant4x2 (1865 vs 1575)
+- Next: fill `aaai_additions/sections/mappo_baseline.tex`

@@ -1,0 +1,52 @@
+{
+  "comparisons": [
+    {
+      "env": "Safety2x4AntVelocity-v0",
+      "cost_limit": 25.0,
+      "groups": {
+        "Safe Dreamers (1M)": {
+          "files": ["data/sd_ant2x4_d25_s1.csv", "data/sd_ant2x4_d25_s2.csv", "data/sd_ant2x4_d25_s3.csv"],
+          "max_steps": 1000000,
+          "episodes_per_point": 1
+        },
+        "MACPO (10M)": {
+          "files": ["data/macpo_ant2x4_d25_s1.csv", "data/macpo_ant2x4_d25_s2.csv", "data/macpo_ant2x4_d25_s3.csv"],
+          "max_steps": 10000000,
+          "episodes_per_point": 50
+        }
+      }
+    },
+    {
+      "env": "Safety4x2AntVelocity-v0",
+      "cost_limit": 25.0,
+      "groups": {
+        "Safe Dreamers (1M)": {
+          "files": ["data/sd_ant4x2_d25_s1.csv", "data/sd_ant4x2_d25_s2.csv", "data/sd_ant4x2_d25_s3.csv"],
+          "max_steps": 1000000,
+          "episodes_per_point": 1
+        },
+        "MACPO (10M)": {
+          "files": ["data/macpo_ant4x2_d25_s1.csv", "data/macpo_ant4x2_d25_s2.csv", "data/macpo_ant4x2_d25_s3.csv"],
+          "max_steps": 10000000,
+          "episodes_per_point": 50
+        }
+      }
+    },
+    {
+      "env": "Safety2x3HalfCheetahVelocity-v0",
+      "cost_limit": 25.0,
+      "groups": {
+        "Safe Dreamers (1M)": {
+          "files": ["data/sd_hc2x3_d25_s1.csv", "data/sd_hc2x3_d25_s2.csv", "data/sd_hc2x3_d25_s3.csv"],
+          "max_steps": 1000000,
+          "episodes_per_point": 1
+        },
+        "MACPO (10M)": {
+          "files": ["data/macpo_hc2x3_d25_s1.csv", "data/macpo_hc2x3_d25_s2.csv", "data/macpo_hc2x3_d25_s3.csv"],
+          "max_steps": 10000000,
+          "episodes_per_point": 50
+        }
+      }
+    }
+  ]
+}
