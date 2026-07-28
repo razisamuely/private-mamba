@@ -1,0 +1,43 @@
+# Directories to exclude from submission zip
+.git/*
+.claude/*
+wandb/*
+wandb-skills/*
+venv/*
+venv310/*
+trained_models/*
+temp_frames/*
+__pycache__/*
+*/__pycache__/*
+*/*/__pycache__/*
+*/*/*/__pycache__/*
+
+# Generated / scratch
+sbatch_scripts/generated/*
+sbatch_scripts/logs/*
+docs/tmp/*
+docs/planning/*
+
+# Local credentials (should already be gitignored, but belt-and-suspenders)
+*config_local.py
+*config.local.py
+
+# Large / binary
+*.pt
+*.gif
+*.png
+*.jpg
+*.jpeg
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.pyc
+*.egg-info/*
+
+# OS / IDE
+.DS_Store
+.idea/*
+.vscode/*
+*.swp
+*.swo
