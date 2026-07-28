@@ -12,11 +12,22 @@ __pycache__/*
 */*/__pycache__/*
 */*/*/__pycache__/*
 
+# Vendored dependencies (install via requirements.txt)
+safety-gymnasium/*
+safety-gymnasium-main/*
+flatland-2.2.2/*
+
+# Caches
+.mypy_cache/*
+.ruff_cache/*
+.pytest_cache/*
+
 # Generated / scratch
 sbatch_scripts/generated/*
 sbatch_scripts/logs/*
 docs/tmp/*
 docs/planning/*
+docs/analysis/beta_dynamics/data/*
 
 # Local credentials (should already be gitignored, but belt-and-suspenders)
 *config_local.py
