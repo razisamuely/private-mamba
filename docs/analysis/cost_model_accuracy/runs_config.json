@@ -1,0 +1,31 @@
+{
+  "envs": {
+    "Safety2x4AntVelocity-v0": {
+      "label": "ant2x4",
+      "cost_limit": 25.0,
+      "runs": [
+        "safedreamer_dai_safety_gym_lag1e-05_25.0_Safety2x4AntVelocity-v0_s1_date06-24-hr11-46-06_18362835_fix-tanh-logprob-cor",
+        "safedreamer_dai_safety_gym_lag1e-05_25.0_Safety2x4AntVelocity-v0_s2_date06-24-hr11-46-06_18362836_fix-tanh-logprob-cor",
+        "safedreamer_dai_safety_gym_lag1e-05_25.0_Safety2x4AntVelocity-v0_s3_date06-24-hr11-46-17_18362838_fix-tanh-logprob-cor"
+      ]
+    },
+    "Safety4x2AntVelocity-v0": {
+      "label": "ant4x2",
+      "cost_limit": 25.0,
+      "runs": [
+        "safedreamer_dai_safety_gym_lag1e-05_25.0_Safety4x2AntVelocity-v0_s1_date06-24-hr11-46-21_18362839_fix-tanh-logprob-cor",
+        "safedreamer_dai_safety_gym_lag1e-05_25.0_Safety4x2AntVelocity-v0_s2_date06-24-hr11-46-21_18362840_fix-tanh-logprob-cor",
+        "safedreamer_dai_safety_gym_lag1e-05_25.0_Safety4x2AntVelocity-v0_s3_date06-24-hr11-46-21_18362841_fix-tanh-logprob-cor"
+      ]
+    },
+    "Safety2x3HalfCheetahVelocity-v0": {
+      "label": "hc2x3",
+      "cost_limit": 25.0,
+      "runs": [
+        "fix-logprob_dai_safety_gym_lag1e-05_25.0_Safety2x3HalfCheetahVelocity-v0_s1_date06-15-hr15-50-48_18174008_fix-tanh-logprob-cor",
+        "fix-logprob_dai_safety_gym_lag1e-05_25.0_Safety2x3HalfCheetahVelocity-v0_s2_date06-15-hr15-50-53_18174009_fix-tanh-logprob-cor",
+        "fix-logprob_dai_safety_gym_lag1e-05_25.0_Safety2x3HalfCheetahVelocity-v0_s3_date06-15-hr15-50-53_18174010_fix-tanh-logprob-cor"
+      ]
+    }
+  }
+}

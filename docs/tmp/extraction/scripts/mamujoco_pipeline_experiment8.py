@@ -4,7 +4,6 @@ Pipeline: extract MAMuJoCo metrics → aggregate → render PDF table.
 
 Reuses extract_metrics.py for WandB data fetching.
 Extracts SafeDreamer at 100k/500k/700k/800k/900k/1M, MACPO at 10M final.
-Appends paper reference values (MACPO Paper, SafePO Paper).
 Outputs CSV + LaTeX/PDF comparison table.
 
 Usage:
@@ -38,7 +37,7 @@ from wandb_config import WANDB_PROJECT, WANDB_TIMEOUT
 # ── Imports from existing extraction infrastructure ──────────────────────────
 # NOTE: all shared logic lives in extract_metrics.py, extraction_config.py,
 # paths_config.py, wandb_config.py. This pipeline only adds MAMuJoCo-specific
-# orchestration (multiple target steps, paper reference rows, laglr grouping, table layout).
+# orchestration (multiple target steps, laglr grouping, table layout).
 
 
 # ── Constants ────────────────────────────────────────────────────────────────
@@ -60,69 +59,9 @@ COL_SOURCE = "source"
 COL_LAGLR = "laglr"
 
 # Source labels
-SRC_MACPO_PAPER = "MACPO Paper"
-SRC_SAFEPO_PAPER = "SafePO Paper"
 SRC_MACPO_RUN = "MACPO Run"
 ALGO_SD = "SafeDreamer"
 ALGO_MACPO = "MACPO"
-
-# ── Paper / GitHub reference values (Step 2) ─────────────────────────────────
-# Visual estimates from GitHub figures (github.com/chauncygu/Multi-Agent-Constrained-Policy-Optimisation)
-# and README text. All marked approximate (~).
-
-PAPER_REFERENCE = [
-    # MACPO paper (chauncygu repo, GitHub figures, cost limits 0.2/1.0/5.0, at 10M steps, approximate)
-    {
-        "env": "Safety2x4AntVelocity-v0",
-        "cost_limit": 0.2,
-        "source": "MACPO Paper ~",
-        "target_steps": 10_000_000,
-        "score": 900,
-        "cost": 15,
-    },
-    {
-        "env": "Safety4x2AntVelocity-v0",
-        "cost_limit": 1.0,
-        "source": "MACPO Paper ~",
-        "target_steps": 10_000_000,
-        "score": 650,
-        "cost": 15,
-    },
-    {
-        "env": "Safety2x3HalfCheetahVelocity-v0",
-        "cost_limit": 5.0,
-        "source": "MACPO Paper ~",
-        "target_steps": 10_000_000,
-        "score": 2250,
-        "cost": 40,
-    },
-    # SafePO paper (Table 5b, arXiv 2310.12567, cost_limit=25, 10M steps, exact)
-    {
-        "env": "Safety2x4AntVelocity-v0",
-        "cost_limit": 25.0,
-        "source": "SafePO Paper",
-        "target_steps": 10_000_000,
-        "score": 1099.23,
-        "cost": 3.39,
-    },
-    {
-        "env": "Safety4x2AntVelocity-v0",
-        "cost_limit": 25.0,
-        "source": "SafePO Paper",
-        "target_steps": 10_000_000,
-        "score": 815.77,
-        "cost": 0.0,
-    },
-    {
-        "env": "Safety2x3HalfCheetahVelocity-v0",
-        "cost_limit": 25.0,
-        "source": "SafePO Paper",
-        "target_steps": 10_000_000,
-        "score": 1637.29,
-        "cost": 52.10,
-    },
-]
-
 
 # ── CSV loader ───────────────────────────────────────────────────────────────
 
@@ -238,27 +177,6 @@ def aggregate(df: pd.DataFrame) -> pd.DataFrame:
     return agg.reset_index()
 
 
-def append_paper_reference(agg: pd.DataFrame) -> pd.DataFrame:
-    """Append hardcoded paper/GitHub reference rows."""
-    ref_rows = []
-    for ref in PAPER_REFERENCE:
-        ref_rows.append(
-            {
-                COL_ENV: ref["env"],
-                CSV_COL_COST_LIMIT: ref["cost_limit"],
-                COL_SOURCE: ref["source"],
-                COL_STEPS: ref["target_steps"],
-                f"{TABLE_COL_SCORE}_mean": ref["score"],
-                f"{TABLE_COL_SCORE}_std": np.nan,
-                f"{TABLE_COL_SCORE}_count": 0,
-                f"{TABLE_COL_COST}_mean": ref["cost"],
-                f"{TABLE_COL_COST}_std": np.nan,
-                f"{TABLE_COL_COST}_count": 0,
-            }
-        )
-    return pd.concat([agg, pd.DataFrame(ref_rows)], ignore_index=True)
-
-
 # ── Rendering ────────────────────────────────────────────────────────────────
 
 
@@ -290,10 +208,8 @@ def build_latex(agg: pd.DataFrame, standalone: bool = True) -> str:
         "\\multicolumn{1}{r}{\\textbf{Cost} $\\downarrow$} \\\\"
     )
     body_lines = []
-    # Sort: env, cost_limit, source order (paper first, then our MACPO, then our SD by steps)
+    # Sort: env, cost_limit, source order (our MACPO first, then our SD by steps)
     source_order = {
-        f"{SRC_MACPO_PAPER} ~": 0,
-        SRC_SAFEPO_PAPER: 1,
         SRC_MACPO_RUN: 2,
         f"{ALGO_SD} (lr=1e-5)": 3,
         f"{ALGO_SD} (lr=1e-4)": 4,
@@ -473,7 +389,6 @@ def main() -> None:
     print(f"Extracted {len(seed_df)} seed-level rows")
 
     agg = aggregate(seed_df)
-    agg = append_paper_reference(agg)
 
     # Save CSV
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
