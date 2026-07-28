@@ -75,8 +75,8 @@ Output:
 ### Push to Overleaf thesis
 ```bash
 cp ../tables/appendix_full_comparison/appendix_table_corrected_thesis.tex \
-   /home/corsound/workspace/overleaf/thesis/generated_appendix_complete_100k_reordered.tex
-cd /home/corsound/workspace/overleaf/thesis
+   /path/to/overleaf/thesis/generated_appendix_complete_100k_reordered.tex
+cd /path/to/overleaf/thesis
 git add generated_appendix_complete_100k_reordered.tex
 git commit -m "fix(appendix): update corrected table"
 git push
@@ -85,7 +85,7 @@ git push
 ### Raw extraction (no pipeline)
 ```bash
 cd scripts
-/home/corsound/workspace/overleaf/thesis/venv/bin/python3 extract_metrics.py \
+/path/to/overleaf/thesis/venv/bin/python3 extract_metrics.py \
     --output ../inputs/safe_dreamers_runs_adapted.csv \
     2>/dev/null | tee extracted_output.txt
 ```
@@ -133,7 +133,7 @@ api = wandb.Api()
 df = pd.read_csv('inputs/safe_dreamers_runs_adapted.csv')
 df['run_id'] = df['wandb_link'].str.split('/runs/').str[-1]
 for _, row in df.dropna(subset=['wandb_link']).iterrows():
-    run = api.run(f"raz-shmueli-corsound-ai/private-mamba/{row['run_id']}")
+    run = api.run(f"anonymous/private-mamba/{row['run_id']}")
     steps = run.summary.get('steps', 0)
     print('✓' if steps >= 100_000 else '✗', row['map'], row['cost_limit'], row['seed'], steps)
 ```
@@ -146,19 +146,19 @@ df = pd.read_csv('inputs/safe_dreamers_runs_adapted.csv')
 df['run_id'] = df['wandb_link'].str.split('/runs/').str[-1]
 for _, row in df.dropna(subset=['wandb_link']).iterrows():
     try:
-        api.run(f"raz-shmueli-corsound-ai/private-mamba/{row['run_id']}")
+        api.run(f"anonymous/private-mamba/{row['run_id']}")
     except:
         print(f"MISSING: {row['map']} cl={row['cost_limit']} s{row['seed']}")
 ```
 
 ### Check Slurm queue
 ```bash
-ssh slurm.bgu.ac.il "squeue -u razshmue --format='%.10i %.35j %.8T %.10M'"
+ssh $CLUSTER_HOST "squeue -u $CLUSTER_USER --format='%.10i %.35j %.8T %.10M'"
 ```
 
 ### Cancel jobs
 ```bash
-ssh slurm.bgu.ac.il "scancel 17336238 17336240 ..."
+ssh $CLUSTER_HOST "scancel 17336238 17336240 ..."
 ```
 
 ### WandB run ID truncation

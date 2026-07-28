@@ -32,7 +32,7 @@ To ensure experiments are distinguishable across different algorithms, researche
 ## 3. Automation Workflow
 
 ### Launching Experiments
-Use the automation script from your local machine to generate sbatch files and submit them to the BGU cluster:
+Use the automation script from your local machine to generate sbatch files and submit them to the SLURM cluster:
 
 ```bash
 python3 sbatch_scripts/submit_experiments.py \
@@ -56,7 +56,7 @@ Whenever you update your code locally:
 1.  **Commit & Push** your feature branch to GitHub.
 2.  **Sync Remote**: Coordinate the cluster to match your branch:
     ```bash
-    ssh razshmue@slurm.bgu.ac.il "cd workspace/private-mamba && git fetch origin && git checkout <your-branch> && git reset --hard origin/<your-branch>"
+    ssh $CLUSTER_USER@$CLUSTER_HOST "cd workspace/private-mamba && git fetch origin && git checkout <your-branch> && git reset --hard origin/<your-branch>"
     ```
 3.  **Deploy**: Run the submission script locally.
 

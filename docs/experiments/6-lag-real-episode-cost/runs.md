@@ -2,7 +2,7 @@
 
 **Branch**: `feat/lag-real-episode-cost`  
 **Date**: 2026-04-11  
-**Cluster**: `slurm.bgu.ac.il`  
+**Cluster**: `$CLUSTER_HOST`  
 **Config**: `8m`, `collision`, `laglr=1e-5`, `cost_priority=0.15`, seeds 1 & 2
 
 ## Submission Steps
@@ -40,7 +40,7 @@
 ## Planned → Dropped: bane_vs_bane
 Attempted 3 times, all OOM (10.9GB GPU, 24 agents too large for batch_size=40). Dropped in favour of `3s_vs_3z`.
 
-## bane_vs_bane (retry with n_workers=4, qos=razshmue)
+## bane_vs_bane (retry with n_workers=4, qos=$CLUSTER_USER)
 
 **Map**: `bane_vs_bane`, `collision`, `laglr=1e-5`, `cost_priority=0.15`, `cost_limit=0.0`, `n_workers=4`, seeds 1,2,3
 
@@ -50,7 +50,7 @@ Attempted 3 times, all OOM (10.9GB GPU, 24 agents too large for batch_size=40). 
 | 0.0 | 2 | 17209120 |
 | 0.0 | 3 | 17209121 |
 
-**Status**: Submitted — 2026-04-26 (retry with qos=razshmue; monitoring for OOM)
+**Status**: Submitted — 2026-04-26 (retry with qos=$CLUSTER_USER; monitoring for OOM)
 
 ## 3s_vs_3z (replacement for bane_vs_bane)
 

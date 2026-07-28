@@ -1,8 +1,21 @@
 import argparse
 import csv
+import importlib.util
 import os
 import subprocess
 from datetime import datetime
+
+_spec = importlib.util.spec_from_file_location(
+    "cluster_config", os.path.join(os.path.dirname(__file__), "cluster_config.py")
+)
+_cfg = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_cfg)
+REMOTE_USER, REMOTE_HOST, MAIL_USER, REMOTE_HOME = (
+    _cfg.REMOTE_USER,
+    _cfg.REMOTE_HOST,
+    _cfg.MAIL_USER,
+    _cfg.REMOTE_HOME,
+)
 
 
 def create_sbatch_file(template_path, output_path, params):
@@ -96,6 +109,8 @@ def main():
                 sbatch_filename = f"sbatch_scripts/generated/{run_identifier}.sbatch"
 
                 params = {
+                    "MAIL_USER": MAIL_USER,
+                    "REMOTE_HOME": REMOTE_HOME,
                     "JOB_NAME": run_identifier,
                     "ENV": args.env_type,
                     "ENV_NAME": env_name,
@@ -118,13 +133,13 @@ def main():
                     print(f"Submitting {run_identifier} to cluster...")
 
                     # 1. Copy the generated sbatch to the remote
-                    scp_cmd = ["scp", sbatch_filename, f"razshmue@slurm.bgu.ac.il:{remote_path}"]
+                    scp_cmd = ["scp", sbatch_filename, f"{REMOTE_USER}@{REMOTE_HOST}:{remote_path}"]
                     subprocess.run(scp_cmd, check=True)
 
                     # 2. Submit the sbatch on the remote and capture JobID
                     ssh_cmd = [
                         "ssh",
-                        "razshmue@slurm.bgu.ac.il",
+                        f"{REMOTE_USER}@{REMOTE_HOST}",
                         f"cd workspace/private-mamba && sbatch {sbatch_filename}",
                     ]
                     result = subprocess.run(ssh_cmd, check=True, capture_output=True, text=True)

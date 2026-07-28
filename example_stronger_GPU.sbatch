@@ -7,7 +7,7 @@
 #SBATCH --job-name=smac_test_cost_term_3s_vs_4z_combined
 #SBATCH --output=smac_test_cost_term_3s_vs_4z_combined-id-%J.out
 #SBATCH --error=smac_test_cost_term_3s_vs_4z_combined-id-%J.err
-#SBATCH --mail-user=razshmue@post.bgu.ac.il
+#SBATCH --mail-user=user@institution.edu
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --partition=rtx3090
 #SBATCH --gpus=rtx_3090:1
@@ -22,10 +22,10 @@ module load anaconda
 export SC2PATH="$HOME/StarCraftII"
 
 # Activate virtual environment
-source /home/razshmue/workspace/private-mamba/venv/bin/activate
+source /home/user/workspace/private-mamba/venv/bin/activate
 
 # Go to project directory
-cd /home/razshmue/workspace/private-mamba/
+cd /home/user/workspace/private-mamba/
 
 # Run training with safer CUDA memory handling
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True

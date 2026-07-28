@@ -3,7 +3,7 @@
 **Repo**: `Safe-Policy-Optimization-Modified` (cluster) / `Safe-Policy-Optimization` (local)  
 **Branch**: main  
 **Date**: 2026-04-20  
-**Cluster**: `slurm.bgu.ac.il`  
+**Cluster**: `$CLUSTER_HOST`  
 **Config**: `collision`, `num-envs=5`, `total-steps=10M`, GPU keepalive enabled
 
 ## 3s_vs_3z
@@ -95,7 +95,7 @@
 | 0.0 | 2 | ~~17198325~~ → 17203412 |
 | 0.0 | 3 | ~~17198327~~ → ~~17203413~~ → 17208987 |
 
-**Status**: Submitted — 2026-04-26 (seed 3 resubmitted with qos=razshmue)
+**Status**: Submitted — 2026-04-26 (seed 3 resubmitted with qos=$CLUSTER_USER)
 
 ## MMM, 3s5z_vs_3s6z, bane_vs_bane — collision, cost_limit=0.0
 

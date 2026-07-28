@@ -6,7 +6,7 @@
 #SBATCH --job-name={{JOB_NAME}}
 #SBATCH --output={{JOB_NAME}}-id-%J.out
 #SBATCH --error={{JOB_NAME}}-id-%J.err
-#SBATCH --mail-user=razshmue@post.bgu.ac.il
+#SBATCH --mail-user={{MAIL_USER}}
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --partition=rtx3090
 #SBATCH --gpus=1
@@ -20,14 +20,14 @@ module load anaconda
 export SC2PATH="$HOME/StarCraftII"
 
 # Activate virtual environment
-source /home/razshmue/workspace/private-mamba/venv/bin/activate
+source {{REMOTE_HOME}}/venv/bin/activate
 
 # Go to project directory
-cd /home/razshmue/workspace/private-mamba/
+cd {{REMOTE_HOME}}/
 
 # Run training
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
-export PYTHONPATH=$PYTHONPATH:/home/razshmue/workspace/private-mamba/safety-gymnasium-main
+export PYTHONPATH=$PYTHONPATH:{{REMOTE_HOME}}/safety-gymnasium-main
 python train.py \
     --env {{ENV}} \
     --env_name {{ENV_NAME}} \

@@ -61,7 +61,7 @@ description: >
 - SafeDreamer: GPU partition
 - MACPO: CPU partition (via SafePO repo `submit_baseline.py`)
 - SafeDreamer is GPU-only — never submit to CPU partition
-- Wait 2 min, run `squeue -u razshmue` to verify jobs alive
+- Wait 2 min, run `squeue -u $CLUSTER_USER` to verify jobs alive
 - If jobs die immediately, check `.err` file on cluster
 
 **Prerequisite**: Cluster on correct branch, envs verified

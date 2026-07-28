@@ -27,11 +27,11 @@
 ## How to extract metrics
 
 ```bash
-export WANDB_API_KEY=$(grep WEIGHT_AND_BIASES /home/corsound/workspace/overleaf/.env | cut -d= -f2)
-cd /home/corsound/workspace/private-mamba/docs/tmp/extraction/scripts
+export WANDB_API_KEY=$(grep WEIGHT_AND_BIASES /path/to/overleaf/.env | cut -d= -f2)
+cd /path/to/private-mamba/docs/tmp/extraction/scripts
 
 # Edit map_steps_config.json to set target steps per map, then:
-/home/corsound/workspace/overleaf/thesis/venv/bin/python3 extract_metrics.py \
+/path/to/overleaf/thesis/venv/bin/python3 extract_metrics.py \
     --config map_steps_config.json \
     2>/dev/null | tee extracted_Xk.txt
 ```
@@ -65,7 +65,7 @@ Most MACPO collision jobs were cancelled before 5M steps. Completed: MMM s2 (10M
 
 To resubmit:
 ```bash
-cd /home/corsound/workspace/Safe-Policy-Optimization
+cd /path/to/Safe-Policy-Optimization
 python3 sbatch_scripts/submit_baseline.py \
     --tasks MMM 3s5z_vs_3s6z bane_vs_bane 8m \
     --seeds 1 2 3 \

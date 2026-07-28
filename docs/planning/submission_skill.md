@@ -4,7 +4,7 @@
 
 1. **Pull on cluster**
    ```bash
-   ssh razshmue@slurm.bgu.ac.il "cd workspace/private-mamba && git checkout <branch> && git pull origin <branch>"
+   ssh $CLUSTER_USER@$CLUSTER_HOST "cd workspace/private-mamba && git checkout <branch> && git pull origin <branch>"
    ```
 
 2. **Submit jobs**
@@ -31,19 +31,19 @@
 
 ```bash
 # Job status
-ssh razshmue@slurm.bgu.ac.il "squeue -u razshmue"
+ssh $CLUSTER_USER@$CLUSTER_HOST "squeue -u $CLUSTER_USER"
 
 # Error log
-ssh razshmue@slurm.bgu.ac.il "tail -30 workspace/private-mamba/<job_name>-id-<JOBID>.err"
+ssh $CLUSTER_USER@$CLUSTER_HOST "tail -30 workspace/private-mamba/<job_name>-id-<JOBID>.err"
 
 # Output log
-ssh razshmue@slurm.bgu.ac.il "tail -30 workspace/private-mamba/<job_name>-id-<JOBID>.out"
+ssh $CLUSTER_USER@$CLUSTER_HOST "tail -30 workspace/private-mamba/<job_name>-id-<JOBID>.out"
 
 # Available GPUs by partition
-ssh razshmue@slurm.bgu.ac.il "sinfo -o '%P %G %l' | grep gpu"
+ssh $CLUSTER_USER@$CLUSTER_HOST "sinfo -o '%P %G %l' | grep gpu"
 
 # Cancel all jobs
-ssh razshmue@slurm.bgu.ac.il "scancel -u razshmue"
+ssh $CLUSTER_USER@$CLUSTER_HOST "scancel -u $CLUSTER_USER"
 ```
 
 ## GPU Keep-Alive (for CPU-heavy jobs)
@@ -53,8 +53,8 @@ ssh razshmue@slurm.bgu.ac.il "scancel -u razshmue"
 **Relevance**: Mainly needed for `Safe-Policy-Optimization` (SafePO/MACPO) where SC2 simulation dominates and GPU sits idle between training bursts. `private-mamba` trains continuously so this is generally not needed there.
 
 **Locations**:
-- `/home/corsound/workspace/overleaf/scripts/gpu_keepalive.py`
-- `/home/corsound/workspace/Safe-Policy-Optimization/sbatch_scripts/gpu_keepalive.py`
+- `/path/to/overleaf/scripts/gpu_keepalive.py`
+- `/path/to/Safe-Policy-Optimization/sbatch_scripts/gpu_keepalive.py`
 
 **Usage** (add to sbatch before training):
 ```bash
@@ -68,24 +68,24 @@ trap "kill $KEEPALIVE_PID 2>/dev/null" EXIT
 - GPU limit: max 7 GPUs per user (`QOSMaxGRESPerUser`) — excess jobs queue automatically
 - SSH rate limiting: use `ControlMaster auto` + `ControlPersist 10m` in `~/.ssh/config`
 - Always use `./venv310/bin/python3`, not system python
-- Check queue: `ssh razshmue@slurm.bgu.ac.il "squeue -u razshmue"`
+- Check queue: `ssh $CLUSTER_USER@$CLUSTER_HOST "squeue -u $CLUSTER_USER"`
 
 ---
 
 ## SafePO/MACPO Baseline Submission
 
-**Repo**: `/home/corsound/workspace/Safe-Policy-Optimization` (local) → `workspace/Safe-Policy-Optimization-Modified` (cluster)
+**Repo**: `/path/to/Safe-Policy-Optimization` (local) → `workspace/Safe-Policy-Optimization-Modified` (cluster)
 
 **Steps**:
 1. Update scripts locally (template, submit script, keepalive)
 2. SCP to cluster:
    ```bash
    scp sbatch_scripts/{template_macpo.sbatch,submit_baseline.py,gpu_keepalive.py} \
-       razshmue@slurm.bgu.ac.il:workspace/Safe-Policy-Optimization-Modified/sbatch_scripts/
+       $CLUSTER_USER@$CLUSTER_HOST:workspace/Safe-Policy-Optimization-Modified/sbatch_scripts/
    ```
 3. Submit:
    ```bash
-   cd /home/corsound/workspace/Safe-Policy-Optimization
+   cd /path/to/Safe-Policy-Optimization
    python3 sbatch_scripts/submit_baseline.py \
        --tasks 3s_vs_3z \
        --seeds 1 2 3 \

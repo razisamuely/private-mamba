@@ -8,7 +8,7 @@ Measures:
   - Actor + critic update (Phase 2): actor_loss + value_loss + backward + optimizer steps
 
 Usage:
-  cd /home/corsound/workspace/private-mamba
+  cd /path/to/private-mamba
   python docs/profiling/profile_compute.py
 """
 import sys
@@ -20,15 +20,20 @@ import wandb
 
 wandb.init(mode="disabled")
 
-sys.path.insert(0, "/home/corsound/workspace/private-mamba")
+sys.path.insert(0, "/path/to/private-mamba")
 
 
-from agent.learners.DreamerLearner import initialize_weights
-from agent.models.DreamerModel import DreamerModel
-from agent.optim.loss import actor_loss, actor_rollout, model_loss, value_loss
-from configs.dreamer.DreamerLearnerConfig import DreamerLearnerConfig
-from networks.dreamer.action import Actor
-from networks.dreamer.critic import AugmentedCritic
+from agent.learners.DreamerLearner import initialize_weights  # noqa: E402
+from agent.models.DreamerModel import DreamerModel  # noqa: E402
+from agent.optim.loss import (  # noqa: E402
+    actor_loss,
+    actor_rollout,
+    model_loss,
+    value_loss,
+)
+from configs.dreamer.DreamerLearnerConfig import DreamerLearnerConfig  # noqa: E402
+from networks.dreamer.action import Actor  # noqa: E402
+from networks.dreamer.critic import AugmentedCritic  # noqa: E402
 
 # ── Config ────────────────────────────────────────────────────────────────────
 config = DreamerLearnerConfig()

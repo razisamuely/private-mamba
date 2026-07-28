@@ -2,7 +2,7 @@
 
 **Branch**: `feat/lag-real-cost-fix`  
 **Date**: 2026-04-10  
-**Cluster**: `slurm.bgu.ac.il`  
+**Cluster**: `$CLUSTER_HOST`  
 **Config**: `8m`, `collision`, `laglr=1e-5`, `cost_priority=0.15`, seeds 1 & 2
 
 | Cost Limit | Seed | Slurm ID |

@@ -27,12 +27,12 @@ This log tracks the motivation, changes, and final outcomes of all Safe Dreamer 
 
 We compare Safe Dreamer against **MACPO** and **MAPPO-Lag** from the SafePO library.
 
-- **Baseline repo**: `/home/corsound/workspace/Safe-Policy-Optimization`
+- **Baseline repo**: `/path/to/Safe-Policy-Optimization`
 - **Branch**: `feat/collision-cost-comparison`
 - **Same setup**: `8m` map, `collision` cost, `difficulty=7`, `continuing_episode=True`
 - **How to run baselines**:
   ```bash
-  cd /home/corsound/workspace/Safe-Policy-Optimization
+  cd /path/to/Safe-Policy-Optimization
   git checkout feat/collision-cost-comparison
   python sbatch_scripts/submit_baseline.py  # generates sbatch files; uncomment SSH lines to submit
   ```
