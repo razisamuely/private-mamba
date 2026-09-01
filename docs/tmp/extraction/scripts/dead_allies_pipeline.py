@@ -195,15 +195,17 @@ def _bold_sd_winners(sd_row: str, sp_row: str, sd: pd.Series | None, sp: pd.Seri
     return sd_row, sp_row
 
 
-def _map_cost_block(mp: str, cl: float, sd_idx: pd.DataFrame, sp_idx: pd.DataFrame) -> str:
-    """Build the two-row block (SafePO then SafeDreamer) for one map+cost_limit."""
+def _map_cost_block(mp: str, cl: float, sd_idx: pd.DataFrame, sp_idx: pd.DataFrame, ml_idx: pd.DataFrame) -> str:
+    """Build the block (SafePO, MAPPO-Lag, SafeDreamer) for one map+cost_limit."""
     key = (mp, cl)
     sd_s = sd_idx.loc[key] if key in sd_idx.index else None
     sp_s = sp_idx.loc[key] if key in sp_idx.index else None
+    ml_s = ml_idx.loc[key] if key in ml_idx.index else None
     sd_row = _data_row("Safe Dreamers", mp, sd_s, SD_STEP_LABEL, cl)
     sp_row = _data_row("SafePO", mp, sp_s, SAFEPO_STEP_LABEL, cl)
+    ml_row = _data_row("MAPPO-Lag", mp, ml_s, "500k", cl)
     sd_row, sp_row = _bold_sd_winners(sd_row, sp_row, sd_s, sp_s)
-    return f"{sp_row}\n{sd_row}"
+    return f"{sp_row}\n{ml_row}\n{sd_row}"
 
 
 def build_latex(agg: pd.DataFrame, standalone: bool = True) -> str:
@@ -214,9 +216,10 @@ def build_latex(agg: pd.DataFrame, standalone: bool = True) -> str:
     """
     sd_idx = agg[agg[CSV_COL_ALGORITHM] == "SafeDreamers"].set_index([CSV_COL_MAP, CSV_COL_COST_LIMIT])
     sp_idx = agg[agg[CSV_COL_ALGORITHM] == "SafePO"].set_index([CSV_COL_MAP, CSV_COL_COST_LIMIT])
+    ml_idx = agg[agg[CSV_COL_ALGORITHM] == "MAPPO-Lag"].set_index([CSV_COL_MAP, CSV_COL_COST_LIMIT])
 
     all_keys = sorted(
-        set(sd_idx.index.tolist() + sp_idx.index.tolist()),
+        set(sd_idx.index.tolist() + sp_idx.index.tolist() + ml_idx.index.tolist()),
         key=lambda x: (DEAD_ALLIES_MAPS_ORDER.index(x[0]) if x[0] in DEAD_ALLIES_MAPS_ORDER else 99, x[1]),
     )
 
@@ -225,7 +228,7 @@ def build_latex(agg: pd.DataFrame, standalone: bool = True) -> str:
         "\\textbf{Cost} $\\downarrow$ & \\textbf{Winrate} $\\uparrow$ & "
         "\\textbf{Steps} & \\textbf{Cost Limit} \\\\"
     )
-    body = "\n\\midrule\n".join(_map_cost_block(mp, cl, sd_idx, sp_idx) for mp, cl in all_keys)
+    body = "\n\\midrule\n".join(_map_cost_block(mp, cl, sd_idx, sp_idx, ml_idx) for mp, cl in all_keys)
 
     table = (
         "\\begin{longtable}{lcccccc}\n"
@@ -332,8 +335,17 @@ def make_fake_seed_rows() -> pd.DataFrame:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--test", action="store_true", help="Use fake data, skip WandB")
+    parser.add_argument(
+        "--render-only", action="store_true", help="Skip extraction; render table from existing aggregated CSV"
+    )
     parser.add_argument("--python", default=sys.executable)
     args = parser.parse_args()
+
+    if args.render_only:
+        agg = pd.read_csv(DEAD_ALLIES_AGG_CSV)
+        print(f"Render-only: loaded {len(agg)} rows from {DEAD_ALLIES_AGG_CSV}")
+        write_table(agg, DEAD_ALLIES_TEX_DIR / "appendix_table_corrected.tex")
+        return
 
     if args.test:
         print("=== TEST MODE: using fake data ===")
