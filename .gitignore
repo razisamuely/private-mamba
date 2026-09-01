@@ -48,6 +48,8 @@ Thumbs.db
 *egg*
 venv/*
 venv310/*
+venv38/*
+*.zip
 wandb/*
 *.gif
 *.png
