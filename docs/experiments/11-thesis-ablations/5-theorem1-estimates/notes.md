@@ -60,6 +60,49 @@ not certify the theorem's *uniform* assumption (04_theory.tex:114-116).
 3. Compute Δ per env; compare against observed real-vs-imagined cost gap —
    does it explain SMAC threshold violations (point 3)?
 
+## MAMuJoCo check — feasibility confirmed (2026-09-01)
+
+- All needed metrics exist in Exp 8 SafeDreamer WandB logs (sample run
+  HC2x3 c=25 lag1e-4 s1): `Model/cost_loss`=0.0049 (ε_c), `Model/div`=0.064
+  (ε_P proxy), `Value/Cost`=0.0125 (imagined cost/step), `main/cost`=19
+  (real episode total), `Value/Max cost`≈1.08 (c_max estimate).
+- Logging verified per episode (`DreamerRunner.py:41-48`) → episode length =
+  `steps` diff between consecutive rows.
+- Sanity calc (per-15-step scale, ×13.9): imagined ≈ 0.175, real ≈ 0.27 →
+  gap ≈ 0.09; Δ ≈ 19 (ε_P term dominates via Pinsker TV≈0.18) → bound holds
+  but very loose, as thesis predicts ("ε_P is what binds").
+- Full plan: `plan.md` in this folder. Next: extraction script for all runs.
+
+### Limitation (state in writeup)
+
+We compare **average** 15-step windows (real side = episode cost ÷ episode
+length × 13.9). But MAMuJoCo cost is binary and bursty (0/1 per step, step 2
+finding) — violations cluster. A risky window inside a burst can have cost
+~15 while the average says ~0.3. So the "observed gap" understates the worst
+case; the check is consistency-on-average, not worst-case verification
+(matches the theorem's own caveat: average ≠ uniform, 04_theory.tex:114-116).
+
+## MAMuJoCo results (2026-09-01) — plan steps 1-3 DONE
+
+Script: `extract_theorem1_mamujoco.py` → `theorem1_mamujoco_per_run.csv`
+(38 runs), `theorem1_mamujoco_agg.csv` (12 env x limit x laglr groups).
+Note: WandB `run.history(keys=[...])` returns only rows where ALL keys
+co-occur — metrics logged in separate wandb.log calls must be fetched
+per key (bug found + fixed in first version).
+
+**Findings** (all per discounted 15-step window, tail-10% averages):
+
+- **Theorem consistent, bound very loose**: observed gap 0.006-0.14 vs
+  Δ 21-44 → holds with x200-x3000 slack. The imagined constraint tracks
+  real cost far better than worst case.
+- **ε_c ≈ 0.0004-0.006** — confirms thesis "~0.004" claim; 15·ε_c ≈ 0.05,
+  negligible vs d.
+- **ε_P (KL proxy) is env-dependent and dominates Δ**:
+  HC 2x3 ≈ 0.08-0.10; Ant (2x4, 4x2) ≈ 0.25-0.35 (3x harder dynamics).
+  Δ is essentially 105·TV (Pinsker).
+- Next comparison point: SMAC ε_P — if higher, candidate explanation for
+  threshold violations (point 3).
+
 ## TODO — missing citation in thesis (do NOT edit paper yet)
 
 Theorem 1's proof is the classic **simulation lemma** template, but the thesis
