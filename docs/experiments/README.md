@@ -15,6 +15,7 @@ This log tracks the motivation, changes, and final outcomes of all Safe Dreamer 
 
 | Experiment ID | Title | Status | Outcome | Key Lesson |
 | :--- | :--- | :--- | :--- | :--- |
+| **11** | [Thesis Ablations](./11-thesis-ablations/) | In progress | MAPPO-Lag SMAC: crossover vs SD@100k between 500k-1M steps | Supervisor points 1-5; MAPPO-Lag needs 5-10x our budget to compete. |
 | **09** | [SMAC Comm Ablation](./9-smac-comm-ablation/) | Setup | — | Comm blocked via `~eye` mask (True=blocked in PyTorch attention). |
 | **08** | [Continuous Action MAMuJoCo](./8-continuous-action-mamujoco/) | **Complete** | SD beats MACPO 2x reward, 100x sample efficiency | Gaussian policy + tanh squash; log-prob fix; laglr=1e-4 for cost. |
 | **04** | [Collision Fine-Tuning](./4-collision-cost-fine-tuning/) | **SUCCESS** | Cost 30 -> 1.5 | Scale Alignment & Low LagLR. |
