@@ -6,8 +6,8 @@ Supervisor notes (2026-09-01) — work needed to complete the CS master thesis.
 
 1. **MAPPO-Lag on all environments** — the baseline was only run on MAMuJoCo
    (incl. matched-budget 1M). Fill gaps: SMAC maps (jobs 19601155-173 may
-   already cover this — verify/extract first), remaining MAMuJoCo partitions,
-   shadow-hand (Exp 10) when ready.
+   already cover this — verify/extract first), remaining MAMuJoCo partitions.
+   Shadow-hand (Exp 10) is out of thesis scope.
 2. **Communication audit: training vs inference** — verify whether the
    comm/attention mechanism is active during training (rollouts, world-model
    learning, imagination) and at eval/inference. Audit
