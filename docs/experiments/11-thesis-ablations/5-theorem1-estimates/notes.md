@@ -103,6 +103,59 @@ per key (bug found + fixed in first version).
 - Next comparison point: SMAC ε_P — if higher, candidate explanation for
   threshold violations (point 3).
 
+## Calculation flow (each step, with averaging + assumptions)
+
+```
+INPUTS (per run, from WandB logs)
+│
+│  A. Model/cost_loss      (cost-head error, per training step)
+│  B. Model/div            (prior-vs-posterior KL divergence, per training step)
+│  C. Value/Cost           (dreamed cost, per dreamed step)
+│  D. main/cost            (real cost, TOTAL per episode)
+│  E. steps                (cumulative env steps, one row per episode)
+│
+▼
+STEP 1 — tail averaging (all of A-D)
+│  take the LAST 10% of each metric's logged rows → mean
+│  WHY: end-of-training value, single last point too noisy
+│  ASSUMPTION: model is converged in the last 10%
+│
+├──────────────── LEFT BRANCH: the BOUND Δ ─────────────────┐
+▼                                                            ▼
+STEP 2a — ε_c                                    STEP 2b — ε_P proxy
+│  ε_c = tail-mean(A)                            │  KL = tail-mean(B)
+│  e.g. 0.004                                    │  TV = sqrt(KL/2)   [Pinsker]
+│  ASSUMPTION: average loss                      │  e.g. KL=0.08 → TV=0.2
+│  stands in for worst-case ε_c                  │  ASSUMPTION: KL on latents
+│                                                │  ~ TV on states; avg~worst
+└────────────┬───────────────────────────────────┘
+             ▼
+STEP 3 — Δ = 15·ε_c + 105·c_max·TV     (c_max = 1, exact from env code)
+│  e.g. Δ = 0.06 + 21 ≈ 21
+│
+├──────────────── RIGHT BRANCH: the OBSERVED GAP ───────────┐
+▼                                                            ▼
+STEP 4a — imagined side                          STEP 4b — real side
+│  per-step = tail-mean(C), e.g. 0.0125          │  episode cost = tail-mean(D), e.g. 19
+│  × 13.9 (= Σγ^t, 15 steps)                     │  episode length = mean steps-diff (E)
+│  → 0.17 per 15-step window                     │  per-step = 19/~1000 = 0.019
+│                                                │  ASSUMPTION: cost spread evenly
+│                                                │  (weak — cost is bursty 0/1!)
+│                                                │  × 13.9 → 0.27 per window
+└────────────┬───────────────────────────────────┘
+             ▼
+STEP 5 — gap = |real − imagined| ≈ 0.1
+             ▼
+STEP 6 — check: gap ≤ Δ?   0.1 ≤ 21 ✓ consistent, slack ×200 → loose
+             ▼
+STEP 7 — aggregate over seeds: mean ± std per env × cost_limit × laglr
+```
+
+Why TV: the theorem states ε_P in TV (`D_TV ≤ ε_P`, 04_theory.tex:28-34)
+because TV directly bounds differences of expectations of bounded functions
+(forecast off by X → cost off by ≤ c_max·X). KL is just what training logs;
+Pinsker (TV ≤ sqrt(KL/2)) is the conservative bridge.
+
 ## TODO — missing citation in thesis (do NOT edit paper yet)
 
 Theorem 1's proof is the classic **simulation lemma** template, but the thesis
