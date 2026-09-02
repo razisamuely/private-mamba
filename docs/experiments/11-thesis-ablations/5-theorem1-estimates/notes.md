@@ -156,6 +156,27 @@ because TV directly bounds differences of expectations of bounded functions
 (forecast off by X → cost off by ≤ c_max·X). KL is just what training logs;
 Pinsker (TV ≤ sqrt(KL/2)) is the conservative bridge.
 
+## Observation: MAMuJoCo also violates tight limits (2026-09-02)
+
+Not SMAC-specific — SafeDreamer exceeds cost on MAMuJoCo too when d is tight:
+
+| Env | d (limit) | SafeDreamer cost @1M | Violates? |
+|---|---|---|---|
+| HC 2x3 | 5.0 | 35.8 | **yes, ×7** |
+| HC 2x3 | 25.0 | 16.6 | no |
+| Ant 2x4 | 0.2 | 24.3 | **yes, ×120** |
+| Ant 2x4 | 25.0 | 17.4 | no |
+| Ant 4x2 | 1.0 | 2.5 | **yes, ×2.5** |
+| Ant 4x2 | 25.0 | 11.5 | no |
+
+(Source: `docs/tmp/tables/mamujoco_comparison_experiment8/comparison_table_real_*.csv`,
+SafeDreamer lr=1e-5 @1M steps.)
+
+Pattern: tight limits violated massively; loose limits (d=25) roughly ok.
+Meanwhile, Theorem 1 gap is tiny everywhere — the model is accurate on
+average but the Lagrangian constraint enforcement fails with tight budgets.
+Connects to supervisor points 3 (pessimistic threshold) and 4 (PID-Lagrangian).
+
 ## TODO — missing citation in thesis (do NOT edit paper yet)
 
 Theorem 1's proof is the classic **simulation lemma** template, but the thesis
