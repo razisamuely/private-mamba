@@ -60,6 +60,15 @@ Fix: PID controller on the multiplier (Stooke et al. 2020, arXiv:2007.03964).
       (Ant2x4, cpu, offline wandb — PID metrics logged, no crash).
       Note: venv310 was broken by OS upgrade (python3.10 gone) — reinstalled
       via deadsnakes + relinked `venv310/bin/python`.
-- [ ] Cluster runs (MAMuJoCo)
+- [x] Cluster runs submitted 2026-09-23 (~18:12), branch `feat/pid-lagrangian`,
+      GPU (rtx3090), gains kp=1.0 ki=1e-5 kd=1.0, laglr=1e-5, 3 seeds each:
+      | Env | CL | Slurm IDs |
+      |-----|----|-----------|
+      | Ant 2x4 | 0.2 | 21631854-856 |
+      | Ant 4x2 | 1.0 | 21631898-900 |
+      | HC 2x3 | 5.0 | 21631933-935 |
+      Verified alive +2min (RUNNING, episodes progressing). WandB runs carry
+      `_pid` suffix. Baselines = Exp 8 Phase 3 runs #21-29 (same configs, basic).
+- [ ] Runs finished + healthy
 - [ ] Analysis + writeup
 - [ ] PR + CI green
