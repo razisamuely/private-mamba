@@ -52,6 +52,9 @@ venv38/*
 *.zip
 wandb/*
 wandb-runs/*
+wandb-skills/
+docs/tmp/tables/mamujoco_comparison_experiment8/safe_po_paper.pdf
+docs/tmp/tables/mamujoco_comparison_experiment8/multi agent contrined policy optimization.pdf
 *.gif
 *.png
 *.jpg
