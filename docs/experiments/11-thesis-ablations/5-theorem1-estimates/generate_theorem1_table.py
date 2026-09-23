@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """Generate Theorem 1 empirical check table (LaTeX + PDF).
 
-Reads theorem1_mamujoco_agg.csv → produces table showing eps_c, eps_P (TV),
+Reads theorem1_{env}_agg.csv → produces table showing eps_c, eps_P (TV),
 Delta bound, observed gap, and whether the bound holds per env config.
 
-Usage: python generate_theorem1_table.py
+Usage:
+  python generate_theorem1_table.py --env mamujoco
+  python generate_theorem1_table.py --env smac
 """
 
+import argparse
 import subprocess
 from pathlib import Path
 from typing import Optional
@@ -15,15 +18,23 @@ import pandas as pd
 
 # --- Paths -------------------------------------------------------------------
 OUT_DIR = Path(__file__).parent
-AGG_CSV = OUT_DIR / "theorem1_mamujoco_agg.csv"
-TEX_FILE = OUT_DIR / "theorem1_mamujoco_table.tex"
-PDF_FILE = OUT_DIR / "theorem1_mamujoco_table.pdf"
 
 # --- Display names -----------------------------------------------------------
 ENV_SHORT_NAMES = {
+    # MAMuJoCo
     "Safety2x3HalfCheetahVelocity-v0": "HC 2x3",
     "Safety2x4AntVelocity-v0": "Ant 2x4",
     "Safety4x2AntVelocity-v0": "Ant 4x2",
+}
+
+ENV_CAPTIONS = {
+    "mamujoco": "Theorem 1 empirical check --- MAMuJoCo (SafeDreamer, full comm).",
+    "smac": "Theorem 1 empirical check --- SMAC (SafeDreamer, dead\\_allies\\_incremental cost).",
+}
+
+ENV_COST_NOTES = {
+    "mamujoco": "binary velocity cost, exact from env code",
+    "smac": "binary dead\\_allies\\_incremental cost",
 }
 
 
@@ -45,7 +56,7 @@ def _slack(gap: float, delta: float) -> str:
     return f"$\\times${ratio:.0f}"
 
 
-def generate_tex(df: pd.DataFrame) -> str:
+def generate_tex(df: pd.DataFrame, env_type: str = "mamujoco") -> str:
     """Build a standalone LaTeX document with the Theorem 1 table."""
     rows = []
     for _, r in df.iterrows():
@@ -77,7 +88,9 @@ def generate_tex(df: pd.DataFrame) -> str:
 \begin{document}
 \begin{table}[h]
 \centering
-\caption{Theorem 1 empirical check --- MAMuJoCo (SafeDreamer, full comm).
+\caption{"""
+        + ENV_CAPTIONS.get(env_type, "Theorem 1 empirical check.")
+        + r"""
     Does the bound $\Delta$ cover the actual gap between real and imagined cost?}
 \small
 \begin{tabular}{llcccccccr}
@@ -93,7 +106,9 @@ Env & $d$ & lag-lr & $\epsilon_c$ & TV (from KL) & $\Delta$ (bound) & Observed g
 
 \vspace{1em}
 \noindent\textbf{Formula:}\\
-$\Delta = 15\,\epsilon_c + 105 \cdot c_{\max} \cdot \text{TV}$,\quad $c_{\max}=1$ (binary velocity cost, exact from env code).
+$\Delta = 15\,\epsilon_c + 105 \cdot c_{\max} \cdot \text{TV}$,\quad $c_{\max}=1$ ("""
+        + ENV_COST_NOTES.get(env_type, "binary cost")
+        + r""").
 
 \vspace{0.8em}
 \noindent\textbf{What each column measures:}
@@ -125,7 +140,7 @@ $\Delta = 15\,\epsilon_c + 105 \cdot c_{\max} \cdot \text{TV}$,\quad $c_{\max}=1
         assuming the model has converged by that point.
   \item \textbf{Even cost spread.}
         Real per-step cost = episode total $\div$ episode length.
-        This assumes cost is spread evenly, but MAMuJoCo cost is binary (0 or 1 per step)
+        This assumes cost is spread evenly, but cost is binary (0 or 1 per step)
         and likely bursty --- risky windows may have much higher cost than the average suggests.
   \item \textbf{KL $\to$ TV conversion.}
         Pinsker gives a conservative upper bound on TV from KL,
@@ -154,16 +169,22 @@ def compile_pdf(tex_path: Path) -> Optional[Path]:
 
 
 def main() -> None:
-    df = pd.read_csv(AGG_CSV)
-    tex_content = generate_tex(df)
-    TEX_FILE.write_text(tex_content)
-    print(f"wrote {TEX_FILE}")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--env", required=True, choices=["mamujoco", "smac"])
+    args = parser.parse_args()
 
-    pdf = compile_pdf(TEX_FILE)
+    agg_csv = OUT_DIR / f"theorem1_{args.env}_agg.csv"
+    tex_file = OUT_DIR / f"theorem1_{args.env}_table.tex"
+
+    df = pd.read_csv(agg_csv)
+    tex_content = generate_tex(df, env_type=args.env)
+    tex_file.write_text(tex_content)
+    print(f"wrote {tex_file}")
+
+    pdf = compile_pdf(tex_file)
     if pdf:
-        # clean aux files
         for ext in [".aux", ".log"]:
-            aux = TEX_FILE.with_suffix(ext)
+            aux = tex_file.with_suffix(ext)
             if aux.exists():
                 aux.unlink()
         print(f"wrote {pdf}")

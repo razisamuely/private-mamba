@@ -177,6 +177,30 @@ Meanwhile, Theorem 1 gap is tiny everywhere — the model is accurate on
 average but the Lagrangian constraint enforcement fails with tight budgets.
 Connects to supervisor points 3 (pessimistic threshold) and 4 (PID-Lagrangian).
 
+## SMAC results (2026-09-15) — DONE
+
+Script: `extract_theorem1.py --env smac` (parameterized version replaces
+`extract_theorem1_mamujoco.py`) → `theorem1_smac_per_run.csv` (36 runs),
+`theorem1_smac_agg.csv` (10 map groups). Table: `theorem1_smac_table.pdf`.
+
+Note: only cost_limit=0 runs extracted (all SMAC SafeDreamer runs were c=0).
+3s5z_vs_3s6z and bane_vs_bane missing (no matching runs). 3s_vs_5z and MMM
+have 6 seeds (duplicate batches).
+
+**Findings** (all per discounted 15-step window, tail-10% averages):
+
+- **Theorem consistent, bound very loose** (same as MAMuJoCo): observed gap
+  0.025–0.52 vs Δ 15–39 → holds with ×58–×939 slack.
+- **ε_c higher than MAMuJoCo**: 0.001–0.016 (vs 0.0004–0.006). Hardest maps:
+  1c3s5z (0.016), MMM (0.016) — discrete combat dynamics harder to predict.
+- **ε_P (TV) higher than MAMuJoCo**: 0.15–0.37 (vs 0.15–0.25). Highest:
+  1c3s5z (0.37), MMM (0.28), 2s3z (0.28).
+- **ε_P still dominates Δ** — same pattern as MAMuJoCo. 105·c_max·TV >> 15·ε_c.
+- **Conclusion for task 3**: model error alone does NOT explain cost-above-threshold.
+  The bound is 50-900× looser than the actual gap — the Lagrangian enforcement
+  mechanism is the bottleneck, not model accuracy. This feeds directly into
+  task 4 (PID-Lagrangian).
+
 ## TODO — missing citation in thesis (do NOT edit paper yet)
 
 Theorem 1's proof is the classic **simulation lemma** template, but the thesis
