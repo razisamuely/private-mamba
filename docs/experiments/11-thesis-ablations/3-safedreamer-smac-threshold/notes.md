@@ -33,9 +33,37 @@ Two candidate causes (may coexist, may differ per env):
 
 ## Analysis plan (no new compute)
 
-1. [ ] ε_P on SMAC — adapt Theorem 1 extraction script to SMAC runs.
-2. [ ] β dynamics — pull `Agent/Lagrangian` curves per env from WandB,
-       compare SMAC vs MAMuJoCo (rising? converged? oscillating?).
-3. [ ] Cross-reference: envs with high ε_P AND rising β = both causes.
-4. [ ] Connect findings to fixes: pessimistic threshold (if ε_P dominates),
-       PID-Lagrangian (if β dynamics dominate), or both.
+1. [x] ε_P on SMAC — done in task 5. Model is accurate (bound holds 58-939× slack).
+2. [x] β dynamics — pulled `Agent/Lagrangian` for 5 maps (MMM, 8m, 1c3s5z,
+       2m_vs_1z, 3m), 3 seeds each. See `data/`, `figures/`, `beta_diagnosis.pdf`.
+3. [x] Cross-reference: ε_P is fine everywhere; β is the sole bottleneck.
+4. [x] Conclusion: PID-Lagrangian (task 4) is the right fix.
+
+## Results (2026-09-15)
+
+β rises **linearly and never converges** on all 5 maps at 100k steps.
+No plateau, no oscillation — gradient-ascent lag-lr=1e-5 is too slow.
+
+| Map | β at 100k | Cost at 100k | Initial cost | Verdict |
+|-----|-----------|-------------|-------------|---------|
+| MMM | 0.50 | ~7-8 | ~10 | worst — cost barely moves |
+| 1c3s5z | 0.30 | ~4-5 | ~9 | bad — dropping but far from 0 |
+| 8m | 0.50 | ~3 | ~8 | medium — dropping, β still rising |
+| 3m | 0.13 | ~0.5 | ~3 | mild — almost there |
+| 2m_vs_1z | 0.025 | ~0.2 | ~2 | best — low cost, low β needed |
+
+**Conclusion**: cost-above-threshold is a Lagrangian convergence problem,
+not model error. On hard maps, β=0.3-0.5 at 100k isn't enough to outweigh
+the reward signal. PID-Lagrangian (task 4) should fix this with faster
+multiplier response.
+
+Deliverable: `beta_diagnosis.tex` / `beta_diagnosis.pdf` with figures.
+
+## MAMuJoCo β dynamics (done earlier, 2026-07-28)
+
+β dynamics were already analyzed for MAMuJoCo (AAAI reviewer concern #6):
+Ant2x4, Ant4x2, HC2x3 (lr=1e-5, d=25, 3 seeds each). Lives OUTSIDE this
+folder: `docs/analysis/beta_dynamics/` (plan.md, scripts, `figures/*.pdf`).
+There β rises while cost > limit then stabilizes — behaves sensibly with
+a loose limit (d=25). So task 3 β diagnosis covers **both envs**:
+MAMuJoCo (`docs/analysis/beta_dynamics/`) + SMAC (here).
