@@ -51,6 +51,10 @@ def main():
     parser.add_argument("--ppo_epochs", type=int, default=None)
     parser.add_argument("--epochs", type=int, default=None)
     parser.add_argument("--comm_mode", type=str, default=None, help="Communication mode (full/none)")
+    parser.add_argument("--lag_mode", type=str, default=None, help="Lagrangian update rule (basic/pid)")
+    parser.add_argument("--pid_kp", type=float, default=None, help="PID-Lagrangian proportional gain")
+    parser.add_argument("--pid_ki", type=float, default=None, help="PID-Lagrangian integral gain")
+    parser.add_argument("--pid_kd", type=float, default=None, help="PID-Lagrangian derivative gain")
     parser.add_argument("--template", type=str, default=None, help="Custom sbatch template path")
 
     args = parser.parse_args()
@@ -98,6 +102,14 @@ def main():
         extra_parts.append(f"--epochs {args.epochs}")
     if args.comm_mode is not None:
         extra_parts.append(f"--comm_mode {args.comm_mode}")
+    if args.lag_mode is not None:
+        extra_parts.append(f"--lag_mode {args.lag_mode}")
+    if args.pid_kp is not None:
+        extra_parts.append(f"--pid_kp {args.pid_kp}")
+    if args.pid_ki is not None:
+        extra_parts.append(f"--pid_ki {args.pid_ki}")
+    if args.pid_kd is not None:
+        extra_parts.append(f"--pid_kd {args.pid_kd}")
     extra_args = " \\\n    ".join(extra_parts) if extra_parts else ""
 
     for env_name in args.envs:
