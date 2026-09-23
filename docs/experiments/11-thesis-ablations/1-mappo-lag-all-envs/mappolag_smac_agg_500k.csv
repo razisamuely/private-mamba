@@ -1,6 +1,0 @@
-map,algorithm,cost_limit,score_mean,score_std,cost_mean,cost_std,winrate_mean,winrate_std,n_seeds
-1c3s5z,MAPPO-Lag,0.0,17.402,0.934,7.152,1.677,0.331,0.267,3
-2m_vs_1z,MAPPO-Lag,0.0,19.972,0.017,0.005,0.005,0.998,0.002,3
-2m_vs_1z,MAPPO-Lag,1.0,19.991,0.004,0.004,0.002,0.999,0.001,3
-8m,MAPPO-Lag,0.0,8.94,0.012,7.999,0.001,0.0,0.0,3
-8m,MAPPO-Lag,4.0,8.914,0.369,8.0,0.0,0.0,0.001,3

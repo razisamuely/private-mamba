@@ -1,0 +1,304 @@
+\begin{longtable}{lcccccc}
+\caption{Complete performance comparison across algorithms and step budgets.}
+\label{tab:complete_performance_comparison_100k} \\
+\toprule
+\textbf{Algorithm} & \textbf{Scenario} & \textbf{Score} $\uparrow$ & \textbf{Cost} $\downarrow$ & \textbf{Winrate} $\uparrow$ & \textbf{Steps} & \textbf{Cost Limit} \\
+\midrule
+\endfirsthead
+\multicolumn{7}{c}{{\bfseries \tablename\ \thetable{} -- continued}} \\
+\toprule
+\textbf{Algorithm} & \textbf{Scenario} & \textbf{Score} $\uparrow$ & \textbf{Cost} $\downarrow$ & \textbf{Winrate} $\uparrow$ & \textbf{Steps} & \textbf{Cost Limit} \\
+\midrule
+\endhead
+\midrule \multicolumn{7}{r}{{Continued on next page}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+SafePO & 1c3s5z & \textcolor{green!60!black}{7.64 $\pm$ 0.16} & \textcolor{green!60!black}{9.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 5M & 0 \\
+SafePO & 1c3s5z & \textcolor{green!60!black}{7.64 $\pm$ 0.08} & \textcolor{green!60!black}{9.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 0 \\
+SafePO & 1c3s5z & \textcolor{green!60!black}{8.08 $\pm$ 0.21} & \textcolor{green!60!black}{9.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 0 \\
+SafePO & 1c3s5z & \textcolor{green!60!black}{9.09 $\pm$ 0.76} & \textcolor{green!60!black}{9.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 0 \\
+SafePO & 1c3s5z & \textcolor{green!60!black}{9.52 $\pm$ 0.61} & \textcolor{green!60!black}{9.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 2M & 0 \\
+MAPPO-Lag & 1c3s5z & \textcolor{green!60!black}{11.05 $\pm$ 0.21} & \textcolor{green!60!black}{9.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 0 \\
+MAPPO-Lag & 1c3s5z & \textcolor{green!60!black}{17.54 $\pm$ 0.94} & \textcolor{green!60!black}{7.03 $\pm$ 1.70} & \textcolor{green!60!black}{0.36 $\pm$ 0.27} & 500k & 0 \\
+MAPPO-Lag & 1c3s5z & \textcolor{red!70!black}{19.82 $\pm$ 0.15} & \textcolor{red!70!black}{2.22 $\pm$ 0.64} & \textcolor{red!70!black}{0.96 $\pm$ 0.04} & 1M & 0 \\
+MAPPO-Lag & 1c3s5z & \textcolor{red!70!black}{19.96 $\pm$ 0.01} & \textcolor{red!70!black}{1.04 $\pm$ 0.04} & \textcolor{red!70!black}{1.00 $\pm$ 0.00} & 2M & 0 \\
+MAPPO-Lag & 1c3s5z & \textcolor{red!70!black}{20.00 $\pm$ 0.00} & \textcolor{red!70!black}{0.44 $\pm$ 0.11} & \textcolor{red!70!black}{1.00 $\pm$ 0.00} & 5M & 0 \\
+Safe Dreamers & 1c3s5z & 19.29 $\pm$ 0.14 & 4.23 $\pm$ 0.27 & 0.82 $\pm$ 0.02 & 100k & 0 \\
+\midrule
+SafePO & 1c3s5z & \textcolor{green!60!black}{7.79 $\pm$ 0.05} & \textcolor{green!60!black}{9.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 5M & 4 \\
+SafePO & 1c3s5z & \textcolor{green!60!black}{7.76 $\pm$ 0.06} & \textcolor{green!60!black}{9.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 4 \\
+SafePO & 1c3s5z & \textcolor{green!60!black}{8.96 $\pm$ 0.70} & \textcolor{green!60!black}{9.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 4 \\
+SafePO & 1c3s5z & \textcolor{green!60!black}{10.02 $\pm$ 0.18} & \textcolor{green!60!black}{9.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 4 \\
+SafePO & 1c3s5z & \textcolor{green!60!black}{12.36 $\pm$ 0.37} & \textcolor{green!60!black}{9.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 2M & 4 \\
+MAPPO-Lag & 1c3s5z & \textcolor{green!60!black}{11.04 $\pm$ 0.07} & \textcolor{green!60!black}{9.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 4 \\
+MAPPO-Lag & 1c3s5z & \textcolor{green!60!black}{17.24 $\pm$ 1.16} & \textcolor{green!60!black}{7.19 $\pm$ 1.71} & \textcolor{green!60!black}{0.32 $\pm$ 0.30} & 500k & 4 \\
+MAPPO-Lag & 1c3s5z & \textcolor{red!70!black}{19.82 $\pm$ 0.16} & \textcolor{red!70!black}{2.08 $\pm$ 0.66} & \textcolor{red!70!black}{0.96 $\pm$ 0.04} & 1M & 4 \\
+MAPPO-Lag & 1c3s5z & \textcolor{red!70!black}{19.95 $\pm$ 0.01} & \textcolor{red!70!black}{0.98 $\pm$ 0.18} & \textcolor{red!70!black}{1.00 $\pm$ 0.00} & 2M & 4 \\
+MAPPO-Lag & 1c3s5z & \textcolor{red!70!black}{20.00 $\pm$ 0.00} & \textcolor{red!70!black}{0.37 $\pm$ 0.14} & \textcolor{red!70!black}{1.00 $\pm$ 0.00} & 5M & 4 \\
+Safe Dreamers & 1c3s5z & 19.15 $\pm$ 0.53 & 4.83 $\pm$ 0.94 & 0.79 $\pm$ 0.12 & 100k & 4 \\
+\midrule
+SafePO & 2m\_vs\_1z & \textcolor{green!60!black}{2.71 $\pm$ 0.18} & \textcolor{green!60!black}{2.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 5M & 0 \\
+SafePO & 2m\_vs\_1z & \textcolor{green!60!black}{2.73 $\pm$ 0.16} & \textcolor{green!60!black}{2.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 0 \\
+SafePO & 2m\_vs\_1z & \textcolor{green!60!black}{4.58 $\pm$ 0.11} & \textcolor{green!60!black}{2.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 0 \\
+SafePO & 2m\_vs\_1z & \textcolor{green!60!black}{5.99 $\pm$ 0.60} & \textcolor{green!60!black}{2.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 0 \\
+SafePO & 2m\_vs\_1z & \textcolor{green!60!black}{6.96 $\pm$ 0.76} & \textcolor{green!60!black}{2.00 $\pm$ 0.01} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 2M & 0 \\
+MAPPO-Lag & 2m\_vs\_1z & \textcolor{green!60!black}{4.71 $\pm$ 0.06} & \textcolor{green!60!black}{2.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 0 \\
+MAPPO-Lag & 2m\_vs\_1z & \textcolor{red!70!black}{19.97 $\pm$ 0.02} & \textcolor{red!70!black}{0.00 $\pm$ 0.00} & \textcolor{red!70!black}{1.00 $\pm$ 0.00} & 500k & 0 \\
+MAPPO-Lag & 2m\_vs\_1z & \textcolor{red!70!black}{19.95 $\pm$ 0.01} & \textcolor{red!70!black}{0.01 $\pm$ 0.00} & \textcolor{red!70!black}{1.00 $\pm$ 0.00} & 1M & 0 \\
+MAPPO-Lag & 2m\_vs\_1z & \textcolor{red!70!black}{2\textcolor{red!70!black}{0.00 $\pm$ 0.00}} & 0.00 $\pm$ 0.00 & \textcolor{red!70!black}{1.00 $\pm$ 0.00} & 2M & 0 \\
+MAPPO-Lag & 2m\_vs\_1z & \textcolor{red!70!black}{20.00 $\pm$ 0.01} & \textcolor{red!70!black}{0.00 $\pm$ 0.00} & \textcolor{red!70!black}{1.00 $\pm$ 0.00} & 5M & 0 \\
+Safe Dreamers & 2m\_vs\_1z & 19.30 $\pm$ 0.49 & 0.14 $\pm$ 0.08 & 0.95 $\pm$ 0.04 & 100k & 0 \\
+\midrule
+SafePO & 2m\_vs\_1z & \textcolor{green!60!black}{3.13 $\pm$ 0.01} & \textcolor{green!60!black}{2.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 5M & 1 \\
+SafePO & 2m\_vs\_1z & \textcolor{green!60!black}{3.09 $\pm$ 0.04} & \textcolor{green!60!black}{2.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 1 \\
+SafePO & 2m\_vs\_1z & \textcolor{green!60!black}{5.04 $\pm$ 0.07} & \textcolor{green!60!black}{2.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 1 \\
+SafePO & 2m\_vs\_1z & \textcolor{green!60!black}{8.52 $\pm$ 3.15} & \textcolor{green!60!black}{1.76 $\pm$ 0.35} & \textcolor{green!60!black}{0.15 $\pm$ 0.21} & 1M & 1 \\
+SafePO & 2m\_vs\_1z & \textcolor{red!70!black}{19.89 $\pm$ 0.06} & \textcolor{red!70!black}{0.02 $\pm$ 0.01} & \textcolor{red!70!black}{0.99 $\pm$ 0.01} & 2M & 1 \\
+MAPPO-Lag & 2m\_vs\_1z & \textcolor{green!60!black}{4.68 $\pm$ 0.09} & \textcolor{green!60!black}{2.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 1 \\
+MAPPO-Lag & 2m\_vs\_1z & \textcolor{red!70!black}{19.99 $\pm$ 0.01} & \textcolor{red!70!black}{0.00 $\pm$ 0.00} & \textcolor{red!70!black}{1.00 $\pm$ 0.00} & 500k & 1 \\
+MAPPO-Lag & 2m\_vs\_1z & \textcolor{red!70!black}{19.96 $\pm$ 0.00} & \textcolor{red!70!black}{0.01 $\pm$ 0.00} & \textcolor{red!70!black}{1.00 $\pm$ 0.00} & 1M & 1 \\
+MAPPO-Lag & 2m\_vs\_1z & \textcolor{red!70!black}{2\textcolor{red!70!black}{0.00 $\pm$ 0.00}} & 0.00 $\pm$ 0.00 & \textcolor{red!70!black}{1.00 $\pm$ 0.00} & 2M & 1 \\
+MAPPO-Lag & 2m\_vs\_1z & \textcolor{red!70!black}{20.00 $\pm$ 0.01} & \textcolor{red!70!black}{0.00 $\pm$ 0.00} & \textcolor{red!70!black}{1.00 $\pm$ 0.00} & 5M & 1 \\
+Safe Dreamers & 2m\_vs\_1z & 19.34 $\pm$ 0.38 & 0.14 $\pm$ 0.09 & 0.95 $\pm$ 0.03 & 100k & 1 \\
+\midrule
+SafePO & 2s3z & \textcolor{green!60!black}{3.69 $\pm$ 0.02} & \textcolor{green!60!black}{5.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 5M & 0 \\
+SafePO & 2s3z & \textcolor{green!60!black}{3.67 $\pm$ 0.03} & \textcolor{green!60!black}{5.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 0 \\
+SafePO & 2s3z & \textcolor{green!60!black}{3.19 $\pm$ 0.16} & \textcolor{green!60!black}{5.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 0 \\
+SafePO & 2s3z & \textcolor{green!60!black}{0.99 $\pm$ 0.15} & \textcolor{green!60!black}{5.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 0 \\
+SafePO & 2s3z & \textcolor{green!60!black}{0.27 $\pm$ 0.05} & \textcolor{green!60!black}{5.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 2M & 0 \\
+MAPPO-Lag & 2s3z & \textcolor{green!60!black}{7.14 $\pm$ 0.19} & \textcolor{green!60!black}{5.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 0 \\
+MAPPO-Lag & 2s3z & \textcolor{green!60!black}{14.54 $\pm$ 1.35} & \textcolor{green!60!black}{4.42 $\pm$ 0.60} & \textcolor{green!60!black}{0.20 $\pm$ 0.21} & 500k & 0 \\
+MAPPO-Lag & 2s3z & \textcolor{green!60!black}{18.15 $\pm$ 1.96} & \textcolor{green!60!black}{2.88 $\pm$ 1.86} & \textcolor{green!60!black}{0.59 $\pm$ 0.51} & 1M & 0 \\
+MAPPO-Lag & 2s3z & \textcolor{red!70!black}{18.75 $\pm$ 1.91} & \textcolor{red!70!black}{2.09 $\pm$ 2.54} & \textcolor{green!60!black}{0.66 $\pm$ 0.57} & 2M & 0 \\
+MAPPO-Lag & 2s3z & \textcolor{red!70!black}{19.95 $\pm$ 0.05} & \textcolor{red!70!black}{0.28 $\pm$ 0.15} & \textcolor{red!70!black}{0.99 $\pm$ 0.01} & 5M & 0 \\
+Safe Dreamers & 2s3z & 18.44 $\pm$ 0.25 & 2.28 $\pm$ 0.38 & 0.77 $\pm$ 0.04 & 100k & 0 \\
+\midrule
+SafePO & 2s3z & \textcolor{green!60!black}{4.86 $\pm$ 0.04} & \textcolor{green!60!black}{5.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 5M & 4 \\
+SafePO & 2s3z & \textcolor{green!60!black}{4.85 $\pm$ 0.03} & \textcolor{green!60!black}{5.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 4 \\
+SafePO & 2s3z & \textcolor{green!60!black}{7.61 $\pm$ 0.09} & \textcolor{green!60!black}{5.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 4 \\
+SafePO & 2s3z & \textcolor{green!60!black}{8.85 $\pm$ 0.16} & \textcolor{green!60!black}{5.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 4 \\
+SafePO & 2s3z & \textcolor{green!60!black}{11.86 $\pm$ 0.77} & \textcolor{green!60!black}{4.95 $\pm$ 0.09} & \textcolor{green!60!black}{0.02 $\pm$ 0.03} & 2M & 4 \\
+MAPPO-Lag & 2s3z & \textcolor{green!60!black}{7.14 $\pm$ 0.31} & \textcolor{green!60!black}{5.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 4 \\
+MAPPO-Lag & 2s3z & \textcolor{green!60!black}{13.66 $\pm$ 1.30} & \textcolor{green!60!black}{4.68 $\pm$ 0.48} & \textcolor{green!60!black}{0.11 $\pm$ 0.17} & 500k & 4 \\
+MAPPO-Lag & 2s3z & \textcolor{red!70!black}{18.57 $\pm$ 1.52} & \textcolor{red!70!black}{2.26 $\pm$ 1.10} & \textcolor{red!70!black}{0.74 $\pm$ 0.30} & 1M & 4 \\
+MAPPO-Lag & 2s3z & \textcolor{red!70!black}{19.79 $\pm$ 0.10} & \textcolor{red!70!black}{0.59 $\pm$ 0.12} & \textcolor{red!70!black}{0.97 $\pm$ 0.02} & 2M & 4 \\
+MAPPO-Lag & 2s3z & \textcolor{red!70!black}{19.96 $\pm$ 0.02} & \textcolor{red!70!black}{0.18 $\pm$ 0.06} & \textcolor{red!70!black}{0.99 $\pm$ 0.01} & 5M & 4 \\
+Safe Dreamers & 2s3z & 17.37 $\pm$ 1.38 & 2.98 $\pm$ 0.64 & 0.63 $\pm$ 0.15 & 100k & 4 \\
+\midrule
+SafePO & 2s\_vs\_1sc & \textcolor{green!60!black}{2.44 $\pm$ 0.10} & \textcolor{green!60!black}{2.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 5M & 0 \\
+SafePO & 2s\_vs\_1sc & \textcolor{green!60!black}{2.59 $\pm$ 0.16} & \textcolor{green!60!black}{2.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 0 \\
+SafePO & 2s\_vs\_1sc & \textcolor{green!60!black}{2.31 $\pm$ 0.12} & \textcolor{green!60!black}{2.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 0 \\
+SafePO & 2s\_vs\_1sc & \textcolor{green!60!black}{2.14 $\pm$ 1.15} & \textcolor{green!60!black}{2.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 0 \\
+SafePO & 2s\_vs\_1sc & \textcolor{green!60!black}{0.10 $\pm$ 0.05} & \textcolor{green!60!black}{2.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 2M & 0 \\
+MAPPO-Lag & 2s\_vs\_1sc & \textcolor{green!60!black}{6.05 $\pm$ 1.62} & \textcolor{green!60!black}{2.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 0 \\
+MAPPO-Lag & 2s\_vs\_1sc & \textcolor{green!60!black}{19.69 $\pm$ 0.47} & \textcolor{green!60!black}{0.62 $\pm$ 0.25} & \textcolor{green!60!black}{0.93 $\pm$ 0.07} & 500k & 0 \\
+MAPPO-Lag & 2s\_vs\_1sc & \textcolor{red!70!black}{20.17 $\pm$ 0.01} & \textcolor{red!70!black}{0.21 $\pm$ 0.01} & \textcolor{red!70!black}{1.00 $\pm$ 0.00} & 1M & 0 \\
+MAPPO-Lag & 2s\_vs\_1sc & \textcolor{red!70!black}{20.23 $\pm$ 0.00} & \textcolor{red!70!black}{0.17 $\pm$ 0.06} & \textcolor{red!70!black}{1.00 $\pm$ 0.00} & 2M & 0 \\
+MAPPO-Lag & 2s\_vs\_1sc & \textcolor{red!70!black}{20.23 $\pm$ 0.01} & \textcolor{red!70!black}{0.11 $\pm$ 0.07} & \textcolor{red!70!black}{1.00 $\pm$ 0.00} & 5M & 0 \\
+Safe Dreamers & 2s\_vs\_1sc & 19.95 $\pm$ 0.21 & 0.23 $\pm$ 0.11 & 0.96 $\pm$ 0.03 & 100k & 0 \\
+\midrule
+SafePO & 2s\_vs\_1sc & \textcolor{green!60!black}{4.21 $\pm$ 0.21} & \textcolor{green!60!black}{2.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 5M & 1 \\
+SafePO & 2s\_vs\_1sc & \textcolor{green!60!black}{4.08 $\pm$ 0.21} & \textcolor{green!60!black}{2.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 1 \\
+SafePO & 2s\_vs\_1sc & \textcolor{green!60!black}{11.93 $\pm$ 0.49} & \textcolor{green!60!black}{1.89 $\pm$ 0.04} & \textcolor{green!60!black}{0.10 $\pm$ 0.04} & 500k & 1 \\
+SafePO & 2s\_vs\_1sc & \textcolor{green!60!black}{16.49 $\pm$ 0.81} & \textcolor{green!60!black}{1.34 $\pm$ 0.12} & \textcolor{green!60!black}{0.55 $\pm$ 0.09} & 1M & 1 \\
+SafePO & 2s\_vs\_1sc & \textcolor{green!60!black}{19.34 $\pm$ 0.13} & \textcolor{green!60!black}{0.78 $\pm$ 0.04} & \textcolor{green!60!black}{0.89 $\pm$ 0.01} & 2M & 1 \\
+MAPPO-Lag & 2s\_vs\_1sc & \textcolor{green!60!black}{6.06 $\pm$ 1.61} & \textcolor{green!60!black}{2.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 1 \\
+MAPPO-Lag & 2s\_vs\_1sc & \textcolor{green!60!black}{18.79 $\pm$ 1.35} & \textcolor{green!60!black}{0.94 $\pm$ 0.23} & \textcolor{green!60!black}{0.83 $\pm$ 0.16} & 500k & 1 \\
+MAPPO-Lag & 2s\_vs\_1sc & \textcolor{red!70!black}{20.17 $\pm$ 0.01} & \textcolor{red!70!black}{0.18 $\pm$ 0.04} & \textcolor{red!70!black}{1.00 $\pm$ 0.00} & 1M & 1 \\
+MAPPO-Lag & 2s\_vs\_1sc & \textcolor{red!70!black}{20.23 $\pm$ 0.00} & \textcolor{red!70!black}{0.13 $\pm$ 0.02} & \textcolor{red!70!black}{1.00 $\pm$ 0.00} & 2M & 1 \\
+MAPPO-Lag & 2s\_vs\_1sc & \textcolor{red!70!black}{20.23 $\pm$ 0.00} & \textcolor{red!70!black}{0.10 $\pm$ 0.03} & \textcolor{red!70!black}{1.00 $\pm$ 0.00} & 5M & 1 \\
+Safe Dreamers & 2s\_vs\_1sc & 19.57 $\pm$ 0.49 & 0.31 $\pm$ 0.10 & 0.92 $\pm$ 0.06 & 100k & 1 \\
+\midrule
+SafePO & 3m & \textcolor{green!60!black}{2.06 $\pm$ 0.10} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 5M & 0 \\
+SafePO & 3m & \textcolor{green!60!black}{2.04 $\pm$ 0.13} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 0 \\
+SafePO & 3m & \textcolor{green!60!black}{2.88 $\pm$ 0.12} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 0 \\
+SafePO & 3m & \textcolor{green!60!black}{1.04 $\pm$ 0.16} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 0 \\
+SafePO & 3m & \textcolor{green!60!black}{0.58 $\pm$ 0.15} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 2M & 0 \\
+MAPPO-Lag & 3m & \textcolor{green!60!black}{4.37 $\pm$ 0.31} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 0 \\
+MAPPO-Lag & 3m & \textcolor{green!60!black}{18.76 $\pm$ 0.90} & \textcolor{green!60!black}{0.92 $\pm$ 0.58} & \textcolor{green!60!black}{0.90 $\pm$ 0.07} & 500k & 0 \\
+MAPPO-Lag & 3m & \textcolor{red!70!black}{19.90 $\pm$ 0.05} & \textcolor{red!70!black}{0.16 $\pm$ 0.13} & \textcolor{red!70!black}{0.99 $\pm$ 0.00} & 1M & 0 \\
+MAPPO-Lag & 3m & \textcolor{red!70!black}{19.96 $\pm$ 0.04} & \textcolor{red!70!black}{0.08 $\pm$ 0.10} & \textcolor{red!70!black}{1.00 $\pm$ 0.00} & 2M & 0 \\
+MAPPO-Lag & 3m & \textcolor{red!70!black}{19.99 $\pm$ 0.01} & \textcolor{red!70!black}{0.02 $\pm$ 0.01} & \textcolor{red!70!black}{1.00 $\pm$ 0.00} & 5M & 0 \\
+Safe Dreamers & 3m & 19.57 $\pm$ 0.25 & 0.35 $\pm$ 0.14 & 0.97 $\pm$ 0.02 & 100k & 0 \\
+\midrule
+SafePO & 3m & \textcolor{green!60!black}{2.55 $\pm$ 0.04} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 5M & 1 \\
+SafePO & 3m & \textcolor{green!60!black}{2.54 $\pm$ 0.06} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 1 \\
+SafePO & 3m & \textcolor{green!60!black}{7.14 $\pm$ 0.16} & \textcolor{green!60!black}{2.86 $\pm$ 0.02} & \textcolor{green!60!black}{0.08 $\pm$ 0.01} & 500k & 1 \\
+SafePO & 3m & \textcolor{green!60!black}{15.05 $\pm$ 1.29} & \textcolor{green!60!black}{1.83 $\pm$ 0.25} & \textcolor{green!60!black}{0.62 $\pm$ 0.10} & 1M & 1 \\
+SafePO & 3m & \textcolor{green!60!black}{19.08 $\pm$ 0.04} & \textcolor{green!60!black}{1.03 $\pm$ 0.16} & \textcolor{green!60!black}{0.93 $\pm$ 0.00} & 2M & 1 \\
+MAPPO-Lag & 3m & \textcolor{green!60!black}{4.43 $\pm$ 0.32} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 1 \\
+MAPPO-Lag & 3m & \textcolor{red!70!black}{19.83 $\pm$ 0.16} & \textcolor{red!70!black}{0.19 $\pm$ 0.14} & \textcolor{red!70!black}{0.99 $\pm$ 0.01} & 500k & 1 \\
+MAPPO-Lag & 3m & \textcolor{red!70!black}{19.93 $\pm$ 0.02} & \textcolor{red!70!black}{0.05 $\pm$ 0.01} & \textcolor{red!70!black}{1.00 $\pm$ 0.00} & 1M & 1 \\
+MAPPO-Lag & 3m & \textcolor{red!70!black}{19.99 $\pm$ 0.01} & \textcolor{red!70!black}{0.02 $\pm$ 0.00} & \textcolor{red!70!black}{1.00 $\pm$ 0.00} & 2M & 1 \\
+MAPPO-Lag & 3m & \textcolor{red!70!black}{20.00 $\pm$ 0.00} & \textcolor{red!70!black}{0.02 $\pm$ 0.00} & \textcolor{red!70!black}{1.00 $\pm$ 0.00} & 5M & 1 \\
+Safe Dreamers & 3m & 19.46 $\pm$ 0.42 & 0.60 $\pm$ 0.17 & 0.96 $\pm$ 0.03 & 100k & 1 \\
+\midrule
+SafePO & 3s5z\_vs\_3s6z & \textcolor{green!60!black}{3.47 $\pm$ 0.02} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 5M & 0 \\
+SafePO & 3s5z\_vs\_3s6z & \textcolor{green!60!black}{3.45 $\pm$ 0.03} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 0 \\
+SafePO & 3s5z\_vs\_3s6z & \textcolor{green!60!black}{3.24 $\pm$ 0.02} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 0 \\
+SafePO & 3s5z\_vs\_3s6z & \textcolor{green!60!black}{2.88 $\pm$ 0.24} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 0 \\
+SafePO & 3s5z\_vs\_3s6z & \textcolor{green!60!black}{2.53 $\pm$ 0.17} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 2M & 0 \\
+MAPPO-Lag & 3s5z\_vs\_3s6z & \textcolor{green!60!black}{5.08 $\pm$ 0.01} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 0 \\
+MAPPO-Lag & 3s5z\_vs\_3s6z & \textcolor{green!60!black}{9.27 $\pm$ 0.59} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 0 \\
+MAPPO-Lag & 3s5z\_vs\_3s6z & \textcolor{red!70!black}{10.46 $\pm$ 0.56} & \textcolor{green!60!black}{8.07 $\pm$ 0.01} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 0 \\
+MAPPO-Lag & 3s5z\_vs\_3s6z & \textcolor{red!70!black}{11.75 $\pm$ 1.03} & \textcolor{green!60!black}{8.09 $\pm$ 0.01} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 2M & 0 \\
+MAPPO-Lag & 3s5z\_vs\_3s6z & \textcolor{red!70!black}{13.42 $\pm$ 0.66} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 5M & 0 \\
+Safe Dreamers & 3s5z\_vs\_3s6z & 9.60 $\pm$ 0.84 & 8.00 $\pm$ 0.00 & 0.00 $\pm$ 0.00 & 100k & 0 \\
+\midrule
+SafePO & 3s5z\_vs\_3s6z & \textcolor{green!60!black}{3.86 $\pm$ 0.04} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 5M & 4 \\
+SafePO & 3s5z\_vs\_3s6z & \textcolor{green!60!black}{3.86 $\pm$ 0.02} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 4 \\
+SafePO & 3s5z\_vs\_3s6z & \textcolor{green!60!black}{5.14 $\pm$ 0.03} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 4 \\
+SafePO & 3s5z\_vs\_3s6z & \textcolor{green!60!black}{5.62 $\pm$ 0.04} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 4 \\
+SafePO & 3s5z\_vs\_3s6z & \textcolor{green!60!black}{6.08 $\pm$ 1.09} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 2M & 4 \\
+MAPPO-Lag & 3s5z\_vs\_3s6z & \textcolor{green!60!black}{5.08 $\pm$ 0.11} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 4 \\
+MAPPO-Lag & 3s5z\_vs\_3s6z & \textcolor{green!60!black}{9.53 $\pm$ 0.26} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 4 \\
+MAPPO-Lag & 3s5z\_vs\_3s6z & \textcolor{green!60!black}{10.57 $\pm$ 0.05} & \textcolor{green!60!black}{8.08 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 4 \\
+MAPPO-Lag & 3s5z\_vs\_3s6z & \textcolor{green!60!black}{11.75 $\pm$ 0.45} & \textcolor{green!60!black}{8.07 $\pm$ 0.02} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 2M & 4 \\
+MAPPO-Lag & 3s5z\_vs\_3s6z & \textcolor{green!60!black}{13.10 $\pm$ 1.06} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 5M & 4 \\
+Safe Dreamers & 3s5z\_vs\_3s6z & 13.28 $\pm$ 1.10 & 7.54 $\pm$ 0.40 & 0.11 $\pm$ 0.06 & 100k & 4 \\
+\midrule
+SafePO & 3s\_vs\_3z & \textcolor{green!60!black}{6.04 $\pm$ 0.04} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 5M & 0 \\
+SafePO & 3s\_vs\_3z & \textcolor{green!60!black}{5.99 $\pm$ 0.07} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 0 \\
+SafePO & 3s\_vs\_3z & \textcolor{green!60!black}{8.12 $\pm$ 0.18} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 0 \\
+SafePO & 3s\_vs\_3z & \textcolor{green!60!black}{5.45 $\pm$ 0.47} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 0 \\
+SafePO & 3s\_vs\_3z & \textcolor{green!60!black}{2.94 $\pm$ 1.89} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 2M & 0 \\
+MAPPO-Lag & 3s\_vs\_3z & \textcolor{green!60!black}{8.07 $\pm$ 0.05} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 0 \\
+MAPPO-Lag & 3s\_vs\_3z & \textcolor{green!60!black}{10.44 $\pm$ 0.18} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 0 \\
+MAPPO-Lag & 3s\_vs\_3z & \textcolor{green!60!black}{12.03 $\pm$ 0.39} & \textcolor{green!60!black}{3.02 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 0 \\
+MAPPO-Lag & 3s\_vs\_3z & \textcolor{green!60!black}{19.81 $\pm$ 0.08} & \textcolor{red!70!black}{0.12 $\pm$ 0.06} & \textcolor{red!70!black}{0.98 $\pm$ 0.01} & 2M & 0 \\
+MAPPO-Lag & 3s\_vs\_3z & \textcolor{red!70!black}{20.01 $\pm$ 0.02} & \textcolor{red!70!black}{0.01 $\pm$ 0.01} & \textcolor{red!70!black}{1.00 $\pm$ 0.00} & 5M & 0 \\
+Safe Dreamers & 3s\_vs\_3z & 19.83 $\pm$ 0.20 & 0.95 $\pm$ 0.18 & 0.96 $\pm$ 0.02 & 100k & 0 \\
+\midrule
+SafePO & 3s\_vs\_3z & \textcolor{green!60!black}{6.28 $\pm$ 0.10} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 5M & 1 \\
+SafePO & 3s\_vs\_3z & \textcolor{green!60!black}{6.25 $\pm$ 0.04} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 1 \\
+SafePO & 3s\_vs\_3z & \textcolor{green!60!black}{8.08 $\pm$ 0.03} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 1 \\
+SafePO & 3s\_vs\_3z & \textcolor{green!60!black}{9.76 $\pm$ 0.11} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 1 \\
+SafePO & 3s\_vs\_3z & \textcolor{green!60!black}{11.68 $\pm$ 0.58} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 2M & 1 \\
+MAPPO-Lag & 3s\_vs\_3z & \textcolor{green!60!black}{8.06 $\pm$ 0.06} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 1 \\
+MAPPO-Lag & 3s\_vs\_3z & \textcolor{green!60!black}{10.66 $\pm$ 0.31} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 1 \\
+MAPPO-Lag & 3s\_vs\_3z & \textcolor{green!60!black}{12.01 $\pm$ 0.32} & \textcolor{green!60!black}{3.01 $\pm$ 0.01} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 1 \\
+MAPPO-Lag & 3s\_vs\_3z & \textcolor{green!60!black}{19.64 $\pm$ 0.13} & \textcolor{red!70!black}{0.21 $\pm$ 0.04} & \textcolor{green!60!black}{0.96 $\pm$ 0.02} & 2M & 1 \\
+MAPPO-Lag & 3s\_vs\_3z & \textcolor{red!70!black}{20.02 $\pm$ 0.04} & \textcolor{red!70!black}{0.01 $\pm$ 0.01} & \textcolor{red!70!black}{1.00 $\pm$ 0.00} & 5M & 1 \\
+Safe Dreamers & 3s\_vs\_3z & 19.93 $\pm$ 0.20 & 0.79 $\pm$ 0.48 & 0.96 $\pm$ 0.04 & 100k & 1 \\
+\midrule
+SafePO & 3s\_vs\_4z & \textcolor{green!60!black}{4.39 $\pm$ 0.03} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 5M & 0 \\
+SafePO & 3s\_vs\_4z & \textcolor{green!60!black}{4.38 $\pm$ 0.03} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 0 \\
+SafePO & 3s\_vs\_4z & \textcolor{green!60!black}{5.71 $\pm$ 0.12} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 0 \\
+SafePO & 3s\_vs\_4z & \textcolor{green!60!black}{3.86 $\pm$ 0.42} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 0 \\
+SafePO & 3s\_vs\_4z & \textcolor{green!60!black}{2.46 $\pm$ 0.08} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 2M & 0 \\
+MAPPO-Lag & 3s\_vs\_4z & \textcolor{green!60!black}{5.66 $\pm$ 0.17} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 0 \\
+MAPPO-Lag & 3s\_vs\_4z & \textcolor{green!60!black}{6.83 $\pm$ 0.12} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 0 \\
+MAPPO-Lag & 3s\_vs\_4z & \textcolor{green!60!black}{7.49 $\pm$ 0.04} & \textcolor{green!60!black}{3.01 $\pm$ 0.01} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 0 \\
+MAPPO-Lag & 3s\_vs\_4z & \textcolor{green!60!black}{9.36 $\pm$ 0.39} & \textcolor{green!60!black}{3.03 $\pm$ 0.01} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 2M & 0 \\
+MAPPO-Lag & 3s\_vs\_4z & \textcolor{green!60!black}{13.07 $\pm$ 0.86} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 5M & 0 \\
+Safe Dreamers & 3s\_vs\_4z & 18.19 $\pm$ 1.57 & 2.64 $\pm$ 0.34 & 0.23 $\pm$ 0.16 & 100k & 0 \\
+\midrule
+SafePO & 3s\_vs\_4z & \textcolor{green!60!black}{4.55 $\pm$ 0.01} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 5M & 1 \\
+SafePO & 3s\_vs\_4z & \textcolor{green!60!black}{4.56 $\pm$ 0.00} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 1 \\
+SafePO & 3s\_vs\_4z & \textcolor{green!60!black}{5.78 $\pm$ 0.01} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 1 \\
+SafePO & 3s\_vs\_4z & \textcolor{green!60!black}{7.05 $\pm$ 0.18} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 1 \\
+SafePO & 3s\_vs\_4z & \textcolor{green!60!black}{8.38 $\pm$ 0.33} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 2M & 1 \\
+MAPPO-Lag & 3s\_vs\_4z & \textcolor{green!60!black}{5.63 $\pm$ 0.06} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 1 \\
+MAPPO-Lag & 3s\_vs\_4z & \textcolor{green!60!black}{6.87 $\pm$ 0.10} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 1 \\
+MAPPO-Lag & 3s\_vs\_4z & \textcolor{green!60!black}{7.73 $\pm$ 0.17} & \textcolor{green!60!black}{3.02 $\pm$ 0.01} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 1 \\
+MAPPO-Lag & 3s\_vs\_4z & \textcolor{green!60!black}{9.35 $\pm$ 0.12} & \textcolor{green!60!black}{3.02 $\pm$ 0.01} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 2M & 1 \\
+MAPPO-Lag & 3s\_vs\_4z & \textcolor{green!60!black}{12.52 $\pm$ 1.70} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 5M & 1 \\
+Safe Dreamers & 3s\_vs\_4z & 16.96 $\pm$ 0.74 & 2.47 $\pm$ 0.35 & 0.31 $\pm$ 0.11 & 100k & 1 \\
+\midrule
+SafePO & 3s\_vs\_5z & \textcolor{green!60!black}{3.44 $\pm$ 0.03} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 5M & 0 \\
+SafePO & 3s\_vs\_5z & \textcolor{green!60!black}{3.41 $\pm$ 0.02} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 0 \\
+SafePO & 3s\_vs\_5z & \textcolor{green!60!black}{4.58 $\pm$ 0.24} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 0 \\
+SafePO & 3s\_vs\_5z & \textcolor{green!60!black}{4.43 $\pm$ 0.36} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 0 \\
+SafePO & 3s\_vs\_5z & \textcolor{green!60!black}{2.37 $\pm$ 0.19} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 2M & 0 \\
+MAPPO-Lag & 3s\_vs\_5z & \textcolor{green!60!black}{4.17 $\pm$ 0.15} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 0 \\
+MAPPO-Lag & 3s\_vs\_5z & \textcolor{green!60!black}{5.24 $\pm$ 0.59} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 0 \\
+MAPPO-Lag & 3s\_vs\_5z & \textcolor{green!60!black}{5.97 $\pm$ 0.65} & \textcolor{green!60!black}{3.02 $\pm$ 0.01} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 0 \\
+MAPPO-Lag & 3s\_vs\_5z & \textcolor{green!60!black}{7.82 $\pm$ 0.23} & \textcolor{green!60!black}{3.02 $\pm$ 0.02} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 2M & 0 \\
+MAPPO-Lag & 3s\_vs\_5z & \textcolor{green!60!black}{10.08 $\pm$ 0.56} & \textcolor{green!60!black}{3.01 $\pm$ 0.01} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 5M & 0 \\
+Safe Dreamers & 3s\_vs\_5z & 16.88 $\pm$ 1.58 & 2.67 $\pm$ 0.40 & 0.15 $\pm$ 0.19 & 100k & 0 \\
+\midrule
+SafePO & 3s\_vs\_5z & \textcolor{green!60!black}{3.52 $\pm$ 0.02} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 5M & 1 \\
+SafePO & 3s\_vs\_5z & \textcolor{green!60!black}{3.50 $\pm$ 0.01} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 1 \\
+SafePO & 3s\_vs\_5z & \textcolor{green!60!black}{4.32 $\pm$ 0.07} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 1 \\
+SafePO & 3s\_vs\_5z & \textcolor{green!60!black}{5.30 $\pm$ 0.40} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 1 \\
+SafePO & 3s\_vs\_5z & \textcolor{green!60!black}{6.41 $\pm$ 0.18} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 2M & 1 \\
+MAPPO-Lag & 3s\_vs\_5z & \textcolor{green!60!black}{4.20 $\pm$ 0.15} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 1 \\
+MAPPO-Lag & 3s\_vs\_5z & \textcolor{green!60!black}{5.51 $\pm$ 0.36} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 1 \\
+MAPPO-Lag & 3s\_vs\_5z & \textcolor{green!60!black}{6.61 $\pm$ 0.14} & \textcolor{green!60!black}{3.02 $\pm$ 0.02} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 1 \\
+MAPPO-Lag & 3s\_vs\_5z & \textcolor{green!60!black}{7.83 $\pm$ 0.10} & \textcolor{green!60!black}{3.02 $\pm$ 0.02} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 2M & 1 \\
+MAPPO-Lag & 3s\_vs\_5z & \textcolor{green!60!black}{9.33 $\pm$ 0.18} & \textcolor{green!60!black}{3.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 5M & 1 \\
+Safe Dreamers & 3s\_vs\_5z & 17.44 $\pm$ 1.49 & 2.67 $\pm$ 0.43 & 0.17 $\pm$ 0.22 & 100k & 1 \\
+\midrule
+SafePO & 8m & \textcolor{green!60!black}{1.43 $\pm$ 0.01} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 5M & 0 \\
+SafePO & 8m & \textcolor{green!60!black}{1.43 $\pm$ 0.02} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 0 \\
+SafePO & 8m & \textcolor{green!60!black}{0.95 $\pm$ 0.06} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 0 \\
+SafePO & 8m & \textcolor{green!60!black}{0.52 $\pm$ 0.03} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 0 \\
+SafePO & 8m & \textcolor{green!60!black}{0.33 $\pm$ 0.05} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 2M & 0 \\
+MAPPO-Lag & 8m & \textcolor{green!60!black}{2.90 $\pm$ 0.02} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 0 \\
+MAPPO-Lag & 8m & \textcolor{green!60!black}{9.09 $\pm$ 0.03} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 0 \\
+MAPPO-Lag & 8m & \textcolor{green!60!black}{16.56 $\pm$ 0.83} & \textcolor{green!60!black}{5.67 $\pm$ 0.46} & \textcolor{green!60!black}{0.60 $\pm$ 0.08} & 1M & 0 \\
+MAPPO-Lag & 8m & \textcolor{red!70!black}{19.84 $\pm$ 0.06} & \textcolor{red!70!black}{2.42 $\pm$ 0.18} & \textcolor{red!70!black}{0.98 $\pm$ 0.00} & 2M & 0 \\
+MAPPO-Lag & 8m & \textcolor{red!70!black}{19.96 $\pm$ 0.02} & \textcolor{red!70!black}{0.90 $\pm$ 0.17} & \textcolor{red!70!black}{1.00 $\pm$ 0.00} & 5M & 0 \\
+Safe Dreamers & 8m & 18.64 $\pm$ 2.02 & 2.81 $\pm$ 1.91 & 0.86 $\pm$ 0.21 & 100k & 0 \\
+\midrule
+SafePO & 8m & \textcolor{green!60!black}{1.63 $\pm$ 0.01} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 5M & 4 \\
+SafePO & 8m & \textcolor{green!60!black}{1.63 $\pm$ 0.02} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 4 \\
+SafePO & 8m & \textcolor{green!60!black}{2.66 $\pm$ 0.19} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 4 \\
+SafePO & 8m & \textcolor{green!60!black}{2.94 $\pm$ 0.50} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 4 \\
+SafePO & 8m & \textcolor{green!60!black}{1.95 $\pm$ 0.40} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 2M & 4 \\
+MAPPO-Lag & 8m & \textcolor{green!60!black}{2.77 $\pm$ 0.15} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 100k & 4 \\
+MAPPO-Lag & 8m & \textcolor{green!60!black}{9.04 $\pm$ 0.43} & \textcolor{green!60!black}{8.00 $\pm$ 0.00} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 500k & 4 \\
+MAPPO-Lag & 8m & \textcolor{green!60!black}{15.86 $\pm$ 2.19} & \textcolor{green!60!black}{5.96 $\pm$ 1.20} & \textcolor{green!60!black}{0.53 $\pm$ 0.25} & 1M & 4 \\
+MAPPO-Lag & 8m & \textcolor{red!70!black}{19.75 $\pm$ 0.20} & \textcolor{red!70!black}{2.70 $\pm$ 0.54} & \textcolor{red!70!black}{0.97 $\pm$ 0.03} & 2M & 4 \\
+MAPPO-Lag & 8m & \textcolor{red!70!black}{19.95 $\pm$ 0.03} & \textcolor{red!70!black}{1.10 $\pm$ 0.36} & \textcolor{red!70!black}{0.99 $\pm$ 0.00} & 5M & 4 \\
+Safe Dreamers & 8m & 17.26 $\pm$ 1.04 & 5.03 $\pm$ 0.42 & 0.69 $\pm$ 0.10 & 100k & 4 \\
+\midrule
+SafePO & MMM & \textcolor{green!60!black}{1.87 $\pm$ 0.01} & \textcolor{green!60!black}{1\textcolor{green!60!black}{0.00 $\pm$ 0.00}} & 0.00 $\pm$ 0.00 & 5M & 0 \\
+SafePO & MMM & \textcolor{green!60!black}{1.86 $\pm$ 0.03} & \textcolor{green!60!black}{1\textcolor{green!60!black}{0.00 $\pm$ 0.00}} & 0.00 $\pm$ 0.00 & 100k & 0 \\
+SafePO & MMM & \textcolor{green!60!black}{1.49 $\pm$ 0.07} & \textcolor{green!60!black}{1\textcolor{green!60!black}{0.00 $\pm$ 0.00}} & 0.00 $\pm$ 0.00 & 500k & 0 \\
+SafePO & MMM & \textcolor{green!60!black}{1.14 $\pm$ 0.12} & \textcolor{green!60!black}{1\textcolor{green!60!black}{0.00 $\pm$ 0.00}} & 0.00 $\pm$ 0.00 & 1M & 0 \\
+SafePO & MMM & \textcolor{green!60!black}{0.79 $\pm$ 0.08} & \textcolor{green!60!black}{1\textcolor{green!60!black}{0.00 $\pm$ 0.00}} & 0.00 $\pm$ 0.00 & 2M & 0 \\
+MAPPO-Lag & MMM & \textcolor{green!60!black}{2.63 $\pm$ 0.14} & \textcolor{green!60!black}{1\textcolor{green!60!black}{0.00 $\pm$ 0.00}} & 0.00 $\pm$ 0.00 & 100k & 0 \\
+MAPPO-Lag & MMM & \textcolor{green!60!black}{6.44 $\pm$ 0.49} & \textcolor{green!60!black}{1\textcolor{green!60!black}{0.00 $\pm$ 0.00}} & 0.00 $\pm$ 0.00 & 500k & 0 \\
+MAPPO-Lag & MMM & \textcolor{green!60!black}{10.58 $\pm$ 0.23} & \textcolor{green!60!black}{10.11 $\pm$ 0.01} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 0 \\
+MAPPO-Lag & MMM & \textcolor{green!60!black}{12.58 $\pm$ 0.31} & \textcolor{green!60!black}{10.06 $\pm$ 0.02} & \textcolor{green!60!black}{0.01 $\pm$ 0.00} & 2M & 0 \\
+MAPPO-Lag & MMM & \textcolor{red!70!black}{19.89 $\pm$ 0.14} & \textcolor{red!70!black}{0.97 $\pm$ 0.61} & \textcolor{red!70!black}{0.99 $\pm$ 0.02} & 5M & 0 \\
+Safe Dreamers & MMM & 17.05 $\pm$ 2.36 & 6.77 $\pm$ 1.79 & 0.59 $\pm$ 0.25 & 100k & 0 \\
+\midrule
+SafePO & MMM & \textcolor{green!60!black}{1.89 $\pm$ 0.04} & \textcolor{green!60!black}{1\textcolor{green!60!black}{0.00 $\pm$ 0.00}} & 0.00 $\pm$ 0.00 & 5M & 4 \\
+SafePO & MMM & \textcolor{green!60!black}{1.88 $\pm$ 0.04} & \textcolor{green!60!black}{1\textcolor{green!60!black}{0.00 $\pm$ 0.00}} & 0.00 $\pm$ 0.00 & 100k & 4 \\
+SafePO & MMM & \textcolor{green!60!black}{1.47 $\pm$ 0.03} & \textcolor{green!60!black}{1\textcolor{green!60!black}{0.00 $\pm$ 0.00}} & 0.00 $\pm$ 0.00 & 500k & 4 \\
+SafePO & MMM & \textcolor{green!60!black}{1.14 $\pm$ 0.04} & \textcolor{green!60!black}{1\textcolor{green!60!black}{0.00 $\pm$ 0.00}} & 0.00 $\pm$ 0.00 & 1M & 4 \\
+SafePO & MMM & \textcolor{green!60!black}{0.73 $\pm$ 0.01} & \textcolor{green!60!black}{1\textcolor{green!60!black}{0.00 $\pm$ 0.00}} & 0.00 $\pm$ 0.00 & 2M & 4 \\
+MAPPO-Lag & MMM & \textcolor{green!60!black}{2.61 $\pm$ 0.22} & \textcolor{green!60!black}{1\textcolor{green!60!black}{0.00 $\pm$ 0.00}} & 0.00 $\pm$ 0.00 & 100k & 4 \\
+MAPPO-Lag & MMM & \textcolor{green!60!black}{6.29 $\pm$ 1.28} & \textcolor{green!60!black}{1\textcolor{green!60!black}{0.00 $\pm$ 0.00}} & 0.00 $\pm$ 0.00 & 500k & 4 \\
+MAPPO-Lag & MMM & \textcolor{green!60!black}{10.04 $\pm$ 0.92} & \textcolor{green!60!black}{10.11 $\pm$ 0.02} & \textcolor{green!60!black}{0.00 $\pm$ 0.00} & 1M & 4 \\
+MAPPO-Lag & MMM & \textcolor{green!60!black}{12.66 $\pm$ 0.84} & \textcolor{green!60!black}{9.92 $\pm$ 0.32} & \textcolor{green!60!black}{0.03 $\pm$ 0.06} & 2M & 4 \\
+MAPPO-Lag & MMM & \textcolor{red!70!black}{19.61 $\pm$ 0.47} & \textcolor{red!70!black}{1.41 $\pm$ 1.07} & \textcolor{red!70!black}{0.97 $\pm$ 0.03} & 5M & 4 \\
+Safe Dreamers & MMM & 17.02 $\pm$ 1.32 & 7.88 $\pm$ 0.16 & 0.55 $\pm$ 0.07 & 100k & 4 \\
+\midrule
+SafePO & bane\_vs\_bane & \textcolor{red!70!black}{19.26 $\pm$ 0.01} & \textcolor{green!60!black}{22.55 $\pm$ 0.02} & \textcolor{red!70!black}{0.79 $\pm$ 0.01} & 5M & 0 \\
+SafePO & bane\_vs\_bane & \textcolor{red!70!black}{19.27 $\pm$ 0.03} & \textcolor{green!60!black}{22.45 $\pm$ 0.05} & \textcolor{red!70!black}{0.76 $\pm$ 0.02} & 100k & 0 \\
+SafePO & bane\_vs\_bane & \textcolor{red!70!black}{19.70 $\pm$ 0.05} & \textcolor{green!60!black}{18.54 $\pm$ 0.20} & \textcolor{red!70!black}{0.91 $\pm$ 0.01} & 500k & 0 \\
+SafePO & bane\_vs\_bane & \textcolor{red!70!black}{19.80 $\pm$ 0.04} & \textcolor{green!60!black}{14.08 $\pm$ 0.16} & \textcolor{red!70!black}{0.93 $\pm$ 0.01} & 1M & 0 \\
+SafePO & bane\_vs\_bane & \textcolor{red!70!black}{19.86 $\pm$ 0.02} & \textcolor{red!70!black}{9.93 $\pm$ 0.18} & \textcolor{red!70!black}{0.95 $\pm$ 0.00} & 2M & 0 \\
+MAPPO-Lag & bane\_vs\_bane & — & — & — & 100k & 0 \\
+MAPPO-Lag & bane\_vs\_bane & — & — & — & 500k & 0 \\
+MAPPO-Lag & bane\_vs\_bane & — & — & — & 1M & 0 \\
+MAPPO-Lag & bane\_vs\_bane & — & — & — & 2M & 0 \\
+MAPPO-Lag & bane\_vs\_bane & — & — & — & 5M & 0 \\
+Safe Dreamers & bane\_vs\_bane & 17.75 $\pm$ 2.82 & 13.91 $\pm$ 7.11 & 0.62 $\pm$ 0.39 & 100k & 0 \\
+\midrule
+SafePO & bane\_vs\_bane & \textcolor{green!60!black}{19.37 $\pm$ 0.09} & \textcolor{green!60!black}{22.40 $\pm$ 0.06} & \textcolor{green!60!black}{0.80 $\pm$ 0.02} & 5M & 4 \\
+SafePO & bane\_vs\_bane & \textcolor{green!60!black}{19.38 $\pm$ 0.07} & \textcolor{green!60!black}{22.41 $\pm$ 0.06} & \textcolor{green!60!black}{0.80 $\pm$ 0.01} & 100k & 4 \\
+SafePO & bane\_vs\_bane & \textcolor{green!60!black}{19.71 $\pm$ 0.03} & \textcolor{green!60!black}{18.69 $\pm$ 0.28} & \textcolor{green!60!black}{0.92 $\pm$ 0.01} & 500k & 4 \\
+SafePO & bane\_vs\_bane & \textcolor{green!60!black}{19.74 $\pm$ 0.02} & \textcolor{green!60!black}{13.67 $\pm$ 0.56} & \textcolor{green!60!black}{0.92 $\pm$ 0.01} & 1M & 4 \\
+SafePO & bane\_vs\_bane & \textcolor{red!70!black}{19.92 $\pm$ nan} & \textcolor{green!60!black}{9.49 $\pm$ nan} & \textcolor{green!60!black}{0.97 $\pm$ nan} & 2M & 4 \\
+MAPPO-Lag & bane\_vs\_bane & — & — & — & 100k & 4 \\
+MAPPO-Lag & bane\_vs\_bane & — & — & — & 500k & 4 \\
+MAPPO-Lag & bane\_vs\_bane & — & — & — & 1M & 4 \\
+MAPPO-Lag & bane\_vs\_bane & — & — & — & 2M & 4 \\
+MAPPO-Lag & bane\_vs\_bane & — & — & — & 5M & 4 \\
+Safe Dreamers & bane\_vs\_bane & 19.91 $\pm$ 0.11 & 6.37 $\pm$ 1.20 & 0.98 $\pm$ 0.02 & 100k & 4 \\
+\end{longtable}

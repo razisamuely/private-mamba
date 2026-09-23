@@ -175,51 +175,137 @@ def _data_row(algo: str, mp: str, row: pd.Series | None, steps_label: str, cost_
     return f"{algo} & {m_tex} & {score} & {cost} & {wr} & {steps_label} & {cl_int} \\\\"
 
 
-def _bold_sd_winners(sd_row: str, sp_row: str, sd: pd.Series | None, sp: pd.Series | None) -> tuple[str, str]:
-    """Bold SafeDreamer cells where it beats SafePO (score↑, winrate↑, cost↓)."""
-    if sd is None or sp is None:
-        return sd_row, sp_row
-
-    def _apply(row_str: str, col: str, higher_is_better: bool) -> str:
-        if pd.isna(sd[f"{col}_mean"]) or pd.isna(sp[f"{col}_mean"]):
-            return row_str
-        wins = (sd[f"{col}_mean"] > sp[f"{col}_mean"]) if higher_is_better else (sd[f"{col}_mean"] < sp[f"{col}_mean"])
-        if not wins:
-            return row_str
-        val = _fmt(sd[f"{col}_mean"], sd[f"{col}_std"])
-        return row_str.replace(val, _bold(val), 1)
-
-    sd_row = _apply(sd_row, TABLE_COL_SCORE, True)
-    sd_row = _apply(sd_row, TABLE_COL_WINRATE, True)
-    sd_row = _apply(sd_row, TABLE_COL_COST, False)
-    return sd_row, sp_row
+def _bold_top2(entries, col, higher_is_better):
+    """Given list of (row_str, series_or_None), bold the top 2 values for col in-place."""
+    vals = []
+    for i, (row_str, s) in enumerate(entries):
+        if s is not None and not pd.isna(s.get(f"{col}_mean", float("nan"))):
+            vals.append((i, s[f"{col}_mean"], s[f"{col}_std"]))
+    if len(vals) < 2:
+        return
+    vals.sort(key=lambda x: x[1], reverse=higher_is_better)
+    for idx, mean, std in vals[:2]:
+        val = _fmt(mean, std)
+        row_str, s = entries[idx]
+        entries[idx] = (row_str.replace(val, _bold(val), 1), s)
 
 
-def _map_cost_block(mp: str, cl: float, sd_idx: pd.DataFrame, sp_idx: pd.DataFrame, ml_idx: pd.DataFrame) -> str:
-    """Build the block (SafePO, MAPPO-Lag, SafeDreamer) for one map+cost_limit."""
+def _color_green(val: str) -> str:
+    return f"\\textcolor{{green!60!black}}{{{val}}}"
+
+
+def _color_red(val: str) -> str:
+    return f"\\textcolor{{red!70!black}}{{{val}}}"
+
+
+def _color_vs_sd(entries, col, higher_is_better):
+    """Color entries green if better than SafeDreamers, red if worse."""
+    # Find SafeDreamers value
+    sd_val = None
+    sd_idx = None
+    for i, (row_str, s, algo) in enumerate(entries):
+        if algo == "SafeDreamers" and s is not None:
+            sd_val = s.get(f"{col}_mean", float("nan"))
+            sd_idx = i
+            break
+    if sd_val is None or pd.isna(sd_val):
+        return
+
+    for i, (row_str, s, algo) in enumerate(entries):
+        if i == sd_idx or s is None:
+            continue
+        val_mean = s.get(f"{col}_mean", float("nan"))
+        if pd.isna(val_mean):
+            continue
+        val_str = _fmt(val_mean, s[f"{col}_std"])
+        if val_str == TABLE_MISSING:
+            continue
+        if higher_is_better:
+            is_better = val_mean > sd_val
+        else:
+            is_better = val_mean < sd_val
+        colored = _color_red(val_str) if is_better else _color_green(val_str)
+        entries[i] = (row_str.replace(val_str, colored, 1), s, algo)
+
+
+def _algo_display(algo_name: str) -> tuple[str, str]:
+    """Return (display_name, steps_label) from algorithm column value."""
+    if algo_name == "SafeDreamers":
+        return "Safe Dreamers", SD_STEP_LABEL
+    if algo_name == "SafePO":
+        return "SafePO", SAFEPO_STEP_LABEL
+    # Handle names like "SafePO-100k", "MAPPO-Lag-500k"
+    for sep in ("-",):
+        parts = algo_name.rsplit(sep, 1)
+        if len(parts) == 2 and parts[1].replace(".", "").replace("k", "").replace("M", "").isdigit():
+            return parts[0], parts[1]
+    return algo_name, ""
+
+
+def _map_cost_block(
+    mp: str, cl: float, algo_indices: dict[str, pd.DataFrame], algo_order: list[str], use_color: bool = False
+) -> str:
+    """Build the block for one map+cost_limit across all algorithms."""
     key = (mp, cl)
-    sd_s = sd_idx.loc[key] if key in sd_idx.index else None
-    sp_s = sp_idx.loc[key] if key in sp_idx.index else None
-    ml_s = ml_idx.loc[key] if key in ml_idx.index else None
-    sd_row = _data_row("Safe Dreamers", mp, sd_s, SD_STEP_LABEL, cl)
-    sp_row = _data_row("SafePO", mp, sp_s, SAFEPO_STEP_LABEL, cl)
-    ml_row = _data_row("MAPPO-Lag", mp, ml_s, "500k", cl)
-    sd_row, sp_row = _bold_sd_winners(sd_row, sp_row, sd_s, sp_s)
-    return f"{sp_row}\n{ml_row}\n{sd_row}"
+    entries = []
+    for algo_name in algo_order:
+        idx = algo_indices[algo_name]
+        s = idx.loc[key] if key in idx.index else None
+        display, steps_label = _algo_display(algo_name)
+        entries.append((_data_row(display, mp, s, steps_label, cl), s, algo_name))
+
+    if use_color:
+        _color_vs_sd(entries, TABLE_COL_SCORE, higher_is_better=True)
+        _color_vs_sd(entries, TABLE_COL_COST, higher_is_better=False)
+        _color_vs_sd(entries, TABLE_COL_WINRATE, higher_is_better=True)
+    else:
+        # Strip algo from entries for _bold_top2 compatibility
+        entries_2 = [(r, s) for r, s, _ in entries]
+        _bold_top2(entries_2, TABLE_COL_SCORE, higher_is_better=True)
+        _bold_top2(entries_2, TABLE_COL_COST, higher_is_better=False)
+        _bold_top2(entries_2, TABLE_COL_WINRATE, higher_is_better=True)
+        entries = [(r, s, a) for (r, s), (_, _, a) in zip(entries_2, entries)]
+
+    return "\n".join(row_str for row_str, _, _ in entries)
 
 
-def build_latex(agg: pd.DataFrame, standalone: bool = True) -> str:
-    """Render combined SafeDreamer+SafePO DataFrame as appendix longtable LaTeX.
+def _algo_sort_key(name: str) -> tuple:
+    """Sort algorithms: SafePO variants first, then MAPPO-Lag variants, SafeDreamers last."""
+    if name.startswith("SafePO"):
+        group = 0
+    elif name.startswith("MAPPO"):
+        group = 1
+    elif name == "SafeDreamers":
+        group = 9
+    else:
+        group = 5
+    # Extract step number for sub-sorting
+    step = 0
+    for suffix in ("100k", "200k", "500k", "1M", "2M", "5M", "10M"):
+        if name.endswith(suffix):
+            step = int(suffix.replace("k", "000").replace("M", "000000"))
+            break
+    return (group, step, name)
 
+
+def build_latex(agg: pd.DataFrame, standalone: bool = True, use_color: bool = False) -> str:
+    """Render combined DataFrame as appendix longtable LaTeX.
+
+    Auto-detects all algorithm names from the CSV.
+    If use_color=True, colors cells green/red vs SafeDreamers baseline.
     If standalone=True, wraps in documentclass for PDF compilation.
     If standalone=False, outputs table body only for \\input into thesis.
     """
-    sd_idx = agg[agg[CSV_COL_ALGORITHM] == "SafeDreamers"].set_index([CSV_COL_MAP, CSV_COL_COST_LIMIT])
-    sp_idx = agg[agg[CSV_COL_ALGORITHM] == "SafePO"].set_index([CSV_COL_MAP, CSV_COL_COST_LIMIT])
-    ml_idx = agg[agg[CSV_COL_ALGORITHM] == "MAPPO-Lag"].set_index([CSV_COL_MAP, CSV_COL_COST_LIMIT])
+    algo_names = sorted(agg[CSV_COL_ALGORITHM].unique(), key=_algo_sort_key)
+    algo_indices = {
+        name: agg[agg[CSV_COL_ALGORITHM] == name].set_index([CSV_COL_MAP, CSV_COL_COST_LIMIT]) for name in algo_names
+    }
 
+    all_keys_set = set()
+    for idx in algo_indices.values():
+        all_keys_set.update(idx.index.tolist())
     all_keys = sorted(
-        set(sd_idx.index.tolist() + sp_idx.index.tolist() + ml_idx.index.tolist()),
+        all_keys_set,
         key=lambda x: (DEAD_ALLIES_MAPS_ORDER.index(x[0]) if x[0] in DEAD_ALLIES_MAPS_ORDER else 99, x[1]),
     )
 
@@ -228,11 +314,13 @@ def build_latex(agg: pd.DataFrame, standalone: bool = True) -> str:
         "\\textbf{Cost} $\\downarrow$ & \\textbf{Winrate} $\\uparrow$ & "
         "\\textbf{Steps} & \\textbf{Cost Limit} \\\\"
     )
-    body = "\n\\midrule\n".join(_map_cost_block(mp, cl, sd_idx, sp_idx, ml_idx) for mp, cl in all_keys)
+    body = "\n\\midrule\n".join(
+        _map_cost_block(mp, cl, algo_indices, algo_names, use_color=use_color) for mp, cl in all_keys
+    )
 
     table = (
         "\\begin{longtable}{lcccccc}\n"
-        "\\caption{Complete performance comparison at 100k steps vs SafePO at 5M steps.}\n"
+        "\\caption{Complete performance comparison across algorithms and step budgets.}\n"
         "\\label{tab:complete_performance_comparison_100k} \\\\\n"
         "\\toprule\n"
         f"{header}\n"
@@ -254,7 +342,7 @@ def build_latex(agg: pd.DataFrame, standalone: bool = True) -> str:
     if standalone:
         return (
             "\\documentclass{article}\n"
-            "\\usepackage{booktabs,geometry,longtable}\n"
+            "\\usepackage{booktabs,geometry,longtable,xcolor}\n"
             "\\geometry{margin=1.5cm}\n"
             "\\begin{document}\n" + table + "\\end{document}\n"
         )
@@ -277,16 +365,16 @@ def render_pdf(tex_path: Path) -> None:
         print(f"Wrote {tex_path.with_suffix('.pdf')}")
 
 
-def write_table(agg: pd.DataFrame, tex_path: Path) -> None:
+def write_table(agg: pd.DataFrame, tex_path: Path, use_color: bool = False) -> None:
     """Write standalone LaTeX+PDF and thesis-ready table body."""
     tex_path.parent.mkdir(parents=True, exist_ok=True)
     # Standalone PDF
-    tex_path.write_text(build_latex(agg, standalone=True))
+    tex_path.write_text(build_latex(agg, standalone=True, use_color=use_color))
     print(f"Wrote {tex_path}")
     render_pdf(tex_path)
     # Thesis-ready (no document wrapper)
     thesis_path = tex_path.parent / (tex_path.stem + "_thesis.tex")
-    thesis_path.write_text(build_latex(agg, standalone=False))
+    thesis_path.write_text(build_latex(agg, standalone=False, use_color=use_color))
     print(f"Wrote {thesis_path}")
 
 
@@ -338,13 +426,25 @@ def main() -> None:
     parser.add_argument(
         "--render-only", action="store_true", help="Skip extraction; render table from existing aggregated CSV"
     )
+    parser.add_argument("--csv", type=Path, default=None, help="Custom input CSV (implies --render-only)")
+    parser.add_argument("--output", type=Path, default=None, help="Output tex/pdf path (default: alongside CSV)")
+    parser.add_argument("--color", action="store_true", help="Color cells green/red vs SafeDreamers")
     parser.add_argument("--python", default=sys.executable)
     args = parser.parse_args()
+
+    if args.csv:
+        agg = pd.read_csv(args.csv)
+        print(f"Custom CSV: loaded {len(agg)} rows from {args.csv}")
+        print(f"Algorithms: {sorted(agg[CSV_COL_ALGORITHM].unique())}")
+        out = args.output or args.csv.with_suffix(".tex")
+        write_table(agg, out, use_color=args.color)
+        return
 
     if args.render_only:
         agg = pd.read_csv(DEAD_ALLIES_AGG_CSV)
         print(f"Render-only: loaded {len(agg)} rows from {DEAD_ALLIES_AGG_CSV}")
-        write_table(agg, DEAD_ALLIES_TEX_DIR / "appendix_table_corrected.tex")
+        out = args.output or (DEAD_ALLIES_TEX_DIR / "appendix_table_corrected.tex")
+        write_table(agg, out, use_color=args.color)
         return
 
     if args.test:

@@ -44,7 +44,7 @@ from wandb_config import WANDB_PROJECT, WANDB_TIMEOUT
 
 INPUT_CSV = Path(__file__).parent.parent / "inputs" / "mamujoco_runs_experiment8.csv"
 OUTPUT_DIR = _TMP / "tables" / "mamujoco_comparison_experiment8"
-AGG_CSV = _TMP / "aggregated" / "mamujoco_agg_experiment8.csv"
+AGG_CSV = _TMP / "aggregated" / "mamujoco" / "mamujoco_agg_experiment8.csv"
 
 # SafeDreamer target steps (with window size for averaging)
 SD_TARGET_STEPS = [100_000, 500_000, 700_000, 800_000, 900_000, 1_000_000]
