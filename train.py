@@ -24,6 +24,7 @@ from env.mpe.vmas_simple_spread import VmasSpread
 from env.starcraft.StarCraft_safe import StarCraft
 from env.vmas.balance import VmasBalance
 from environments import FLATLAND_ACTION_SIZE, FLATLAND_OBS_SIZE, Env, FlatlandType
+from lagrange import LagMode
 
 
 def run_one_process_one_env_debug(exp):
@@ -93,6 +94,16 @@ def parse_args():
     parser.add_argument("--epochs", type=int, default=None, help="Agent training epochs override")
     parser.add_argument("--device", type=str, default=None, help="Device override (cpu/cuda)")
     parser.add_argument("--comm_mode", type=str, default="full", help="Communication mode (full/none)")
+    parser.add_argument(
+        "--lag_mode",
+        type=LagMode,
+        choices=list(LagMode),
+        default=LagMode.BASIC,
+        help="Lagrangian multiplier update rule (basic/pid)",
+    )
+    parser.add_argument("--pid_kp", type=float, default=1.0, help="PID-Lagrangian proportional gain")
+    parser.add_argument("--pid_ki", type=float, default=0.00001, help="PID-Lagrangian integral gain")
+    parser.add_argument("--pid_kd", type=float, default=1.0, help="PID-Lagrangian derivative gain")
     return parser.parse_args()
 
 
@@ -118,11 +129,20 @@ def get_env_info_flatland(configs):
         config.ACTION_SIZE = FLATLAND_ACTION_SIZE
 
 
+def _apply_lag_mode(config, args) -> None:
+    config.LAG_MODE = args.lag_mode
+    config.PID_KP = args.pid_kp
+    config.PID_KI = args.pid_ki
+    config.PID_KD = args.pid_kd
+
+
 def prepare_starcraft_configs(args):
     agent_configs = [DreamerControllerConfig(), DreamerLearnerConfig(cost_limit=args.cost_limit)]
     for config in agent_configs:
         if hasattr(config, "LAGRANGIAN_LR"):
             config.LAGRANGIAN_LR = args.laglr
+        if hasattr(config, "LAG_MODE"):
+            _apply_lag_mode(config, args)
         config.COMM_MODE = args.comm_mode
     env_config = StarCraft(args.env_name, args.cost_type)
     get_env_info(agent_configs, env_config.create_env())
@@ -175,6 +195,8 @@ def prepare_safety_gym_configs(args):
         config.USE_AVAILABLE_ACTIONS = False
         if hasattr(config, "LAGRANGIAN_LR"):
             config.LAGRANGIAN_LR = args.laglr
+        if hasattr(config, "LAG_MODE"):
+            _apply_lag_mode(config, args)
     probe.close()
     # Apply overrides
     lc = agent_configs[1]
@@ -243,10 +265,11 @@ if __name__ == "__main__":
     sanitized_branch = args.branch.replace("/", "-")[:10]
     cost_type_short = args.cost_type.replace("dead_allies_incremental", "dai").replace("collision", "col")
     comm_suffix = "_nocomm" if args.comm_mode == "none" else ""
+    lag_suffix = "_pid" if args.lag_mode == LagMode.PID else ""
     run_name = (
         f"{args.algo_name}_{cost_type_short}_{args.env}_"
         f"lag{args.laglr}_{args.cost_limit}_{args.env_name}_"
-        f"s{args.seed}{comm_suffix}_{current_run_time}_{args.slurm_id}_{sanitized_branch}"
+        f"s{args.seed}{comm_suffix}{lag_suffix}_{current_run_time}_{args.slurm_id}_{sanitized_branch}"
     )[
         :128
     ]  # WandB run name hard limit

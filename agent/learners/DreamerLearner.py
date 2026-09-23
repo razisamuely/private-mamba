@@ -10,7 +10,7 @@ from agent.models.DreamerModel import DreamerModel
 from agent.optim.loss import actor_loss, actor_rollout, model_loss, value_loss
 from agent.optim.utils import advantage_normalization
 from environments import Env
-from lagrange import BasicLagrange
+from lagrange import BasicLagrange, LagMode, PIDLagrangian
 from networks.dreamer.action import Actor
 from networks.dreamer.critic import AugmentedCritic
 
@@ -52,12 +52,22 @@ class DreamerLearner:
     def __init__(self, config):
         self.config = config
         # ---- > Lagrangian
-        self.lagrangian = BasicLagrange(
-            cost_limit=config.COST_LIMIT,
-            lagrangian_multiplier_init=config.LAGRANGIAN_MULTIPLIER_INIT,
-            lr=config.LAGRANGIAN_LR,
-            device=config.DEVICE,
-        )
+        if getattr(config, "LAG_MODE", LagMode.BASIC) == LagMode.PID:
+            self.lagrangian = PIDLagrangian(
+                cost_limit=config.COST_LIMIT,
+                pid_kp=config.PID_KP,
+                pid_ki=config.PID_KI,
+                pid_kd=config.PID_KD,
+                lagrangian_multiplier_init=config.LAGRANGIAN_MULTIPLIER_INIT,
+                device=config.DEVICE,
+            )
+        else:
+            self.lagrangian = BasicLagrange(
+                cost_limit=config.COST_LIMIT,
+                lagrangian_multiplier_init=config.LAGRANGIAN_MULTIPLIER_INIT,
+                lr=config.LAGRANGIAN_LR,
+                device=config.DEVICE,
+            )
         # ---- < Lagrangian
         self.model = DreamerModel(config).to(config.DEVICE).eval()
         self.action_type = getattr(config, "ACTION_TYPE", "discrete")
@@ -233,6 +243,14 @@ class DreamerLearner:
                 "Lag/cost_advantage": cost_adv.mean(),
             }
         )
+        if isinstance(self.lagrangian, PIDLagrangian):
+            wandb.log(
+                {
+                    "Lag/pid_p": self.lagrangian.delta_p,
+                    "Lag/pid_i": self.lagrangian.pid_i,
+                    "Lag/pid_d": self.lagrangian.pid_d,
+                }
+            )
 
     def apply_optimizer(self, opt, model, loss, grad_clip):
         opt.zero_grad()

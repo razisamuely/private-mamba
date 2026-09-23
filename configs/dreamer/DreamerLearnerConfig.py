@@ -1,5 +1,6 @@
 from agent.learners.DreamerLearner import DreamerLearner
 from configs.dreamer.DreamerAgentConfig import DreamerConfig
+from lagrange import LagMode
 
 
 class DreamerLearnerConfig(DreamerConfig):
@@ -29,6 +30,10 @@ class DreamerLearnerConfig(DreamerConfig):
         self.COST_LIMIT = cost_limit
         self.LAGRANGIAN_MULTIPLIER_INIT = 0.0001
         self.LAGRANGIAN_LR = 0.00001
+        self.LAG_MODE = LagMode.BASIC
+        self.PID_KP = 1.0
+        self.PID_KI = 0.00001
+        self.PID_KD = 1.0
 
     def create_learner(self):
         return DreamerLearner(self)
