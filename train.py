@@ -118,6 +118,12 @@ def parse_args():
         default=LagSignal.MEASURED,
         help="Multiplier input: measured episode cost, or the imagined cost return (pre-April-2026 behavior)",
     )
+    parser.add_argument(
+        "--local_log",
+        type=str,
+        default=None,
+        help="Also write every wandb.log call to this JSON-lines file (use with WANDB_MODE=offline)",
+    )
     return parser.parse_args()
 
 
@@ -286,6 +292,14 @@ if __name__ == "__main__":
     )[
         :128
     ]  # WandB run name hard limit
+
+    if args.local_log:
+        # Must precede wandb.init, which binds wandb.log to the run's method (see local_log.py).
+        from wandb.sdk.wandb_run import Run
+
+        from local_log import tee_log_method
+
+        tee_log_method(Run, args.local_log)
 
     wandb.init(
         name=run_name,
