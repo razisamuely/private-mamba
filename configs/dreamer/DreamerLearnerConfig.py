@@ -32,6 +32,7 @@ class DreamerLearnerConfig(DreamerConfig):
         self.LAGRANGIAN_LR = 0.00001
         self.LAG_MODE = LagMode.BASIC
         self.LAG_SIGNAL = LagSignal.MEASURED
+        self.TRANSITION_DIAG_EVERY = 50  # model updates between transition-error diagnostics; 0 disables
         self.PID_KP = 1.0
         self.PID_KI = 0.00001
         self.PID_KD = 1.0

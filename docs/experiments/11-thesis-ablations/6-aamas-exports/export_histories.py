@@ -6,7 +6,8 @@ For every selected run, writes into ``csv/<group>/``:
 * ``<run_id>_episodes.csv``: ``steps``, ``main/cost``, ``main/score``, ``main/winrate``,
   one row per logged episode (CA-MAMBA) or logging interval (SafePO baselines).
 * ``<run_id>_lag.csv`` (unless ``--skip-lag``): ``_step``, ``steps`` (interpolated),
-  ``Agent/Lagrangian``, ``Lag/mean_cost``, ``Lag/pid_p``, ``Lag/pid_i``, ``Lag/pid_d``
+  ``Agent/Lagrangian``, ``Lag/mean_cost``, ``Lag/pid_p``, ``Lag/pid_i``, ``Lag/pid_d``,
+  and the ``Diag/*`` transition-error diagnostics
   (whichever the run logged).
 * ``<run_id>.name``: the run's display name.
 
@@ -36,7 +37,19 @@ import wandb
 ENTITY_PROJECT = "raz-shmueli-corsound-ai/private-mamba"
 STEP = "steps"
 EPISODE_KEYS = ("main/cost", "main/score", "main/winrate")
-LAG_KEYS = ("Agent/Lagrangian", "Lag/mean_cost", "Lag/pid_p", "Lag/pid_i", "Lag/pid_d")
+LAG_KEYS = (
+    "Agent/Lagrangian",
+    "Lag/mean_cost",
+    "Lag/pid_p",
+    "Lag/pid_i",
+    "Lag/pid_d",
+    # transition-error diagnostics (agent/optim/diagnostics.py); present only in newer runs
+    "Diag/tv_post_prior",
+    "Diag/tv_post_prior_max_agent",
+    "Diag/bv_signed",
+    "Diag/bv_abs",
+    "Diag/v_post",
+)
 PAGE_SIZE = 10_000
 HERE = Path(__file__).resolve().parent
 

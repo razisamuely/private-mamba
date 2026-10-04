@@ -7,6 +7,7 @@ import torch
 
 from agent.memory.DreamerMemory import DreamerMemory
 from agent.models.DreamerModel import DreamerModel
+from agent.optim.diagnostics import DIAG_SAMPLES, make_generator, transition_diagnostics
 from agent.optim.loss import actor_loss, actor_rollout, model_loss, value_loss
 from agent.optim.utils import advantage_normalization
 from environments import Env
@@ -94,6 +95,10 @@ class DreamerLearner:
         self.cur_update = 1
         self.accum_samples = 0
         self.total_samples = 0
+        # Transition-error diagnostics (agent/optim/diagnostics.py); 0 disables them.
+        self.model_updates = 0
+        self.diag_every = int(getattr(config, "TRANSITION_DIAG_EVERY", 0))
+        self.diag_generator = make_generator(config.DEVICE) if self.diag_every > 0 else None
         self.init_optimizers()
         self.n_agents = 2
         Path(config.LOG_FOLDER).mkdir(parents=True, exist_ok=True)
@@ -164,6 +169,13 @@ class DreamerLearner:
         )
         self.apply_optimizer(self.model_optimizer, self.model, loss, self.config.GRAD_CLIP)
         self.model.eval()
+        self.model_updates += 1
+        if self.diag_every > 0 and self.model_updates % self.diag_every == 0:
+            wandb.log(
+                transition_diagnostics(
+                    self.model, self.critic, samples, self.config, DIAG_SAMPLES, self.diag_generator
+                )
+            )
 
     def train_agent(self, samples, episode_cost):
         actions, raw_actions, av_actions, old_policy, imag_feat, returns, cost_returns, trajectory_costs = (
