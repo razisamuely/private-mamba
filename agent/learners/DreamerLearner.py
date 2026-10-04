@@ -10,7 +10,7 @@ from agent.models.DreamerModel import DreamerModel
 from agent.optim.loss import actor_loss, actor_rollout, model_loss, value_loss
 from agent.optim.utils import advantage_normalization
 from environments import Env
-from lagrange import BasicLagrange, LagMode, PIDLagrangian
+from lagrange import BasicLagrange, LagMode, LagSignal, PIDLagrangian, multiplier_input
 from networks.dreamer.action import Actor
 from networks.dreamer.critic import AugmentedCritic
 
@@ -221,7 +221,8 @@ class DreamerLearner:
                 if self.config.ENV_TYPE == Env.FLATLAND and self.cur_update % self.config.TARGET_UPDATE == 0:
                     self.old_critic = deepcopy(self.critic)
 
-        mean_cost = torch.tensor(episode_cost, dtype=torch.float32)
+        signal = getattr(self.config, "LAG_SIGNAL", LagSignal.MEASURED)
+        mean_cost = torch.tensor(multiplier_input(signal, episode_cost, cost_returns), dtype=torch.float32)
         self.lagrangian.update(mean_cost)
         wandb.log(
             {

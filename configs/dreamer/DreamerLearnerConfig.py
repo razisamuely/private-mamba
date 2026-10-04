@@ -1,6 +1,6 @@
 from agent.learners.DreamerLearner import DreamerLearner
 from configs.dreamer.DreamerAgentConfig import DreamerConfig
-from lagrange import LagMode
+from lagrange import LagMode, LagSignal
 
 
 class DreamerLearnerConfig(DreamerConfig):
@@ -31,6 +31,7 @@ class DreamerLearnerConfig(DreamerConfig):
         self.LAGRANGIAN_MULTIPLIER_INIT = 0.0001
         self.LAGRANGIAN_LR = 0.00001
         self.LAG_MODE = LagMode.BASIC
+        self.LAG_SIGNAL = LagSignal.MEASURED
         self.PID_KP = 1.0
         self.PID_KI = 0.00001
         self.PID_KD = 1.0

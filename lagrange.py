@@ -72,6 +72,28 @@ class LagMode(str, Enum):
     PID = "pid"
 
 
+class LagSignal(str, Enum):
+    """Which cost statistic the multiplier update reads."""
+
+    MEASURED = "measured"  # mean real episode team cost (since 1ef8faa, 2026-04-11)
+    IMAGINED = "imagined"  # mean imagined cost lambda-return (code before 6c05450)
+
+
+def multiplier_input(signal: LagSignal, episode_cost: float, cost_returns: torch.Tensor) -> float:
+    """Cost statistic fed to ``lagrangian.update``.
+
+    ``cost_returns`` is the imagined cost lambda-return, shape
+    ``[horizon, batch * n_agents, 1]`` in the learner; its mean is the statistic the
+    first implementation compared against the episode budget ``d``.
+    """
+    if signal == LagSignal.IMAGINED:
+        value = float(cost_returns.mean().item())
+    else:
+        value = float(episode_cost)
+    assert np.isfinite(value), f"non-finite multiplier input {value} ({signal})"
+    return value
+
+
 def apply_lag_config(
     config,
     lag_mode: LagMode,
@@ -79,14 +101,17 @@ def apply_lag_config(
     pid_ki: float,
     pid_kd: float,
     lag_init: float | None,
+    lag_signal: LagSignal = LagSignal.MEASURED,
 ) -> None:
     """Copy the multiplier-update CLI choices onto a learner config.
 
     With ``lr = 0`` the basic update keeps ``lambda`` at ``lag_init``, which turns
     the actor advantage ``A_R - lambda * A_C`` into a fixed penalty
-    (``lag_init = 0`` gives the cost-blind learner).
+    (``lag_init = 0`` gives the cost-blind learner). ``lag_signal`` selects the
+    measured episode cost (default) or the imagined cost return as update input.
     """
     config.LAG_MODE = lag_mode
+    config.LAG_SIGNAL = lag_signal
     config.PID_KP = pid_kp
     config.PID_KI = pid_ki
     config.PID_KD = pid_kd

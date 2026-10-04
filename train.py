@@ -24,7 +24,7 @@ from env.mpe.vmas_simple_spread import VmasSpread
 from env.starcraft.StarCraft_safe import StarCraft
 from env.vmas.balance import VmasBalance
 from environments import FLATLAND_ACTION_SIZE, FLATLAND_OBS_SIZE, Env, FlatlandType
-from lagrange import LagMode, apply_lag_config
+from lagrange import LagMode, LagSignal, apply_lag_config
 
 
 def run_one_process_one_env_debug(exp):
@@ -111,6 +111,13 @@ def parse_args():
         help="Initial Lagrange multiplier; with --laglr 0 it is a fixed penalty",
     )
     parser.add_argument("--max_steps", type=int, default=10**10, help="Stop after this many environment steps")
+    parser.add_argument(
+        "--lag_signal",
+        type=LagSignal,
+        choices=list(LagSignal),
+        default=LagSignal.MEASURED,
+        help="Multiplier input: measured episode cost, or the imagined cost return (pre-April-2026 behavior)",
+    )
     return parser.parse_args()
 
 
@@ -137,7 +144,7 @@ def get_env_info_flatland(configs):
 
 
 def _apply_lag_mode(config, args) -> None:
-    apply_lag_config(config, args.lag_mode, args.pid_kp, args.pid_ki, args.pid_kd, args.lag_init)
+    apply_lag_config(config, args.lag_mode, args.pid_kp, args.pid_ki, args.pid_kd, args.lag_init, args.lag_signal)
 
 
 def prepare_starcraft_configs(args):
@@ -271,6 +278,7 @@ if __name__ == "__main__":
     comm_suffix = "_nocomm" if args.comm_mode == "none" else ""
     lag_suffix = "_pid" if args.lag_mode == LagMode.PID else ""
     init_suffix = f"_init{args.lag_init}" if args.lag_init is not None else ""
+    init_suffix += "_imag" if args.lag_signal == LagSignal.IMAGINED else ""
     run_name = (
         f"{args.algo_name}_{cost_type_short}_{args.env}_"
         f"lag{args.laglr}_{args.cost_limit}_{args.env_name}_"

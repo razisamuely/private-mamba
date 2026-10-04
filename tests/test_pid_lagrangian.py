@@ -3,7 +3,7 @@ from types import SimpleNamespace
 import pytest
 import torch
 
-from lagrange import BasicLagrange, LagMode, PIDLagrangian, apply_lag_config
+from lagrange import BasicLagrange, LagMode, LagSignal, PIDLagrangian, apply_lag_config, multiplier_input
 
 
 def make_pid(cost_limit: float = 1.0, **kwargs) -> PIDLagrangian:
@@ -83,3 +83,26 @@ def test_apply_lag_config_keeps_default_init_when_absent():
 def test_apply_lag_config_rejects_negative_init():
     with pytest.raises(AssertionError):
         apply_lag_config(SimpleNamespace(), LagMode.BASIC, 1.0, 1e-5, 1.0, lag_init=-1.0)
+
+
+def test_multiplier_input_measured_uses_episode_cost():
+    cost_returns = torch.tensor([[0.1, 0.3], [0.2, 0.4]])
+    assert multiplier_input(LagSignal.MEASURED, 5.0, cost_returns) == pytest.approx(5.0)
+
+
+def test_multiplier_input_imagined_uses_mean_cost_return():
+    # Reproduces the pre-2026-04-10 update: lagrangian.update(cost_returns.mean())
+    cost_returns = torch.tensor([[0.1, 0.3], [0.2, 0.4]])
+    assert multiplier_input(LagSignal.IMAGINED, 5.0, cost_returns) == pytest.approx(0.25)
+
+
+def test_apply_lag_config_sets_signal():
+    config = SimpleNamespace(LAGRANGIAN_MULTIPLIER_INIT=1e-4)
+    apply_lag_config(config, LagMode.BASIC, 1.0, 1e-5, 1.0, lag_init=None, lag_signal=LagSignal.IMAGINED)
+    assert config.LAG_SIGNAL == LagSignal.IMAGINED
+
+
+def test_apply_lag_config_default_signal_is_measured():
+    config = SimpleNamespace(LAGRANGIAN_MULTIPLIER_INIT=1e-4)
+    apply_lag_config(config, LagMode.BASIC, 1.0, 1e-5, 1.0, lag_init=None)
+    assert config.LAG_SIGNAL == LagSignal.MEASURED
