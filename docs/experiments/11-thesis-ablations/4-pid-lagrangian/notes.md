@@ -69,6 +69,12 @@ Fix: PID controller on the multiplier (Stooke et al. 2020, arXiv:2007.03964).
       | HC 2x3 | 5.0 | 21631933-935 |
       Verified alive +2min (RUNNING, episodes progressing). WandB runs carry
       `_pid` suffix. Baselines = Exp 8 Phase 3 runs #21-29 (same configs, basic).
-- [ ] Runs finished + healthy
+- [x] Runs reached 1M (2026-09-24): Slurm quota allowed 6 concurrent; Ant runs
+      cancelled past 1M (Ant2x4 1.7-2.3M, Ant4x2 1.7-2.0M) to free quota, HC2x3
+      then started (21631933-935, healthy). Comparison target: supplement_aaai.pdf
+      Table 4 (tight limits, all methods read at 1M).
+      Watchpoint: `Lag/pid_i` climbs steeply — check for integral windup /
+      β saturation (penalty_max=100) in analysis.
+- [ ] HC runs reach 1M
 - [ ] Analysis + writeup
 - [ ] PR + CI green
