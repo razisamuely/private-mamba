@@ -1,0 +1,4 @@
+# generated from the paper repo's data/new_experiments_tracking_100k.csv and 1-mappo-lag-all-envs/csv/mappolag_smac_per_seed_100k.csv
+dead_allies_incremental_starcraft_laglr=1e-05_cost_lim=4.0_8m_23_time_20251023_205553
+dead_allies_incremental_starcraft_laglr=1e-05_cost_lim=4.0_8m_2_time_20251127_095033
+dead_allies_incremental_starcraft_laglr=1e-05_cost_lim=4.0_8m_3_time_20251224_014514
