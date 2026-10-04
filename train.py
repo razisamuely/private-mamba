@@ -24,7 +24,7 @@ from env.mpe.vmas_simple_spread import VmasSpread
 from env.starcraft.StarCraft_safe import StarCraft
 from env.vmas.balance import VmasBalance
 from environments import FLATLAND_ACTION_SIZE, FLATLAND_OBS_SIZE, Env, FlatlandType
-from lagrange import LagMode
+from lagrange import LagMode, apply_lag_config
 
 
 def run_one_process_one_env_debug(exp):
@@ -104,6 +104,13 @@ def parse_args():
     parser.add_argument("--pid_kp", type=float, default=1.0, help="PID-Lagrangian proportional gain")
     parser.add_argument("--pid_ki", type=float, default=0.00001, help="PID-Lagrangian integral gain")
     parser.add_argument("--pid_kd", type=float, default=1.0, help="PID-Lagrangian derivative gain")
+    parser.add_argument(
+        "--lag_init",
+        type=float,
+        default=None,
+        help="Initial Lagrange multiplier; with --laglr 0 it is a fixed penalty",
+    )
+    parser.add_argument("--max_steps", type=int, default=10**10, help="Stop after this many environment steps")
     return parser.parse_args()
 
 
@@ -130,10 +137,7 @@ def get_env_info_flatland(configs):
 
 
 def _apply_lag_mode(config, args) -> None:
-    config.LAG_MODE = args.lag_mode
-    config.PID_KP = args.pid_kp
-    config.PID_KI = args.pid_ki
-    config.PID_KD = args.pid_kd
+    apply_lag_config(config, args.lag_mode, args.pid_kp, args.pid_ki, args.pid_kd, args.lag_init)
 
 
 def prepare_starcraft_configs(args):
@@ -266,10 +270,11 @@ if __name__ == "__main__":
     cost_type_short = args.cost_type.replace("dead_allies_incremental", "dai").replace("collision", "col")
     comm_suffix = "_nocomm" if args.comm_mode == "none" else ""
     lag_suffix = "_pid" if args.lag_mode == LagMode.PID else ""
+    init_suffix = f"_init{args.lag_init}" if args.lag_init is not None else ""
     run_name = (
         f"{args.algo_name}_{cost_type_short}_{args.env}_"
         f"lag{args.laglr}_{args.cost_limit}_{args.env_name}_"
-        f"s{args.seed}{comm_suffix}{lag_suffix}_{current_run_time}_{args.slurm_id}_{sanitized_branch}"
+        f"s{args.seed}{comm_suffix}{lag_suffix}{init_suffix}_{current_run_time}_{args.slurm_id}_{sanitized_branch}"
     )[
         :128
     ]  # WandB run name hard limit
@@ -295,7 +300,7 @@ if __name__ == "__main__":
     configs["controller_config"].ENV_TYPE = Env(args.env)
 
     exp = Experiment(
-        steps=10**10,
+        steps=args.max_steps,
         episodes=50000,
         random_seed=RANDOM_SEED,
         env_config=EnvCurriculumConfig(  # type: ignore[call-arg,misc]

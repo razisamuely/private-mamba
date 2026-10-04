@@ -1,7 +1,9 @@
+from types import SimpleNamespace
+
 import pytest
 import torch
 
-from lagrange import BasicLagrange, PIDLagrangian
+from lagrange import BasicLagrange, LagMode, PIDLagrangian, apply_lag_config
 
 
 def make_pid(cost_limit: float = 1.0, **kwargs) -> PIDLagrangian:
@@ -55,3 +57,29 @@ def test_pid_beta_clipped_at_penalty_max():
     for _ in range(100):
         lag.update(100.0)
     assert lag.lambda_.item() == pytest.approx(2.0)
+
+
+def test_basic_lagrange_zero_lr_is_fixed_penalty():
+    lag = BasicLagrange(cost_limit=4.0, lagrangian_multiplier_init=1.0, lr=0.0, device="cpu")
+    for cost in [10.0, 0.0, 4.0, 7.5]:
+        lag.update(torch.tensor(cost))
+        assert lag.lambda_.item() == pytest.approx(1.0)
+
+
+def test_apply_lag_config_sets_init_when_given():
+    config = SimpleNamespace(LAGRANGIAN_MULTIPLIER_INIT=1e-4)
+    apply_lag_config(config, LagMode.BASIC, 1.0, 1e-5, 1.0, lag_init=0.0)
+    assert config.LAGRANGIAN_MULTIPLIER_INIT == 0.0
+    assert config.LAG_MODE == LagMode.BASIC
+
+
+def test_apply_lag_config_keeps_default_init_when_absent():
+    config = SimpleNamespace(LAGRANGIAN_MULTIPLIER_INIT=1e-4)
+    apply_lag_config(config, LagMode.PID, 2.0, 3e-5, 0.5, lag_init=None)
+    assert config.LAGRANGIAN_MULTIPLIER_INIT == 1e-4
+    assert (config.PID_KP, config.PID_KI, config.PID_KD) == (2.0, 3e-5, 0.5)
+
+
+def test_apply_lag_config_rejects_negative_init():
+    with pytest.raises(AssertionError):
+        apply_lag_config(SimpleNamespace(), LagMode.BASIC, 1.0, 1e-5, 1.0, lag_init=-1.0)

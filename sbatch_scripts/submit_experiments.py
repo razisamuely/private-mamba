@@ -55,6 +55,8 @@ def main():
     parser.add_argument("--pid_kp", type=float, default=None, help="PID-Lagrangian proportional gain")
     parser.add_argument("--pid_ki", type=float, default=None, help="PID-Lagrangian integral gain")
     parser.add_argument("--pid_kd", type=float, default=None, help="PID-Lagrangian derivative gain")
+    parser.add_argument("--lag_init", type=float, default=None, help="Initial multiplier; fixed with --laglr 0")
+    parser.add_argument("--max_steps", type=int, default=None, help="Stop each run after this many env steps")
     parser.add_argument("--template", type=str, default=None, help="Custom sbatch template path")
 
     args = parser.parse_args()
@@ -110,6 +112,10 @@ def main():
         extra_parts.append(f"--pid_ki {args.pid_ki}")
     if args.pid_kd is not None:
         extra_parts.append(f"--pid_kd {args.pid_kd}")
+    if args.lag_init is not None:
+        extra_parts.append(f"--lag_init {args.lag_init}")
+    if args.max_steps is not None:
+        extra_parts.append(f"--max_steps {args.max_steps}")
     extra_args = " \\\n    ".join(extra_parts) if extra_parts else ""
 
     for env_name in args.envs:
@@ -117,7 +123,10 @@ def main():
             for seed in args.seeds:
                 # Structured Run Name (Used for file and logging)
                 # safedreamer_{costtype}_{env}_{costlim}_{map}_{seed}_{time}
-                run_identifier = f"{args.algo_name}_{args.cost_type}_{args.env_type}_lag{args.laglr}_{cost_limit}_{env_name}_s{seed}_{timestamp_str}"
+                arm_suffix = (f"_{args.lag_mode}" if args.lag_mode else "") + (
+                    f"_init{args.lag_init}" if args.lag_init is not None else ""
+                )
+                run_identifier = f"{args.algo_name}_{args.cost_type}_{args.env_type}_lag{args.laglr}_{cost_limit}_{env_name}_s{seed}{arm_suffix}_{timestamp_str}"
                 sbatch_filename = f"sbatch_scripts/generated/{run_identifier}.sbatch"
 
                 params = {

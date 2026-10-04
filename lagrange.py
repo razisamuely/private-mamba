@@ -72,6 +72,29 @@ class LagMode(str, Enum):
     PID = "pid"
 
 
+def apply_lag_config(
+    config,
+    lag_mode: LagMode,
+    pid_kp: float,
+    pid_ki: float,
+    pid_kd: float,
+    lag_init: float | None,
+) -> None:
+    """Copy the multiplier-update CLI choices onto a learner config.
+
+    With ``lr = 0`` the basic update keeps ``lambda`` at ``lag_init``, which turns
+    the actor advantage ``A_R - lambda * A_C`` into a fixed penalty
+    (``lag_init = 0`` gives the cost-blind learner).
+    """
+    config.LAG_MODE = lag_mode
+    config.PID_KP = pid_kp
+    config.PID_KI = pid_ki
+    config.PID_KD = pid_kd
+    if lag_init is not None:
+        assert lag_init >= 0.0, f"lag_init must be non-negative, got {lag_init}"
+        config.LAGRANGIAN_MULTIPLIER_INIT = lag_init
+
+
 class PIDLagrangian:
     """PID controller on the Lagrangian multiplier (plain-PID variant).
 
