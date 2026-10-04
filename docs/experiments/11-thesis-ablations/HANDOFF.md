@@ -144,7 +144,36 @@ quota (old `wandb/run-*` dirs fill it). bane_vs_bane needs 128G RAM.
 - Out of scope (user decisions): Shadow-hand Exp 10 (parked on `feat/shadow-hand`),
   Exp 9 no-comm (deprioritized).
 
-## 6. Quick orientation for an AI
+## 6. WandB setup & run naming
+
+**Access**: `export WANDB_API_KEY=<ask Raz for the key>`. Entity/project:
+`raz-shmueli-corsound-ai/private-mamba`.
+
+**Run naming convention** — all WandB display names follow this pattern:
+```
+{prefix}_lag{laglr}_{cost_limit}_{env}_s{seed}_{timestamp}
+```
+Examples:
+- `safedreamer_dai_safety_gym_lag1e-5_0.2_Safety2x4AntVelocity-v0_s1_...` (MAMuJoCo)
+- `safedreamer_dead_allies_incremental_starcraft_lag1e-5_0.5_MMM_s1_...` (SMAC)
+- PID runs add `_pid` suffix: `..._Safety2x4AntVelocity-v0_s1_pid_...`
+
+**Data lineage** — each extraction script parses these names via regex into CSV columns
+(`env`, `seed`, `cost_limit`, `laglr`, `run_name`). The `run_name` column in every CSV
+= the exact WandB display name (paste it in the WandB UI search bar to find the run).
+
+| Script | Input | Output CSVs |
+|--------|-------|-------------|
+| `5-theorem1-estimates/extract_theorem1.py --env mamujoco` | WandB `safedreamer_dai_safety_gym_*` | `theorem1_mamujoco_per_run.csv`, `_agg.csv` |
+| `5-theorem1-estimates/extract_theorem1.py --env smac` | WandB `safedreamer_dead_allies_incremental_starcraft_*` | `theorem1_smac_per_run.csv`, `_agg.csv` |
+| `1-mappo-lag-all-envs/extract_mappolag_smac.py` | WandB `time_*_mappolag_*` | `csv/mappolag_smac_*.csv` (5 checkpoints) |
+| `3-safedreamer-smac-threshold/pull_and_plot_beta.py` | WandB (runs listed in `runs_config_smac.json`) | `data/*.csv` + `figures/*_beta_dynamics.pdf` |
+
+**Aggregated tables** (downstream of above):
+- `docs/tmp/aggregated/smac/dead_allies_all_steps.csv` — all methods, all checkpoints (264 rows)
+- `docs/tmp/aggregated/smac/dead_allies_agg.csv` — appendix format (120 rows)
+
+## 7. Quick orientation for an AI
 
 1. `git checkout feat/pid-lagrangian` — this branch has the current task's code and
    is where work stopped (done tasks live on `feat/thesis-experiments`).
