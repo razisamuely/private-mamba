@@ -23,7 +23,7 @@ nvidia-smi -L || true
 
 module load anaconda
 source activate "$ENV_DIR"
-export PYTHONPATH="$REPO_DIR:$REPO_DIR/flatland-2.2.2:${PYTHONPATH:-}"
+export PYTHONPATH="$REPO_DIR:${PYTHONPATH:-}"
 export WANDB_MODE=offline
 export WANDB_DIR="$OUT_DIR"
 export PYTHONUNBUFFERED=TRUE
