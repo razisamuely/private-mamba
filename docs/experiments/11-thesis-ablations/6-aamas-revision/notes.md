@@ -87,6 +87,31 @@ Measured-cost basic already exists from April 2026 runs (3 seeds, past 100k):
 | Cost-blind λ=0 | `--laglr 0 --lag_init 0.0` | 22241020, 22241021, 22241022 | submitted | — |
 | Imagined-cost basic | `--laglr 1e-5 --lag_signal imagined` | 22241023, 22241038, 22241040 | submitted | — |
 
+## Step 2c: HC 2x3 d=5.0 MAMuJoCo ablation (5 arms × 3 seeds)
+
+### Why
+
+Tests the same 5 multiplier rules on a continuous-action velocity constraint.
+HC 2x3 is where the paper shows the biggest CA-MAMBA advantage and where
+the multiplier rate sweep had the clearest effect. 2 agents = fastest to run.
+
+### Existing baseline
+
+Measured-cost basic already exists from June 2026 runs (3 seeds):
+- `safedreamer_dai_safety_gym_lag1e-05_5.0_Safety2x3HalfCheetahVelocity-v0_s{1,2,3}_date06-*_fix-tanh-logprob-cor`
+
+### New runs (HC 2x3, d=5.0, seeds 1-3, --max_steps 1050000)
+
+| Arm | Flags | Slurm IDs | Status | Exported |
+|---|---|---|---|---|
+| Measured-cost basic | `--laglr 1e-5` | existing (see above) | COMPLETED | — |
+| PID | `--lag_mode pid --pid_kp 1.0 --pid_ki 1e-5 --pid_kd 1.0` | 22242437, 22242439, 22242440 | submitted | — |
+| Fixed λ=1 | `--laglr 0 --lag_init 1.0` | 22242442, 22242443, 22242444 | submitted | — |
+| Cost-blind λ=0 | `--laglr 0 --lag_init 0.0` | 22242445, 22242447, 22242448 | submitted | — |
+| Imagined-cost basic | `--laglr 1e-5 --lag_signal imagined` | 22242449, 22242450, 22242452 | submitted | — |
+
+Note: MAMuJoCo runs use 1M steps (not 105k like SMAC), so `--max_steps 1050000`.
+
 ## Extra: Paper table swap (not in Shperb's instructions)
 
 - [x] Fixed `wandb_config.py` project name
