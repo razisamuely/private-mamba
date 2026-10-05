@@ -13,11 +13,11 @@
 
 | Arm | Flags | Slurm IDs | Status |
 |---|---|---|---|
-| Measured-cost basic | `--laglr 1e-5` | 22156904, 22156905, 22156906 | RUNNING |
-| PID | `--lag_mode pid --pid_kp 1.0 --pid_ki 1e-5 --pid_kd 1.0` | 22156909, 22156910, 22156912 | 3/3 COMPLETED |
-| Fixed λ=1 | `--laglr 0 --lag_init 1.0` | 22156913, 22156917, 22156918 | 1/3 COMPLETED, 2 RUNNING |
-| Cost-blind λ=0 | `--laglr 0 --lag_init 0.0` | 22156920, 22156922, 22156923 | RUNNING |
-| Imagined-cost basic | `--laglr 1e-5 --lag_signal imagined` | 22156924, 22156926, 22156927 | RUNNING (started late) |
+| Measured-cost basic | `--laglr 1e-5` | 22156904, 22156905, 22156906 | RUNNING | — |
+| PID | `--lag_mode pid --pid_kp 1.0 --pid_ki 1e-5 --pid_kd 1.0` | 22156909, 22156910, 22156912 | 3/3 COMPLETED | 3/3 exported |
+| Fixed λ=1 | `--laglr 0 --lag_init 1.0` | 22156913, 22156917, 22156918 | 1/3 COMPLETED, 2 RUNNING | 1/3 exported (s3) |
+| Cost-blind λ=0 | `--laglr 0 --lag_init 0.0` | 22156920, 22156922, 22156923 | RUNNING | — |
+| Imagined-cost basic | `--laglr 1e-5 --lag_signal imagined` | 22156924, 22156926, 22156927 | RUNNING (started late) | — |
 
 `--max_steps` auto-stop confirmed working (PID stopped at ~105k env steps).
 
@@ -62,6 +62,30 @@ python export_histories.py --group <group> --regex "<regex>"
 # or
 python export_histories.py --group <group> --ids <ids_file>
 ```
+
+## Step 2b: 8m d=0 ablation (tighter limit, 4 arms × 3 seeds)
+
+### Why
+
+At d=4 (half the team), an agent that learns to win naturally keeps casualties low — the cost
+limit may be too loose to see the effect of cost control. d=0 (zero casualties allowed) forces
+the agent to genuinely rely on the Lagrangian penalty to avoid any deaths.
+
+### Existing baseline
+
+Measured-cost basic already exists from April 2026 runs (3 seeds, past 100k):
+- s1: `safedreamer_dead_allies_incremental_starcraft_lag1e-05_0.0_8m_s1_date04-26-hr21-43-35_17209123_feat-lag-real-episode-cost`
+- s2: `safedreamer_dead_allies_incremental_starcraft_lag1e-05_0.0_8m_s2_date04-26-hr21-43-38_17209124_feat-lag-real-episode-cost`
+- s3: `safedreamer_dead_allies_incremental_starcraft_lag1e-05_0.0_8m_s3_date04-26-hr21-43-42_17209125_feat-lag-real-episode-cost`
+
+### New runs (8m, d=0, seeds 1-3, --max_steps 105000)
+
+| Arm | Flags | Slurm IDs | Status | Exported |
+|---|---|---|---|---|
+| PID | `--lag_mode pid --pid_kp 1.0 --pid_ki 1e-5 --pid_kd 1.0` | 22240995, 22240996, 22240997 | submitted | — |
+| Fixed λ=1 | `--laglr 0 --lag_init 1.0` | 22241011, 22241012, 22241013 | submitted | — |
+| Cost-blind λ=0 | `--laglr 0 --lag_init 0.0` | 22241020, 22241021, 22241022 | submitted | — |
+| Imagined-cost basic | `--laglr 1e-5 --lag_signal imagined` | 22241023, 22241038, 22241040 | submitted | — |
 
 ## Extra: Paper table swap (not in Shperb's instructions)
 

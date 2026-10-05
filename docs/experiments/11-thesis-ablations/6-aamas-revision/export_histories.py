@@ -63,7 +63,10 @@ def episode_frame(run) -> pd.DataFrame:
         if not rows:
             continue
         df = pd.DataFrame(rows, columns=[STEP, key]).drop_duplicates(subset=[STEP], keep="last")
-        merged = df if merged is None else merged.merge(df, on=STEP, how="outer")
+        if merged is None:
+            merged = df
+        else:
+            merged = merged.drop_duplicates(subset=[STEP], keep="last").merge(df, on=STEP, how="outer")
     if merged is None:
         raise RuntimeError(f"no episode metrics in {run.id}")
     merged = merged.sort_values(STEP).reset_index(drop=True)  # [num_episodes, 1 + len(EPISODE_KEYS)]
@@ -77,7 +80,11 @@ def lag_frame(run) -> pd.DataFrame | None:
     for key in LAG_KEYS:
         rows = [(r["_step"], r[key]) for r in run.scan_history(keys=["_step", key], page_size=PAGE_SIZE)]
         if rows:
-            columns[key] = pd.DataFrame(rows, columns=["_step", key]).set_index("_step")[key]
+            columns[key] = (
+                pd.DataFrame(rows, columns=["_step", key])
+                .drop_duplicates(subset=["_step"], keep="last")
+                .set_index("_step")[key]
+            )
     if not columns:
         return None
     lag = pd.DataFrame(columns).sort_index().reset_index()  # [num_updates, 1 + num_present_keys]

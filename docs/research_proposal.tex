@@ -1,0 +1,197 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\geometry{margin=2.5cm}
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{0em}
+
+\newtheorem{theorem}{Theorem}
+
+\begin{document}
+
+% ===================== TITLE PAGE =====================
+\begin{titlepage}
+\centering
+\vspace*{1cm}
+
+{\Large\bfseries Ben-Gurion University of the Negev}
+
+\vspace{0.3cm}
+{\large Faculty of Natural Sciences \textbar{} Department of Computer Science}
+
+\vspace{1.5cm}
+{\LARGE\bfseries Research Proposal for M.Sc.\ Thesis}
+
+\vspace{1.5cm}
+{\Large\bfseries Safe Constrained Multi-Agent Reinforcement Learning\\with World Models}
+
+\vspace{2cm}
+
+\begin{tabular}{rl}
+\textbf{Student:} & Raz Shmueli \\
+\textbf{ID:} & 203748645 \\
+\textbf{Advisor:} & Dr.\ Shahaf Shperberg \\
+\textbf{Date:} & October 2026 \\
+\end{tabular}
+
+\vspace{2cm}
+
+\rule{6cm}{0.4pt}\\[0.3cm]
+Advisor's signature
+
+\vspace{1.5cm}
+
+\rule{6cm}{0.4pt}\\[0.3cm]
+Head of Departmental Graduate Committee's signature
+
+\end{titlepage}
+
+% ===================== ABSTRACT =====================
+\section*{Abstract}
+
+Constrained multi-agent reinforcement learning is usually solved reactively: a policy learns to avoid a failure only after the environment has produced one.
+Learned world models offer another route, because most policy updates can be taken against imagined rollouts instead of collected ones.
+We propose \emph{Cost-Aware MAMBA} (CA-MAMBA), which augments a multi-agent recurrent state-space model with per-agent cost prediction, trains factorized actors on imagined reward and cost advantages, and calibrates one team-level Lagrange multiplier from measured environment cost.
+We characterize when this transfers: bounded one-step cost and transition error imply an explicit finite-horizon bound on the gap between imagined and real cost, which fixes the conservative margin an imagined constraint must carry.
+Empirically, at a matched interaction budget CA-MAMBA lowers casualty cost on all 24 shared StarCraft configurations and wins more often on all 24, while the model-free baseline wins no episode on 22 of them; the ordering largely persists when that baseline is given fifty times more data.
+On the SafePO velocity benchmark, at a matched budget it holds mean cost under the limit while earning 2.8 to 12 times the reward of both MACPO and MAPPO-Lagrangian in all three environments.
+
+% ===================== BACKGROUND =====================
+\section{Scientific Background}
+
+\subsection{Constrained Multi-Agent Reinforcement Learning}
+
+In cooperative multi-agent reinforcement learning (MARL), a team of agents must learn decentralized policies that maximize a shared reward signal under partial observability.
+Adding safety constraints turns this into a \emph{constrained} Dec-POMDP~[1]: the team must keep an expected cumulative cost below a given budget $d$ while maximizing return.
+
+Constrained policy optimization~[2] controls expected cost through trust-region updates.
+MACPO and MAPPO-Lagrangian carry this line into multi-agent robot control~[7], both built on MAPPO~[8].
+Related formulations include CMIX, which adds peak to average constraints in a value-factorized learner~[9], and risk-sensitive methods such as RMIX~[10].
+Every update in this family is computed from environment trajectories---exactly the cost the method is trying to avoid paying.
+
+\subsection{Model-Based Reinforcement Learning and World Models}
+
+Dreamer~[3] improves a policy through rollouts of learned recurrent latent dynamics, a line since scaled across domains~[4].
+SafeDreamer adds cost prediction, separate reward and cost critics, and Lagrangian optimization to this single-agent framework~[6].
+MAMBA adapts latent world models to cooperative partial observability by aggregating other agents' latents and actions through attention~[5].
+
+None of these three systems, by itself, addresses the multi-agent constrained setting: Dreamer and SafeDreamer are single-agent, and MAMBA has no cost channel.
+The composition of these components---and the questions it raises about cost aggregation, communication, and model error in the constraint---is the gap this research addresses.
+
+% ===================== RESEARCH GOALS =====================
+\section{Research Goals}
+
+The research aims to answer the following questions:
+
+\begin{enumerate}[leftmargin=1.5em]
+    \item \textbf{Cost-aware world model for MARL.} Can a multi-agent world model be extended with per-agent cost prediction so that a factorized policy trained on imagined rollouts achieves lower realized safety cost than model-free constrained baselines at a matched interaction budget?
+
+    \item \textbf{Theoretical transfer guarantees.} Under what conditions does a constraint enforced in imagination transfer to the real environment? Specifically, can bounded one-step cost-head error and transition error yield an explicit finite-horizon bound on the gap between imagined and realized cost?
+
+    \item \textbf{Communication requirements.} How much inter-agent communication is necessary for the constrained policy to function? Is this a property of the domain rather than of the framework, and can it be measured by varying the attention neighborhood at execution time?
+
+    \item \textbf{Generalization across cost structures.} Does the approach generalize across different cost signals (sparse/discrete casualty cost on SMAC vs.\ continuous velocity constraints on MAMuJoCo) and action spaces (discrete vs.\ continuous)?
+\end{enumerate}
+
+% ===================== METHODOLOGY =====================
+\section{Research Methodology}
+
+\subsection{Constrained Dec-POMDP Formulation}
+
+We formulate the problem as a finite-horizon constrained Dec-POMDP $\mathcal{M} = \langle \mathcal{I}, \mathcal{S}, \{\mathcal{A}_i\}, P, R, \{C_i\}, \{\mathcal{O}_i\}, \Omega, \mu_0, H, \gamma, d \rangle$, where each agent~$i$ has a local cost $C_i$ and the team cost is the mean $c_t = \frac{1}{N}\sum_{i} c_t^i$.
+The joint policy factorizes as $\pi_\phi(\mathbf{a}_t \mid \boldsymbol{\tau}_t, \mathbf{m}_t) = \prod_{i=1}^{N} \pi_{\phi_i}^i(a_t^i \mid \tau_t^i, m_t^i)$, where $m_t^i$ is a message from attended teammates.
+The objective is to maximize discounted return $J_R$ subject to $J_C(\pi_\phi) \leq d$.
+
+\subsection{Cost-Aware Multi-Agent World Model (CA-MAMBA)}
+
+The world model is a recurrent state-space model (RSSM) with per-agent deterministic state $h_t^i$ and stochastic state $z_t^i$.
+Three heads decode each latent state: observation (for representation learning), reward, and \emph{cost}---the latter is our addition.
+Each cost head regresses agent~$i$'s own cost $c_t^i$; the imagined team cost is the mean $\hat{c}_t = \frac{1}{N}\sum_i \hat{c}_t^i$.
+
+Inter-agent communication is realized via a multi-head Transformer encoder that aggregates teammates' previous actions and stochastic latents, parameterized by an attention neighborhood $\mathcal{N}_i$.
+Setting $\mathcal{N}_i = \mathcal{I}$ gives all-to-all communication; $\mathcal{N}_i = \{i\}$ yields communication-free execution.
+
+\subsection{Imagined Actor--Critic and Lagrangian Dual}
+
+A Lagrange multiplier $\beta \geq 0$ relaxes the constraint.
+Two separate critics estimate imagined reward and cost returns, yielding a combined advantage $A_u^\beta = A_u^R - \beta A_u^C$.
+The actor maximizes a clipped surrogate objective over imagined samples.
+The multiplier is updated from \emph{measured} environment cost: $\beta_{k+1} = [\beta_k + \alpha_\beta(\bar{C}_k - d)]_+$, creating a hybrid where the actor uses imagined cost but the dual uses real cost.
+
+\subsection{Theoretical Analysis}
+
+\begin{theorem}[Conditional Cost Transfer]
+Under bounded one-step cost error $\epsilon_c$ and transition error $\epsilon_P$ (in total variation), the gap between imagined and real discounted cost over horizon $H_{\mathrm{im}}$ satisfies:
+\[
+|J_{C,H_{\mathrm{im}}}(\pi) - \widehat{J}_{C,H_{\mathrm{im}}}(\pi)| \leq \epsilon_c \sum_{t=0}^{H_{\mathrm{im}}-1} \gamma^t + c_{\max} \epsilon_P \sum_{t=0}^{H_{\mathrm{im}}-1} t\gamma^t.
+\]
+\end{theorem}
+
+This bound identifies cost-head error as entering linearly in the horizon and transition error quadratically, naming which error source to reduce first.
+We further show that the measured-cost dual update has the correct sign (it is projected stochastic descent in $\beta$) but cannot repair an actor gradient taken through a cost-blind model.
+
+\subsection{Experimental Plan}
+
+\textbf{Environments:}
+\begin{itemize}[leftmargin=1.5em]
+    \item \emph{StarCraft Multi-Agent Challenge (SMAC):} 12 maps with casualty cost (sparse, discrete, irreversible) and collision cost (dense, continuous, reversible).
+    \item \emph{MAMuJoCo (SafePO):} Three velocity-constrained locomotion tasks with continuous actions (Ant~$2{\times}4$, Ant~$4{\times}2$, HalfCheetah~$2{\times}3$).
+\end{itemize}
+
+\textbf{Baselines:} MACPO-Discrete (SMAC), MACPO and MAPPO-Lagrangian (MAMuJoCo), all from the SafePO repository.
+
+\textbf{Ablations:}
+\begin{itemize}[leftmargin=1.5em]
+    \item Communication: full ($\mathcal{N}_i = \mathcal{I}$) vs.\ self-only ($\mathcal{N}_i = \{i\}$) at execution time.
+    \item Multiplier learning rate $\alpha_\beta$: effect on cost--reward trade-off.
+    \item Cost machinery removal: unconstrained world-model learner to isolate the cost mechanism's contribution.
+\end{itemize}
+
+\textbf{Metrics:} Win rate and shaped score (SMAC); episodic reward and cost (MAMuJoCo); cost-head one-step prediction error; multiplier dynamics.
+
+\subsection{Preliminary Results}
+
+Preliminary experiments confirm the approach.
+At a matched budget of 100,000 interactions, CA-MAMBA has lower mean casualty cost than MACPO-Discrete in 24/24 SMAC configurations and higher win rate in 24/24; the baseline wins zero episodes on 22 of 24 configurations.
+On MAMuJoCo at a matched 1M budget, CA-MAMBA earns 2.8--12$\times$ the reward of both baselines in all three environments while holding cost under the limit.
+The cost head's measured one-step error is at most 0.004 (${\sim}3\%$ of peak cost), making the transfer bound quantitative.
+
+% ===================== REFERENCES =====================
+\section*{References}
+
+\begin{enumerate}[leftmargin=1.5em, label={[\arabic*]}]
+\item D.~S. Bernstein, R.~Givan, N.~Immerman, and S.~Zilberstein. The complexity of decentralized control of Markov decision processes. \emph{Math.\ Oper.\ Res.}, 27(4):819--840, 2002.
+
+\item J.~Achiam, D.~Held, A.~Tamar, and P.~Abbeel. Constrained policy optimization. In \emph{ICML}, pp.\ 22--31, 2017.
+
+\item D.~Hafner, T.~P. Lillicrap, J.~Ba, and M.~Norouzi. Dream to control: Learning behaviors by latent imagination. In \emph{ICLR}, 2020.
+
+\item D.~Hafner, J.~Pasukonis, J.~Ba, and T.~P. Lillicrap. Mastering diverse domains through world models. \emph{Nature}, 2025.
+
+\item V.~Egorov and A.~Shpilman. Scalable multi-agent model-based reinforcement learning. In \emph{AAMAS}, pp.\ 381--390, 2022.
+
+\item W.~Huang, J.~Ji, C.~Xia, B.~Zhang, and Y.~Yang. SafeDreamer: Safe reinforcement learning with world models. In \emph{ICLR}, 2024.
+
+\item S.~Gu, J.~G. Kuba, Y.~Chen, Y.~Du, L.~Yang, A.~C. Knoll, and Y.~Yang. Safe multi-agent reinforcement learning for multi-robot control. \emph{Artif.\ Intell.}, 319:103905, 2023.
+
+\item C.~Yu, A.~Velu, E.~Vinitsky, J.~Gao, Y.~Wang, A.~Baez, and Y.~Wu. The surprising effectiveness of PPO in cooperative multi-agent games. In \emph{NeurIPS}, 2022.
+
+\item Y.~Liu et al. CMIX: Constrained multi-agent reinforcement learning with value decomposition. In \emph{ECML-PKDD}, 2021.
+
+\item W.~Qiu et al. RMIX: Risk-sensitive multi-agent reinforcement learning. In \emph{NeurIPS}, 2021.
+
+\item D.~Hafner et al. Learning latent dynamics for planning from pixels. In \emph{ICML}, 2019.
+
+\item J.~Schulman, P.~Moritz, S.~Levine, M.~I. Jordan, and P.~Abbeel. High-dimensional continuous control using generalized advantage estimation. In \emph{ICLR}, 2016.
+
+\item J.~Ji et al. Safety-Gymnasium: A unified safe reinforcement learning benchmark. In \emph{NeurIPS}, 2023.
+
+\item M.~Samvelyan et al. The StarCraft multi-agent challenge. In \emph{AAMAS}, 2019.
+\end{enumerate}
+
+\end{document}
