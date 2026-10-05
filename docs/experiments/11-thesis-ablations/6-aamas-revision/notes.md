@@ -110,6 +110,16 @@ Measured-cost basic already exists from June 2026 runs (3 seeds):
 | Cost-blind λ=0 | `--laglr 0 --lag_init 0.0` | 22242445, 22242447, 22242448 | submitted | — |
 | Imagined-cost basic | `--laglr 1e-5 --lag_signal imagined` | 22242449, 22242450, 22242452 | submitted | — |
 
+### d=25 (default SafePO limit, same env)
+
+| Arm | Flags | Slurm IDs | Status | Exported |
+|---|---|---|---|---|
+| Measured-cost basic | `--laglr 1e-5` | existing (paper Table 2) | COMPLETED | — |
+| PID | `--lag_mode pid --pid_kp 1.0 --pid_ki 1e-5 --pid_kd 1.0` | 22242456, 22242457, 22242458 | submitted | — |
+| Fixed λ=1 | `--laglr 0 --lag_init 1.0` | 22242459, 22242460, 22242461 | submitted | — |
+| Cost-blind λ=0 | `--laglr 0 --lag_init 0.0` | 22242462, 22242463, 22242464 | submitted | — |
+| Imagined-cost basic | `--laglr 1e-5 --lag_signal imagined` | 22242465, 22242466, 22242467 | submitted | — |
+
 Note: MAMuJoCo runs use 1M steps (not 105k like SMAC), so `--max_steps 1050000`.
 
 ## Extra: Paper table swap (not in Shperb's instructions)
