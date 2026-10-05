@@ -9,9 +9,14 @@ For each run, over the last ``tail`` fraction of environment steps:
   :math:`\sqrt{\mathrm{kl\_per\_agent}/2}`, an upper bound on the per-agent transition
   TV that cannot certify a small error even for an exact model.
 * ``imag_window`` = mean ``Value/Cost`` (imagined team cost per step) times
-  :math:`W=\sum_{t<15}0.99^t`; ``real_window`` = total episode cost / total episode
-  length over the tail episodes, times :math:`W`.  ``abs_gap`` and ``rel_gap`` compare
-  them: an estimate of the left-hand side of Theorem 1(i).
+  :math:`W=\sum_{t<H_{\mathrm{im}}}0.99^t` with :math:`H_{\mathrm{im}}=14`, the costed
+  imagined steps (the rollout has 15 latent states and bootstraps at the last);
+  ``real_window`` = total episode cost / total episode length over the tail episodes,
+  times :math:`W`.  ``abs_gap`` and ``rel_gap`` compare them: an estimate of the
+  left-hand side of Theorem 1(i).
+* ``bc_signed`` = mean of ``Model/Predicted_average_cost - Model/Actual_average_cost``
+  (cost-head bias per step on replay, :math:`\hat B_c`; padded steps included);
+  ``bc_rel`` = ``bc_signed`` / mean ``Model/Actual_average_cost``.
 * ``bv_signed``, ``bv_abs``, ``v_post``, ``tv_post_prior``, ``tv_max_agent``: means of the
   ``Diag/*`` diagnostics (agent/optim/diagnostics.py); ``bv_rel`` = ``bv_abs`` / |``v_post``|.
 * ``beta_final``: last ``Agent/Lagrangian``.
@@ -38,8 +43,8 @@ from typing import Iterable, Optional, Sequence
 import numpy as np
 
 GAMMA = 0.99
-HORIZON = 15
-WINDOW = sum(GAMMA**t for t in range(HORIZON))  # discounted 15-step window, ~13.994
+HORIZON = 14  # costed imagined steps H_im (15 latent states, bootstrap at the last)
+WINDOW = sum(GAMMA**t for t in range(HORIZON))  # discounted 14-step window, ~13.125
 N_CATEGORICALS = 32
 STEP = "steps"
 EPISODE_COST = "main/cost"
@@ -58,6 +63,8 @@ class RunSummary:
     real_window: Optional[float]
     abs_gap: Optional[float]
     rel_gap: Optional[float]
+    bc_signed: Optional[float]
+    bc_rel: Optional[float]
     bv_signed: Optional[float]
     bv_abs: Optional[float]
     v_post: Optional[float]
@@ -117,6 +124,18 @@ def summarize_run(path: Path, tail: float = 0.1) -> RunSummary:
     gap = None if imag_window is None or real_window is None else imag_window - real_window
     bv_abs = _tail_mean(rows, steps, start, "Diag/bv_abs")
     v_post = _tail_mean(rows, steps, start, "Diag/v_post")
+    # Cost-head bias: both averages are logged in the same row, over the same replay batch.
+    bias_rows = [
+        {"bc": r["Model/Predicted_average_cost"] - r["Model/Actual_average_cost"]}
+        for r in rows
+        if "Model/Predicted_average_cost" in r and "Model/Actual_average_cost" in r
+    ]  # [num_model_rows]
+    bias_steps = [
+        s for r, s in zip(rows, steps)
+        if "Model/Predicted_average_cost" in r and "Model/Actual_average_cost" in r
+    ]  # [num_model_rows]
+    bc_signed = _tail_mean(bias_rows, bias_steps, start, "bc")
+    actual_cost = _tail_mean(rows, steps, start, "Model/Actual_average_cost")
     betas = [r["Agent/Lagrangian"] for r in rows if "Agent/Lagrangian" in r]
     return RunSummary(
         run=str(path),
@@ -130,6 +149,8 @@ def summarize_run(path: Path, tail: float = 0.1) -> RunSummary:
         real_window=real_window,
         abs_gap=None if gap is None else abs(gap),
         rel_gap=None if gap is None or not real_window else gap / real_window,
+        bc_signed=bc_signed,
+        bc_rel=None if bc_signed is None or not actual_cost else bc_signed / actual_cost,
         bv_signed=_tail_mean(rows, steps, start, "Diag/bv_signed"),
         bv_abs=bv_abs,
         v_post=v_post,

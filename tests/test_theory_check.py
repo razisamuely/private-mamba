@@ -15,7 +15,14 @@ def write_run(path, n_episodes=20, length=100, cost=2.0, imag=0.03, beta_end=0.4
         lines.append({"main/winrate": 0.0, "steps": steps})
         lines.append({"main/cost": cost, "steps": steps})
         lines.append({"main/score": 10.0, "steps": steps})
-        lines.append({"Model/cost_loss": 0.004, "Model/div": 0.05})
+        lines.append(
+            {
+                "Model/cost_loss": 0.004,
+                "Model/div": 0.05,
+                "Model/Predicted_average_cost": 0.018,
+                "Model/Actual_average_cost": 0.02,
+            }
+        )
         lines.append({"Value/Cost": imag})
         lines.append({"Agent/Lagrangian": beta_end * (e + 1) / n_episodes})
         lines.append(
@@ -42,11 +49,14 @@ def test_summary_matches_hand_computation(tmp_path):
     assert s.kl_per_agent == pytest.approx(32 * 0.05)
     assert s.pinsker_bound == pytest.approx(math.sqrt(32 * 0.05 / 2))
     assert s.bv_rel == pytest.approx(0.05)
+    assert s.bc_signed == pytest.approx(-0.002)
+    assert s.bc_rel == pytest.approx(-0.1)
     assert s.beta_final == pytest.approx(0.4)
 
 
 def test_window_constant():
-    assert WINDOW == pytest.approx(13.994, abs=1e-3)
+    # H_im = 14 costed steps: sum_{t<14} 0.99^t
+    assert WINDOW == pytest.approx(13.125, abs=1e-3)
 
 
 def test_truncated_last_line_is_skipped(tmp_path):
