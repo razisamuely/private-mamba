@@ -1,48 +1,9 @@
-# 6-aamas-exports — runs and data for the AAMAS 2027 revision
+# 6-aamas-exports — WandB history exports for the AAMAS 2027 revision
 
-**Date**: 2026-10-04. Branch `feat/aamas-8m-ablation` (off `feat/pid-lagrangian`).
+**Date**: 2026-10-04. Branch `feat/aamas-8m-ablation`.
+**GitHub issue**: [#3](https://github.com/razisamuely/private-mamba/issues/3)
 
-## Why
-
-The SMAC casualty-cost results in the paper (runs Oct 2025 – Jan 2026, code `4311bf0`) updated
-the multiplier from `cost_returns.mean()`, the mean *imagined* per-step cost return
-(`DreamerLearner.py:283` at that commit). The paper's Eq. 5 describes the *measured* episode-cost
-update, which entered on 2026-04-10/11 (`6c05450`, `1ef8faa`) and is what the MAMuJoCo and PID runs
-use. The 8m runs below put four multiplier rules on the current code, next to the old runs.
-
-## New runs (8m, d=4, seeds 1-3, stop at 105k env steps)
-
-| Arm | Flags |
-|---|---|
-| Measured-cost basic dual | `--laglr 1e-5` |
-| PID dual | `--lag_mode pid --pid_kp 1.0 --pid_ki 1e-5 --pid_kd 1.0` |
-| Fixed penalty, lambda = 1 | `--laglr 0 --lag_init 1.0` |
-| Cost-blind, lambda = 0 | `--laglr 0 --lag_init 0.0` |
-| Imagined-cost basic dual | `--laglr 1e-5 --lag_signal imagined` |
-
-Advantages are normalized to unit std (`NORMALIZE_ADVANTAGE=True`), so lambda = 1 weights
-reward and cost advantages equally.
-
-### Slurm IDs (submitted 2026-10-04)
-
-| Arm | Slurm IDs |
-|---|---|
-| Measured-cost basic | 22156904, 22156905, 22156906 |
-| PID | 22156909, 22156910, 22156912 |
-| Fixed λ=1 | 22156913, 22156917, 22156918 |
-| Cost-blind λ=0 | 22156920, 22156922, 22156923 |
-| Imagined-cost basic | 22156924, 22156926, 22156927 |
-
-Verified ~3 min after submit: episodes progressing, fixed-λ stays at 1.0,
-PID logs `Lag/pid_*`.
-
-## MAPPO-Lag tight-limit MAMuJoCo (10M steps, seeds 1-3)
-
-| Env | d | Slurm IDs |
-|---|---|---|
-| Ant 2x4 | 0.2 | 22157940, 22157941, 22157942 |
-| Ant 4x2 | 1.0 | 22157945, 22157946, 22157947 |
-| HC 2x3 | 5.0 | 22157832, 22157833, 22157939 |
+Runs, Slurm IDs, and job tracking moved to [`7-aamas-8m-ablation/notes.md`](../7-aamas-8m-ablation/notes.md).
 
 ## Exports (`export_histories.py`, output in `csv/<group>/`)
 
@@ -59,10 +20,13 @@ PID logs `Lag/pid_*`.
 The id lists are generated from the paper repo's `data/new_experiments_tracking_100k.csv` and
 `1-mappo-lag-all-envs/csv/mappolag_smac_per_seed_100k.csv`.
 
+## Data extraction
+
+- [x] Fixed `wandb_config.py` project name (`anonymous/...` -> `raz-shmueli-corsound-ai/...`)
+- [x] Filled 37 empty d>0 rows in `safe_dreamers_runs_adapted.csv` using `extract_metrics.py`
+- [x] Verified: multi-step table already had correct measured-cost aggregated values (delta < 0.001)
+
 ## Status
 
-- [x] `--lag_init`, `--max_steps` + tests (9 passed); dry-run sbatch files checked for all four arms
-- [x] 15 SMAC 8m jobs submitted (5 arms × 3 seeds), verified alive
-- [x] 9 MAPPO-Lag tight-limit MAMuJoCo jobs submitted
-- [ ] `--max_steps` auto-stop confirmed
+- [ ] exports run
 - [ ] exports committed

@@ -1,5 +1,5 @@
 # wandb_config.py — WandB API connection settings
-WANDB_PROJECT = "anonymous/private-mamba"
+WANDB_PROJECT = "raz-shmueli-corsound-ai/private-mamba"
 WANDB_TIMEOUT = 60
 
 try:
