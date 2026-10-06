@@ -27,6 +27,8 @@ from __future__ import annotations
 
 import argparse
 import sys
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import TimeoutError as FuturesTimeout
 from pathlib import Path
 from typing import Iterator
 
@@ -36,6 +38,7 @@ import pandas as pd
 import wandb
 
 ENTITY_PROJECT = "raz-shmueli-corsound-ai/private-mamba"
+SCAN_TIMEOUT = 60  # seconds; fall back to run.history() if scan_history hangs
 STEP = "steps"
 EPISODE_KEYS = ("main/cost", "main/score", "main/winrate")
 LAG_KEYS = (
@@ -55,11 +58,27 @@ PAGE_SIZE = 10_000
 HERE = Path(__file__).resolve().parent
 
 
+def _scan_with_timeout(run, keys, page_size=PAGE_SIZE, timeout=SCAN_TIMEOUT):
+    """Try scan_history; if it hangs, fall back to run.history()."""
+
+    def _scan():
+        return [(r[keys[0]], r[keys[1]]) for r in run.scan_history(keys=keys, page_size=page_size)]
+
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        future = pool.submit(_scan)
+        try:
+            return future.result(timeout=timeout)
+        except FuturesTimeout:
+            future.cancel()
+            df = run.history(samples=10000, keys=keys).dropna(subset=keys)
+            return list(zip(df[keys[0]], df[keys[1]]))
+
+
 def episode_frame(run) -> pd.DataFrame:
     """Episode metrics merged on env steps; raises if the run logged none."""
     merged: pd.DataFrame | None = None
     for key in EPISODE_KEYS:
-        rows = [(r[STEP], r[key]) for r in run.scan_history(keys=[STEP, key], page_size=PAGE_SIZE)]
+        rows = _scan_with_timeout(run, [STEP, key])
         if not rows:
             continue
         df = pd.DataFrame(rows, columns=[STEP, key]).drop_duplicates(subset=[STEP], keep="last")
@@ -78,7 +97,7 @@ def lag_frame(run) -> pd.DataFrame | None:
     """Multiplier metrics with interpolated env steps; None if the run logged none."""
     columns = {}
     for key in LAG_KEYS:
-        rows = [(r["_step"], r[key]) for r in run.scan_history(keys=["_step", key], page_size=PAGE_SIZE)]
+        rows = _scan_with_timeout(run, ["_step", key])
         if rows:
             columns[key] = (
                 pd.DataFrame(rows, columns=["_step", key])
@@ -88,7 +107,7 @@ def lag_frame(run) -> pd.DataFrame | None:
     if not columns:
         return None
     lag = pd.DataFrame(columns).sort_index().reset_index()  # [num_updates, 1 + num_present_keys]
-    anchors = [(r["_step"], r[STEP]) for r in run.scan_history(keys=["_step", STEP], page_size=PAGE_SIZE)]
+    anchors = _scan_with_timeout(run, ["_step", STEP])
     if anchors:
         a = np.asarray(anchors, dtype=float)  # [num_anchor_rows, 2]
         lag[STEP] = np.interp(lag["_step"].to_numpy(dtype=float), a[:, 0], a[:, 1])
