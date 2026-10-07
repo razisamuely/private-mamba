@@ -62,7 +62,7 @@ def _scan_with_timeout(run, keys, page_size=PAGE_SIZE, timeout=SCAN_TIMEOUT):
     """Try scan_history; if it hangs, fall back to run.history()."""
 
     def _scan():
-        return [(r[keys[0]], r[keys[1]]) for r in run.scan_history(keys=keys, page_size=page_size)]
+        return [(r[keys[0]], r[keys[1]]) for r in run.scan_history(keys=keys, page_size=page_size) if keys[1] in r]
 
     with ThreadPoolExecutor(max_workers=1) as pool:
         future = pool.submit(_scan)
@@ -89,6 +89,7 @@ def episode_frame(run) -> pd.DataFrame:
     if merged is None:
         raise RuntimeError(f"no episode metrics in {run.id}")
     merged = merged.sort_values(STEP).reset_index(drop=True)  # [num_episodes, 1 + len(EPISODE_KEYS)]
+    merged = merged.dropna(subset=[STEP])
     assert merged[STEP].is_monotonic_increasing, f"non-monotonic steps in {run.id}"
     return merged
 
