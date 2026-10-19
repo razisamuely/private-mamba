@@ -117,16 +117,20 @@ If win rate drops materially, report it as a trade-off rather than a fix.
 | Cluster checkout synced | done — `8cd306a` (was `1e54c6a`) |
 | Jobs submitted | done — 24/24, 2026-10-19 |
 | Jobs verified alive (~2 min after submit) | done — 9 RUNNING, 15 PENDING |
-| Endpoints extracted | pending |
+| Runs finished | 6/24 as of 2026-10-19 — 9 running, 9 queued |
+| Endpoints extracted | pending — waits for all 24 |
 | Written into RQ2 | pending |
+
+While the queue drains the cluster checkout must stay on `8cd306a`. Pending jobs read `train.py`
+at launch, so a push would split this comparison across two code versions.
 
 ## Run log
 
 | Date | Jobs | Group | Notes |
 |---|---|---|---|
-| 2026-10-19 | 23347908-910 | `8m` d=0, s1-3 | RUNNING, episodes streaming |
-| 2026-10-19 | 23347928-930 | `3s_vs_4z` d=1, s1-3 | RUNNING |
-| 2026-10-19 | 23348289-291 | `3s_vs_5z` d=1, s1-3 | RUNNING |
+| 2026-10-19 | 23347908-910 | `8m` d=0, s1-3 | RUNNING |
+| 2026-10-19 | 23347928-930 | `3s_vs_4z` d=1, s1-3 | **COMPLETED** — 100.7k/100.8k/100.7k samples |
+| 2026-10-19 | 23348289-291 | `3s_vs_5z` d=1, s1-3 | **COMPLETED** — 101.3k/101.0k/101.1k samples |
 | 2026-10-19 | 23348292, 294, 295 | `1c3s5z` d=4, s1-3 | PENDING (GPU queue) |
 | 2026-10-19 | 23348296-298 | `3s5z_vs_3s6z` d=4, s1-3 | PENDING |
 | 2026-10-19 | 23348299-301 | `8m` d=4, s1-3 | PENDING |
