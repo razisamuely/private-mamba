@@ -67,3 +67,8 @@ docs/tmp/tables/mamujoco_comparison_experiment8/multi agent contrined policy opt
 *.mov
 *.pt
 safety-gymnasium*
+
+# tool scratch output, not project files
+.playwright-mcp/
+.claude/scheduled_tasks.lock
+config.yaml
