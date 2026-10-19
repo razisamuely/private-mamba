@@ -72,3 +72,4 @@ safety-gymnasium*
 .playwright-mcp/
 .claude/scheduled_tasks.lock
 config.yaml
+main_aamas.pdf
