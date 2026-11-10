@@ -7,10 +7,15 @@ from agent.workers.DreamerWorker import DreamerWorker
 
 
 class DreamerServer:
-    def __init__(self, n_workers, env_config, controller_config, model):
+    def __init__(self, n_workers, env_config, controller_config, model, seed=None):
         ray.init()
 
-        self.workers = [DreamerWorker.remote(i, env_config, controller_config) for i in range(n_workers)]
+        # seed + i, not seed: identical seeds would make every worker draw the
+        # same action noise and collect near-identical episodes.
+        worker_seeds = [None if seed is None else seed + i for i in range(n_workers)]
+        self.workers = [
+            DreamerWorker.remote(i, env_config, controller_config, seed=worker_seeds[i]) for i in range(n_workers)
+        ]
         self.tasks = [worker.run.remote(model) for worker in self.workers]
 
     def append(self, idx, update):
@@ -25,10 +30,10 @@ class DreamerServer:
 
 class DreamerRunner:
 
-    def __init__(self, env_config, learner_config, controller_config, n_workers):
+    def __init__(self, env_config, learner_config, controller_config, n_workers, seed=None):
         self.n_workers = n_workers
         self.learner = learner_config.create_learner()
-        self.server = DreamerServer(n_workers, env_config, controller_config, self.learner.params())
+        self.server = DreamerServer(n_workers, env_config, controller_config, self.learner.params(), seed=seed)
 
     def run(self, max_steps=10**10, max_episodes=10**10):
         cur_steps, cur_episode = 0, 0

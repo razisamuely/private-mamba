@@ -12,14 +12,25 @@ class StarCraft(Config):
     that don't naturally decrease as agents improve at the main task.
     """
 
-    def __init__(self, env_name, cost_type="---", safe_distance=3.0, formation_threshold=5.0, collision_threshold=1.0):
+    def __init__(
+        self,
+        env_name,
+        cost_type="---",
+        safe_distance=3.0,
+        formation_threshold=5.0,
+        collision_threshold=1.0,
+        env_seed=None,
+    ):
         self.env_name = env_name
         self.cost_type = cost_type
         self.safe_distance = safe_distance
         self.formation_threshold = formation_threshold
         self.collision_threshold = collision_threshold
+        self.env_seed = env_seed
 
-        self.env = StarCraft2Env(map_name=env_name, continuing_episode=True, difficulty="7")
+        # seed=None leaves the protobuf field unset, which is what every run
+        # before #36 did: StarCraft II then picks its own game seed.
+        self.env = StarCraft2Env(map_name=env_name, continuing_episode=True, difficulty="7", seed=env_seed)
         env_info = self.env.get_env_info()
 
         self.n_obs = env_info["obs_shape"]
@@ -30,8 +41,8 @@ class StarCraft(Config):
         self.prev_shots_fired = 0
         self.prev_hits_made = 0
 
-    def to_dict(self, l):
-        return {i: e for i, e in enumerate(l)}
+    def to_dict(self, values):
+        return {i: e for i, e in enumerate(values)}
 
     def step(self, action_dict, use_reward_shaping=False):
         reward, done, info = self.env.step(action_dict)
@@ -68,9 +79,17 @@ class StarCraft(Config):
     def is_natural_termination(self, info, steps_done):
         return "episode_limit" not in info
 
+    def set_seed(self, seed):
+        self.env_seed = seed
+
     def create_env(self):
         return StarCraft(
-            self.env_name, self.cost_type, self.safe_distance, self.formation_threshold, self.collision_threshold
+            self.env_name,
+            self.cost_type,
+            self.safe_distance,
+            self.formation_threshold,
+            self.collision_threshold,
+            env_seed=self.env_seed,
         )
 
     def get_random_action(self):

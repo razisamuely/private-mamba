@@ -94,6 +94,10 @@ class EnvCurriculumConfig(EnvConfig):
         for conf in self.env_configs:
             conf.update_random_seed()
 
+    def set_seed(self, seed):
+        for conf in self.env_configs:
+            conf.set_seed(seed)
+
     def set_obs_builder_config(self, obs_builder_config):
         for conf in self.env_configs:
             conf.set_obs_builder_config(obs_builder_config)

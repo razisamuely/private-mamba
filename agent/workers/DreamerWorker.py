@@ -7,13 +7,21 @@ import torch
 from flatland.envs.agent_utils import TrainState
 
 from environments import Env
+from seeding import seed_everything
 
 
 @ray.remote
 class DreamerWorker:
 
-    def __init__(self, idx, env_config, controller_config):
+    def __init__(self, idx, env_config, controller_config, seed=None):
         self.runner_handle = idx
+        if seed is not None:
+            # A Ray actor is its own process with its own generators, so the
+            # driver's seeding does not reach it.  Seed before create_env: the
+            # config is a copy local to this actor, so setting it here cannot
+            # affect the other workers.
+            seed_everything(seed)
+            env_config.set_seed(seed)
         self.env = env_config.create_env()
         self.controller = controller_config.create_controller()
         self.in_dim = controller_config.IN_DIM

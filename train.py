@@ -25,12 +25,13 @@ from env.starcraft.StarCraft_safe import StarCraft
 from env.vmas.balance import VmasBalance
 from environments import FLATLAND_ACTION_SIZE, FLATLAND_OBS_SIZE, Env, FlatlandType
 from lagrange import LagMode, LagSignal, apply_lag_config
+from seeding import seed_everything
 
 
 def run_one_process_one_env_debug(exp):
 
     learner = exp.learner_config.create_learner()
-    dreamer_single_worker = DreamerWorker(0, exp.env_config, exp.controller_config)
+    dreamer_single_worker = DreamerWorker(0, exp.env_config, exp.controller_config, seed=exp.random_seed)
 
     cur_steps, cur_episode = 0, 0
 
@@ -132,7 +133,7 @@ def train_dreamer(exp, n_workers, debug=True):
         run_one_process_one_env_debug(exp)
         return
 
-    runner = DreamerRunner(exp.env_config, exp.learner_config, exp.controller_config, n_workers)
+    runner = DreamerRunner(exp.env_config, exp.learner_config, exp.controller_config, n_workers, seed=exp.random_seed)
     runner.run(exp.steps, exp.episodes)
 
 
@@ -273,6 +274,9 @@ def prepare_flatland_configs(env_name, cost_limit=180.0):
 if __name__ == "__main__":
     args = parse_args()
     RANDOM_SEED = args.seed
+    # Before anything builds a network or an environment.  Each Ray worker
+    # reseeds itself from this value plus its own index (see DreamerWorker).
+    seed_everything(RANDOM_SEED)
 
     current_run_time = time.strftime("date%m-%d-hr%H-%M-%S", time.localtime())
     # temp_config = DreamerLearnerConfig()

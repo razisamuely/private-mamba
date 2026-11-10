@@ -5,6 +5,13 @@ class Config:
     def __init__(self):
         pass
 
+    def set_seed(self, seed):
+        """Seed the environment this config builds.
+
+        A no-op by default; overridden by the environments the thesis runs
+        (StarCraft, MAMuJoCo) and forwarded by EnvCurriculumConfig.
+        """
+
     def to_dict(self, prefix=""):
         res_dict = dict()
         for key, value in self.__dict__.items():

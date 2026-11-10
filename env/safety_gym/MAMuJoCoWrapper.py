@@ -27,9 +27,10 @@ class MAMuJoCoWrapper:
     Supports both discrete (legacy) and continuous action modes.
     """
 
-    def __init__(self, env_name="Safety2x1SwimmerVelocity-v0", action_type="discrete"):
+    def __init__(self, env_name="Safety2x1SwimmerVelocity-v0", action_type="discrete", env_seed=None):
         self.env_name = env_name
         self.action_type = action_type
+        self.env_seed = env_seed
         self.env = None
 
         if env_name in ENV_REGISTRY:
@@ -55,7 +56,9 @@ class MAMuJoCoWrapper:
             self.env = SafeMAEnv(scenario=self.scenario, agent_conf=self.agent_conf)
             self.n_agents = len(self.env.possible_agents)
             self.agents = list(range(self.n_agents))
-            _ = self.env.reset()
+            # Only this first reset carries the seed; seeding every reset would
+            # restart every episode from the same initial state.
+            _ = self.env.reset() if self.env_seed is None else self.env.reset(seed=self.env_seed)
             state = self.env.state()
             self.n_obs = state.shape[0] + self.n_agents
 
@@ -155,5 +158,8 @@ class MAMuJoCoWrapper:
         if self.env:
             self.env.close()
 
+    def set_seed(self, seed):
+        self.env_seed = seed
+
     def create_env(self):
-        return MAMuJoCoWrapper(self.env_name, action_type=self.action_type)
+        return MAMuJoCoWrapper(self.env_name, action_type=self.action_type, env_seed=self.env_seed)
