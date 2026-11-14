@@ -16,6 +16,34 @@ from agent.utils.params import FreezeParameters
 from networks.dreamer.rnns import rollout_policy, rollout_representation
 
 
+def _cost_head_recall_metrics(pred, actual, threshold=0.5):
+    """Precision, recall and AUPRC for the cost head (binary: cost > 0)."""
+    with torch.no_grad():
+        pred_flat = pred.detach().reshape(-1)
+        actual_flat = actual.detach().reshape(-1)
+        label = (actual_flat > 0).float()
+        n_pos = label.sum().item()
+        if n_pos == 0 or n_pos == label.numel():
+            return {}  # degenerate batch, skip
+        # point metrics at fixed threshold
+        pred_pos = (pred_flat > threshold).float()
+        tp = (pred_pos * label).sum().item()
+        precision = tp / max(pred_pos.sum().item(), 1e-8)
+        recall = tp / max(n_pos, 1e-8)
+        # AUPRC: sort by descending predicted score, accumulate
+        order = pred_flat.argsort(descending=True)
+        sorted_label = label[order]
+        tp_cum = sorted_label.cumsum(0)
+        prec_at_k = tp_cum / torch.arange(1, len(sorted_label) + 1, device=pred.device, dtype=pred.dtype)
+        auprc = (prec_at_k * sorted_label).sum().item() / max(n_pos, 1e-8)
+        return {
+            "CostHead/precision": precision,
+            "CostHead/recall": recall,
+            "CostHead/auprc": auprc,
+            "CostHead/pos_frac": n_pos / label.numel(),
+        }
+
+
 def model_loss(config, model, obs, action, av_action, reward, cost, done, fake, last):
     time_steps = obs.shape[0]
     batch_size = obs.shape[1]
@@ -69,6 +97,10 @@ def model_loss(config, model, obs, action, av_action, reward, cost, done, fake, 
                 "Model/Actual_average_reward": reward[1:].mean(),
             }
         )
+        if model.cost_model is not None:
+            recall_metrics = _cost_head_recall_metrics(model_cost, cost[1:])
+            if recall_metrics:
+                wandb.log(recall_metrics)
 
     return model_loss
 
