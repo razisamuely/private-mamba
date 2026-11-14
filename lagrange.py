@@ -70,6 +70,7 @@ class LagMode(str, Enum):
 
     BASIC = "basic"
     PID = "pid"
+    AUGMENTED = "augmented"
 
 
 class LagSignal(str, Enum):

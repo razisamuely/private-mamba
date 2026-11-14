@@ -100,7 +100,7 @@ def parse_args():
         type=LagMode,
         choices=list(LagMode),
         default=LagMode.BASIC,
-        help="Lagrangian multiplier update rule (basic/pid)",
+        help="Lagrangian multiplier update rule (basic/pid/augmented)",
     )
     parser.add_argument("--pid_kp", type=float, default=1.0, help="PID-Lagrangian proportional gain")
     parser.add_argument("--pid_ki", type=float, default=0.00001, help="PID-Lagrangian integral gain")
@@ -151,7 +151,10 @@ def get_env_info_flatland(configs):
 
 
 def _apply_lag_mode(config, args) -> None:
-    apply_lag_config(config, args.lag_mode, args.pid_kp, args.pid_ki, args.pid_kd, args.lag_init, args.lag_signal)
+    signal = args.lag_signal
+    if args.lag_mode == LagMode.AUGMENTED:
+        signal = LagSignal.IMAGINED  # SafeDreamer's augmented Lagrangian always uses imagined cost
+    apply_lag_config(config, args.lag_mode, args.pid_kp, args.pid_ki, args.pid_kd, args.lag_init, signal)
 
 
 def prepare_starcraft_configs(args):
@@ -286,7 +289,7 @@ if __name__ == "__main__":
     sanitized_branch = args.branch.replace("/", "-")[:10]
     cost_type_short = args.cost_type.replace("dead_allies_incremental", "dai").replace("collision", "col")
     comm_suffix = "_nocomm" if args.comm_mode == "none" else ""
-    lag_suffix = "_pid" if args.lag_mode == LagMode.PID else ""
+    lag_suffix = {"pid": "_pid", "augmented": "_auglag"}.get(args.lag_mode.value, "")
     init_suffix = f"_init{args.lag_init}" if args.lag_init is not None else ""
     init_suffix += "_imag" if args.lag_signal == LagSignal.IMAGINED else ""
     run_name = (

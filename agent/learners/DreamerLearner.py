@@ -11,7 +11,14 @@ from agent.optim.diagnostics import DIAG_SAMPLES, make_generator, transition_dia
 from agent.optim.loss import actor_loss, actor_rollout, model_loss, value_loss
 from agent.optim.utils import advantage_normalization
 from environments import Env
-from lagrange import BasicLagrange, LagMode, LagSignal, PIDLagrangian, multiplier_input
+from lagrange import (
+    BasicLagrange,
+    LagMode,
+    Lagrange,
+    LagSignal,
+    PIDLagrangian,
+    multiplier_input,
+)
 from networks.dreamer.action import Actor
 from networks.dreamer.critic import AugmentedCritic
 
@@ -53,7 +60,8 @@ class DreamerLearner:
     def __init__(self, config):
         self.config = config
         # ---- > Lagrangian
-        if getattr(config, "LAG_MODE", LagMode.BASIC) == LagMode.PID:
+        lag_mode = getattr(config, "LAG_MODE", LagMode.BASIC)
+        if lag_mode == LagMode.PID:
             self.lagrangian = PIDLagrangian(
                 cost_limit=config.COST_LIMIT,
                 pid_kp=config.PID_KP,
@@ -61,6 +69,11 @@ class DreamerLearner:
                 pid_kd=config.PID_KD,
                 lagrangian_multiplier_init=config.LAGRANGIAN_MULTIPLIER_INIT,
                 device=config.DEVICE,
+            )
+        elif lag_mode == LagMode.AUGMENTED:
+            self.lagrangian = Lagrange(
+                cost_limit=config.COST_LIMIT,
+                lagrangian_multiplier_init=config.LAGRANGIAN_MULTIPLIER_INIT,
             )
         else:
             self.lagrangian = BasicLagrange(
@@ -172,9 +185,7 @@ class DreamerLearner:
         self.model_updates += 1
         if self.diag_every > 0 and self.model_updates % self.diag_every == 0:
             wandb.log(
-                transition_diagnostics(
-                    self.model, self.critic, samples, self.config, DIAG_SAMPLES, self.diag_generator
-                )
+                transition_diagnostics(self.model, self.critic, samples, self.config, DIAG_SAMPLES, self.diag_generator)
             )
 
     def train_agent(self, samples, episode_cost):
@@ -203,8 +214,14 @@ class DreamerLearner:
             cost_adv = advantage_normalization(cost_adv)
 
         delta = cost_returns.mean() - self.lagrangian.cost_limit
-        # lagrangian_penalty = self.lagrangian.calculate_psi(delta, self.lagrangian.lambda_, self.lagrangian.mu)
-        lagrangian_adv = adv - self.lagrangian.lambda_ * cost_adv
+        if isinstance(self.lagrangian, Lagrange):
+            lam = self.lagrangian.lagrangian_multiplier
+            psi = self.lagrangian.update_multipliers(cost_returns)
+            lagrangian_adv = adv - lam * cost_adv
+        else:
+            lam = self.lagrangian.lambda_
+            psi = None
+            lagrangian_adv = adv - lam * cost_adv
 
         wandb.log({"Agent/Returns": returns.mean()})
         for epoch in range(self.config.PPO_EPOCHS):
@@ -233,13 +250,17 @@ class DreamerLearner:
                 if self.config.ENV_TYPE == Env.FLATLAND and self.cur_update % self.config.TARGET_UPDATE == 0:
                     self.old_critic = deepcopy(self.critic)
 
-        signal = getattr(self.config, "LAG_SIGNAL", LagSignal.MEASURED)
-        mean_cost = torch.tensor(multiplier_input(signal, episode_cost, cost_returns), dtype=torch.float32)
-        self.lagrangian.update(mean_cost)
+        if isinstance(self.lagrangian, Lagrange):
+            mean_cost = cost_returns.mean()
+            # augmented Lagrangian already updated above via update_multipliers
+        else:
+            signal = getattr(self.config, "LAG_SIGNAL", LagSignal.MEASURED)
+            mean_cost = torch.tensor(multiplier_input(signal, episode_cost, cost_returns), dtype=torch.float32)
+            self.lagrangian.update(mean_cost)
         wandb.log(
             {
                 "Agent/Cost": trajectory_costs.mean(),
-                "Agent/Lagrangian": self.lagrangian.lambda_,
+                "Agent/Lagrangian": lam,
                 "Agent/Entropy": self.entropy,
             }
         )
@@ -262,6 +283,13 @@ class DreamerLearner:
                     "Lag/pid_p": self.lagrangian.delta_p,
                     "Lag/pid_i": self.lagrangian.pid_i,
                     "Lag/pid_d": self.lagrangian.pid_d,
+                }
+            )
+        if isinstance(self.lagrangian, Lagrange):
+            wandb.log(
+                {
+                    "Lag/mu": self.lagrangian.penalty_multiplier,
+                    "Lag/psi": psi,
                 }
             )
 
